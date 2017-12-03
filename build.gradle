@@ -1,0 +1,55 @@
+apply plugin: 'com.android.library'
+allprojects {
+    repositories {
+        jcenter()
+        maven { url "https://jitpack.io" }
+    }
+}
+
+android {
+    compileSdkVersion 27
+    buildToolsVersion "25.0.2"
+    useLibrary 'org.apache.http.legacy'
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 27
+        versionCode 1
+        versionName "1.0"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            zipAlignEnabled true
+            resValue "string", "app_name", "Sync"
+        }
+        phie {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            zipAlignEnabled true
+            resValue "string", "app_name", "Sync Phie"
+            signingConfig signingConfigs.Phie
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            zipAlignEnabled true
+            resValue "string", "app_name", "Sync debug"
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
+        exclude group: 'com.android.support', module: 'support-annotations'
+    })
+    compile 'com.android.support:appcompat-v7:27.0.2'
+    compile 'com.android.support:design:27.0.2'
+    compile 'com.github.nextcloud:android-library:1.0.13'
+    compile 'com.android.support:support-v4:27.0.2'
+    compile 'com.android.support:recyclerview-v7:27.0.2'
+    testCompile 'junit:junit:4.12'
+}
