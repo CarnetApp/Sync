@@ -46,6 +46,8 @@ public class NextCloudDatabase {
         public void onCreate(SQLiteDatabase db) {
             // This method is only called once when the database is created for the first time
             db.execSQL(NextCloudFileHelper.CREATE_DATABASE);
+            db.execSQL(NextCloudCredentialsHelper.CREATE_DATABASE);
+
         }
 
         @Override

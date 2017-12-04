@@ -23,13 +23,15 @@ public interface Wrapper {
 
     SyncWrapper getSyncWrapper(Context context);
 
-    void startAuthorizeActivityForResult(Activity activity);
+    void startAuthorizeActivityForResult(Activity activity, int requestCode);
 
     public static interface ResultListener{
         public void onResult(int resultCode, Object data);
     }
 
-    //public static String getFriendlyName();
+    //public static String getFriendlyName(Context context);
 
     //public static int getAccountType();
+
+    //public static Drawable getIcon(Context context);
 }

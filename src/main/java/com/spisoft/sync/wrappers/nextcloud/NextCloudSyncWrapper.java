@@ -82,7 +82,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     public void setLocalRootFolder(String rootPath){
         mRootPath = rootPath;
         //load distant path
-        mRemoteRootPath = NextCloudSyncedFoldersDBHelper.getInstance(mContext).getRemoteSyncedPathForLocal(mRootPath);
+        mRemoteRootPath = NextCloudSyncedFoldersDBHelper.getInstance(mContext).getRemoteSyncedPathForLocal(mAccountID,mRootPath);
     }
     @Override
     public void setCurrentlySyncedDir(String syncedDir){

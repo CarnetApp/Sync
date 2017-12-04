@@ -2,6 +2,8 @@ package com.spisoft.sync.wrappers.nextcloud;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -34,28 +36,33 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
     private final Handler mAsyncHandler;
     private final HandlerThread mHandlerThread;
     private final Integer mAccountId;
+    private final Context mContext;
     private Object syncLock = new Object();
-    private final OwnCloudClient mClient;
+    private OwnCloudClient mClient;
 
     public NextCloudWrapper(Context context, Integer accountID){
         mAccountId = accountID;
+        mContext = context;
         mHandlerThread = new HandlerThread("MyHandlerThread");
         mHandlerThread.start();
         mAsyncHandler = new Handler(mHandlerThread.getLooper());
-       mClient = OwnCloudClientFactory.createOwnCloudClient(
-               Uri.parse("https://nextcloud.phoenamandre.fr"),
-               context,
-               // Activity or Service context
-               true);
-        if(Utils.isDebugPackage()) {
+        setCredentials(accountID);
+
+    }
+
+    private void setCredentials(Integer accountID) {
+        //check whether we have credentials
+        NextCloudCredentialsHelper.Credentials credentials = NextCloudCredentialsHelper.getInstance(mContext).getCredentials(accountID);
+        if(credentials!=null) {
+            mClient = OwnCloudClientFactory.createOwnCloudClient(
+                    Uri.parse(credentials.remote),
+                    mContext,
+                    // Activity or Service context
+                    true);
             mClient.setCredentials(
-                    OwnCloudCredentialsFactory.newBasicCredentials("test", "Wi2fvr00?!")
+                   OwnCloudCredentialsFactory.newBasicCredentials(credentials.username, credentials.password)
             );
-        }
-        else {
-            mClient.setCredentials(
-                    OwnCloudCredentialsFactory.newBasicCredentials(context.getString(R.string.my_user_name), context.getString(R.string.my_password))
-            );
+
         }
     }
 
@@ -92,8 +99,10 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
     }
 
     @Override
-    public void startAuthorizeActivityForResult(Activity activity) {
-
+    public void startAuthorizeActivityForResult(Activity activity, int requestCode) {
+        Intent intent = new Intent(activity, NextCloudAuthorizeActivity.class);
+        intent.putExtra(NextCloudAuthorizeActivity.EXTRA_ACCOUNT_ID, mAccountId);
+        activity.startActivityForResult(intent, requestCode);
     }
 
     @Override
@@ -126,11 +135,16 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
 
     }
 
-    public static String getFriendlyName(){
+    public static String getFriendlyName(Context context){
         return "NextCloud";
     }
 
     public static int getAccountType(){
         return 1;
+    }
+
+    public static Drawable getIcon(Context context){
+
+        return context.getResources().getDrawable(R.drawable.nextcloud_small);
     }
 }
