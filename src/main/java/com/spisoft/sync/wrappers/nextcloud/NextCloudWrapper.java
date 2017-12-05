@@ -35,12 +35,12 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
     private static final String TAG = "NextCloudWrapper";
     private final Handler mAsyncHandler;
     private final HandlerThread mHandlerThread;
-    private final Integer mAccountId;
+    private final long mAccountId;
     private final Context mContext;
     private Object syncLock = new Object();
     private OwnCloudClient mClient;
 
-    public NextCloudWrapper(Context context, Integer accountID){
+    public NextCloudWrapper(Context context, Long accountID){
         mAccountId = accountID;
         mContext = context;
         mHandlerThread = new HandlerThread("MyHandlerThread");
@@ -50,7 +50,7 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
 
     }
 
-    private void setCredentials(Integer accountID) {
+    private void setCredentials(long accountID) {
         //check whether we have credentials
         NextCloudCredentialsHelper.Credentials credentials = NextCloudCredentialsHelper.getInstance(mContext).getCredentials(accountID);
         if(credentials!=null) {
@@ -103,6 +103,11 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
         Intent intent = new Intent(activity, NextCloudAuthorizeActivity.class);
         intent.putExtra(NextCloudAuthorizeActivity.EXTRA_ACCOUNT_ID, mAccountId);
         activity.startActivityForResult(intent, requestCode);
+    }
+
+    @Override
+    public String getRemoteSyncDir(String rootPath) {
+        return NextCloudSyncedFoldersDBHelper.getInstance(mContext).getRemoteSyncedPathForLocal(mAccountId,rootPath);
     }
 
     @Override

@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
 
 // Create client object to perform remote operations
 
-        WrapperFactory.getWrapper(this, 0, 0).getAsyncLister("/").retrieveList(0, new AsyncLister.AsyncListerListener() {
+        WrapperFactory.getWrapper(this, 0, (long)0).getAsyncLister("/").retrieveList(0, new AsyncLister.AsyncListerListener() {
             @Override
             public void onListingResult(int requestCode, int resultCode, List<FileItem> list) {
 

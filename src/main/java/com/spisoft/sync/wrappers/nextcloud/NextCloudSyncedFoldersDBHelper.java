@@ -53,7 +53,7 @@ public class NextCloudSyncedFoldersDBHelper {
         }
     }
 
-    public String getRemoteSyncedPathForLocal(Long accountID, String localPath) {
+    public String getRemoteSyncedPathForLocal(long accountID, String localPath) {
         return "Documents";
     }
 }

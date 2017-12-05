@@ -24,11 +24,11 @@ import android.os.Handler;
 public class NextCloudAsyncLister implements AsyncLister {
     private static final String TAG = "NextCloudAsyncLister";
     private final OwnCloudClient mClient;
-    private final int mAccountId;
+    private final long mAccountId;
     private final Handler mHandler;
     private final String mPath;
     private Map<Integer, AsyncListerListener> mListenerMap ;
-    public NextCloudAsyncLister(OwnCloudClient client, String path, int accountId){
+    public NextCloudAsyncLister(OwnCloudClient client, String path, long accountId){
         mClient = client;
         mListenerMap = new HashMap<>();
         mAccountId = accountId;

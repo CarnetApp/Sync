@@ -13,9 +13,11 @@ import java.io.Serializable;
 public class FileItem implements Serializable{
     private final boolean mIsDirectory;
     private final long mModificationDate;
+    protected long mAccountId;
     protected String mPath;
     protected String mName;
-    public FileItem(String path, boolean isDirectory, long modificationDate, int accountId){
+    public FileItem(String path, boolean isDirectory, long modificationDate, long accountId){
+        mAccountId = accountId;
         mPath = path;
         mName = FileUtils.getName(Uri.parse(path));
         mIsDirectory = isDirectory;

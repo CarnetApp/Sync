@@ -10,16 +10,18 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import com.spisoft.sync.Configuration;
 import com.spisoft.sync.R;
 
-public class AccountListActivity extends AppCompatActivity{
-
+public class AccountListActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
     private View mAddButton;
     private ListView mListView;
+    private AccountAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +35,8 @@ public class AccountListActivity extends AppCompatActivity{
             }
         });
         mListView = findViewById(R.id.account_list);
+        mListView.setOnItemClickListener(this);
+        refreshCursor();
 
     }
     private void refreshCursor(){
@@ -40,9 +44,15 @@ public class AccountListActivity extends AppCompatActivity{
         if(cursor == null || cursor.getCount() == 0){
 
         }
-        else
-        mListView.setAdapter(new AccountAdapter(this,cursor, 0));
+        else {
+            mAdapter = new AccountAdapter(this,cursor, 0);
+            mListView.setAdapter(mAdapter);
+        }
 
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        Configuration.sOnAccountSelectedListener.onAccountSelected(mAdapter.getItemId(i),  mAdapter.getCursor().getInt(mAdapter.getCursor().getColumnIndex(DBAccountHelper.KEY_ACCOUNT_TYPE)));
+    }
 }

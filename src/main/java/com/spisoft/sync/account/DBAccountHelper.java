@@ -61,7 +61,7 @@ public class  DBAccountHelper {
     public void delete(Account account){
         delete(account.accountID);
     }
-    public void delete(int accountID){
+    public void delete(long accountID){
         SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
@@ -88,13 +88,12 @@ public class  DBAccountHelper {
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             Cursor cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, null, null, null, null, null);
-            database.close();
             return cursor;
         }
     }
 
     public static class Account implements Serializable{
-        public Account(int accountID, int accountType, String friendlyName) {
+        public Account(long accountID, int accountType, String friendlyName) {
             this.accountID = accountID;
             this.accountType = accountType;
             this.friendlyName = friendlyName;
@@ -103,7 +102,7 @@ public class  DBAccountHelper {
 
         }
 
-        public int accountID;
+        public long accountID;
         public int accountType;
         public String friendlyName;
     }

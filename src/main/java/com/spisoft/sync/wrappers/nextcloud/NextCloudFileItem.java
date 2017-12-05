@@ -10,10 +10,8 @@ import com.spisoft.sync.wrappers.FileItem;
  */
 
 public class NextCloudFileItem extends FileItem {
-    private final int mAccountId;
 
-    public NextCloudFileItem(RemoteFile remoteFile, int accountId) {
+    public NextCloudFileItem(RemoteFile remoteFile, long accountId) {
         super(remoteFile.getRemotePath(),"DIR".equals(remoteFile.getMimeType()),0, accountId);
-        mAccountId = accountId;
     }
 }

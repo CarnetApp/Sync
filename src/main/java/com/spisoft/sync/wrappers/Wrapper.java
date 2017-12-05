@@ -12,7 +12,7 @@ import java.sql.PreparedStatement;
  */
 
 public interface Wrapper {
-   // public Wrapper(Context context, Integer accountID);
+   // public Wrapper(Context context, Long  accountID);
     //public static boolean isMyAccount(Integer type);
 
     void listFiles();
@@ -24,6 +24,8 @@ public interface Wrapper {
     SyncWrapper getSyncWrapper(Context context);
 
     void startAuthorizeActivityForResult(Activity activity, int requestCode);
+
+    String getRemoteSyncDir(String rootPath);
 
     public static interface ResultListener{
         public void onResult(int resultCode, Object data);
