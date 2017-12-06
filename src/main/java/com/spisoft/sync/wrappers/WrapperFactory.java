@@ -19,7 +19,7 @@ public class WrapperFactory {
             NextCloudWrapper.class
     };
 
-    public static Wrapper getWrapper(Context ct, int accountType, Long accountID) {
+    public static Wrapper getWrapper(Context ct, int accountType, Integer accountID) {
         try {
             for(Class wrapperClass : wrappers){
             Method m = null;
@@ -28,7 +28,7 @@ public class WrapperFactory {
                 m.setAccessible(true);
                 boolean result = (boolean) m.invoke(wrapperClass, new Integer(accountType));
                 if(result){
-                    return(Wrapper) wrapperClass.getConstructor(Context.class, Long.class).newInstance(ct, accountID);
+                    return(Wrapper) wrapperClass.getConstructor(Context.class, Integer.class).newInstance(ct, accountID);
                 }
 
         }

@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 
 import com.spisoft.sync.Configuration;
+import com.spisoft.sync.Log;
 import com.spisoft.sync.R;
 
 public class AccountListActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
@@ -53,6 +54,10 @@ public class AccountListActivity extends AppCompatActivity implements AdapterVie
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        Configuration.sOnAccountSelectedListener.onAccountSelected(mAdapter.getItemId(i),  mAdapter.getCursor().getInt(mAdapter.getCursor().getColumnIndex(DBAccountHelper.KEY_ACCOUNT_TYPE)));
+        //mAdapter.getCursor().move(i);
+        Log.d("accounddebug"," select "+i);
+        Log.d("accounddebug"," select id "+l);
+        mAdapter.getCursor().move(i);
+        Configuration.sOnAccountSelectedListener.onAccountSelected((int)l,  mAdapter.getCursor().getInt(mAdapter.getCursor().getColumnIndex(DBAccountHelper.KEY_ACCOUNT_TYPE)));
     }
 }

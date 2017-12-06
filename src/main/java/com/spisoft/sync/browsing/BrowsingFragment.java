@@ -92,7 +92,7 @@ public class BrowsingFragment extends Fragment implements FileListAdapter.Listen
     @Override
     public void onFileClick(FileItem item) {
         if(item.isDirectory())
-            ((MainActivity)getActivity()).setFragment(BrowsingFragment.newInstance(new DBAccountHelper.Account(0,0, null),item));
+            ((BrowserActivity)getActivity()).setFragment(BrowsingFragment.newInstance(mAccount,item));
 
     }
 

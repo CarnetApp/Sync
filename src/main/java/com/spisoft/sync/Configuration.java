@@ -6,7 +6,7 @@ package com.spisoft.sync;
 
 public class Configuration {
     public interface OnAccountSelectedListener{
-        public void onAccountSelected(long accountId, int accountType);
+        public void onAccountSelected(int accountId, int accountType);
     }
     static public OnAccountSelectedListener sOnAccountSelectedListener = null;
 }

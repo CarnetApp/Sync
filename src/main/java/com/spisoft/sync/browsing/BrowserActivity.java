@@ -1,56 +1,43 @@
-package com.spisoft.sync;
+package com.spisoft.sync.browsing;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 
+import com.spisoft.sync.Log;
+import com.spisoft.sync.R;
 import com.spisoft.sync.account.DBAccountHelper;
-import com.spisoft.sync.browsing.BrowsingFragment;
-import com.spisoft.sync.synchro.SynchroService;
-import com.spisoft.sync.wrappers.WrapperFactory;
-import com.spisoft.sync.wrappers.AsyncLister;
 import com.spisoft.sync.wrappers.FileItem;
 
-import java.util.List;
-
-public class MainActivity extends AppCompatActivity {
+public class BrowserActivity extends AppCompatActivity {
 
 
+    public static final String EXTRA_ACCOUNT_ID = "account_id";
+    public static final String EXTRA_START_PATH = "start_path";
     private Fragment fragment;
+    private int mAccountId;
+    private DBAccountHelper.Account mAccount;
+    private String mStartPath;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-// Create client object to perform remote operations
-
-        WrapperFactory.getWrapper(this, 0, 0).getAsyncLister("/").retrieveList(0, new AsyncLister.AsyncListerListener() {
-            @Override
-            public void onListingResult(int requestCode, int resultCode, List<FileItem> list) {
-
-            }
-        });
-        startService(new Intent(this, SynchroService.class));
+        
         setContentView(R.layout.activity_sync_browser);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-        setFragment(BrowsingFragment.newInstance(new DBAccountHelper.Account(0,0, null),new FileItem("/", true,0,0)));
+
+        mAccountId = getIntent().getIntExtra(EXTRA_ACCOUNT_ID, -1);
+        mStartPath = getIntent().getStringExtra(EXTRA_START_PATH);
+        Log.d("accounddebug","brw get account "+mAccountId);
+        mAccount = DBAccountHelper.getInstance(this).getAccount(mAccountId);
+        Log.d("accounddebug","brw get account "+mAccount.friendlyName);
+
+        setFragment(BrowsingFragment.newInstance(mAccount,new FileItem("/", true,0,0)));
     }
     public void setFragment(Fragment fragment) {
         this.fragment = fragment;

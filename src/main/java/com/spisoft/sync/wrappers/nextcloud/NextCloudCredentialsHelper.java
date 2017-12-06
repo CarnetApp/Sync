@@ -32,8 +32,8 @@ public class NextCloudCredentialsHelper {
             KEY_PASSWORD
     };
     public static final String CREATE_DATABASE = "create table " + TABLE_NAME + "( "
-            + KEY_INTERNAL_ID + " LONG PRIMARY KEY,"
-            + KEY_ACCOUNT_ID + " LONG, "
+            + KEY_INTERNAL_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
+            + KEY_ACCOUNT_ID + " INTEGER, "
             + KEY_REMOTE + " TEXT, "
             + KEY_USERNAME + " TEXT, "
             + KEY_PASSWORD + " TEXT);";
@@ -84,14 +84,15 @@ public class NextCloudCredentialsHelper {
         }
     }
 
-    public Credentials getCredentials(long accountId) {
+    public Credentials getCredentials(int accountId) {
         NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             Cursor cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, KEY_ACCOUNT_ID+" = ?", new String[]{accountId+""}, null, null, null);
             if(cursor.getCount()>0){
                 database.close();
-                return new Credentials(cursor.getLong(cursor.getColumnIndex(KEY_INTERNAL_ID)),accountId,cursor.getString(cursor.getColumnIndex(KEY_REMOTE)),cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)));
+                cursor.moveToFirst();
+                return new Credentials(cursor.getInt(cursor.getColumnIndex(KEY_INTERNAL_ID)),accountId,cursor.getString(cursor.getColumnIndex(KEY_REMOTE)),cursor.getString(cursor.getColumnIndex(KEY_USERNAME)),cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)));
             }
             database.close();
             return null;
@@ -109,7 +110,7 @@ public class NextCloudCredentialsHelper {
     }
 
     public static class Credentials implements Serializable{
-        public Credentials(long id, long accountID, String remote, String username, String password) {
+        public Credentials(int id, int accountID, String remote, String username, String password) {
             this.id = id;
             this.accountID = accountID;
             this.remote = remote;
@@ -119,8 +120,8 @@ public class NextCloudCredentialsHelper {
         public Credentials(){
 
         }
-        public long id;
-        public long accountID;
+        public int id;
+        public int accountID;
         public String remote;
         public String username;
         public String password;

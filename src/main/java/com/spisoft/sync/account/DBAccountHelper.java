@@ -30,7 +30,7 @@ public class  DBAccountHelper {
             KEY_FRIENDLY_NAME
     };
     public static final String CREATE_DATABASE = "create table " + TABLE_NAME + "( "
-            + KEY_ACCOUNT_ID + " LONG PRIMARY KEY,"
+            + KEY_ACCOUNT_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
             + KEY_FRIENDLY_NAME + " text not null, "
             + KEY_ACCOUNT_TYPE + " integer);";
     public DBAccountHelper(Context context){
@@ -49,7 +49,8 @@ public class  DBAccountHelper {
             SQLiteDatabase sqLiteDatabase = database.open();
             ContentValues initialValues = new ContentValues();
             initialValues.put(KEY_ACCOUNT_TYPE, account.accountType);
-            initialValues.put(KEY_ACCOUNT_ID, account.accountID);
+            if(account.accountID!=-1)
+                initialValues.put(KEY_ACCOUNT_ID, account.accountID);
             initialValues.put(KEY_FRIENDLY_NAME, account.friendlyName);
             long id = sqLiteDatabase.insertWithOnConflict(TABLE_NAME, null, initialValues,SQLiteDatabase.CONFLICT_REPLACE);
             account.accountID = (int) id;
@@ -79,21 +80,29 @@ public class  DBAccountHelper {
         }
     }
 
-    public Account getAccount(int accountId) {
-        return new Account(accountId,0, "none");
+    public Account getAccount(long accountId) {
+        Cursor cursor = getCursor(KEY_ACCOUNT_ID+" = ?",new String[]{""+accountId});
+        if (cursor.getCount()>0) {
+            cursor.moveToFirst();
+            return new Account(cursor.getInt(cursor.getColumnIndex(KEY_ACCOUNT_ID)), cursor.getInt(cursor.getColumnIndex(KEY_ACCOUNT_TYPE)), cursor.getString(cursor.getColumnIndex(KEY_FRIENDLY_NAME)));
+        }return null;
     }
 
-    public Cursor getCursor() {
+    public Cursor getCursor(String selection, String[]args) {
         SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
-            Cursor cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, null, null, null, null, null);
+            Cursor cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, selection, args, null, null, null);
             return cursor;
         }
     }
 
+    public Cursor getCursor() {
+        return getCursor(null, null);
+    }
+
     public static class Account implements Serializable{
-        public Account(long accountID, int accountType, String friendlyName) {
+        public Account(int accountID, int accountType, String friendlyName) {
             this.accountID = accountID;
             this.accountType = accountType;
             this.friendlyName = friendlyName;
@@ -102,7 +111,7 @@ public class  DBAccountHelper {
 
         }
 
-        public long accountID;
+        public int accountID;
         public int accountType;
         public String friendlyName;
     }

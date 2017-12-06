@@ -35,13 +35,14 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
     private static final String TAG = "NextCloudWrapper";
     private final Handler mAsyncHandler;
     private final HandlerThread mHandlerThread;
-    private final long mAccountId;
+    private final int mAccountId;
     private final Context mContext;
     private Object syncLock = new Object();
     private OwnCloudClient mClient;
 
-    public NextCloudWrapper(Context context, Long accountID){
+    public NextCloudWrapper(Context context, Integer accountID){
         mAccountId = accountID;
+        Log.d("accounddebug","open "+accountID);
         mContext = context;
         mHandlerThread = new HandlerThread("MyHandlerThread");
         mHandlerThread.start();
@@ -50,7 +51,7 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
 
     }
 
-    private void setCredentials(long accountID) {
+    private void setCredentials(int accountID) {
         //check whether we have credentials
         NextCloudCredentialsHelper.Credentials credentials = NextCloudCredentialsHelper.getInstance(mContext).getCredentials(accountID);
         if(credentials!=null) {
