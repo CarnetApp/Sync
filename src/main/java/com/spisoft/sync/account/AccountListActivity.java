@@ -54,10 +54,7 @@ public class AccountListActivity extends AppCompatActivity implements AdapterVie
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        //mAdapter.getCursor().move(i);
-        Log.d("accounddebug"," select "+i);
-        Log.d("accounddebug"," select id "+l);
-        mAdapter.getCursor().move(i);
+        mAdapter.getCursor().moveToPosition(i);
         Configuration.sOnAccountSelectedListener.onAccountSelected((int)l,  mAdapter.getCursor().getInt(mAdapter.getCursor().getColumnIndex(DBAccountHelper.KEY_ACCOUNT_TYPE)));
     }
 }
