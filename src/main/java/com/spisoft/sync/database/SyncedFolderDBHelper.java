@@ -7,7 +7,6 @@ import android.database.sqlite.SQLiteDatabase;
 import android.util.Pair;
 
 import com.spisoft.sync.account.DBAccountHelper;
-import com.spisoft.sync.wrappers.nextcloud.NextCloudDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +93,7 @@ public class SyncedFolderDBHelper {
     }
 
     public void addPathToSync(int accountId, String path){
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             ContentValues initialValues = new ContentValues();

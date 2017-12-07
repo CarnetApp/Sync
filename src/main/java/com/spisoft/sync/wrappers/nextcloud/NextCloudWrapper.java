@@ -3,6 +3,7 @@ package com.spisoft.sync.wrappers.nextcloud;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.sqlite.SQLiteDatabase;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
@@ -69,7 +70,7 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
     }
 
 
-    public static boolean isMyAccount(Integer type) {
+    public boolean isMyAccount(Integer type) {
         return true;
     }
 
@@ -159,5 +160,11 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
     public static Drawable getIcon(Context context){
 
         return context.getResources().getDrawable(R.drawable.nextcloud_small);
+    }
+
+    public void initDB(SQLiteDatabase db) {
+        db.execSQL(NextCloudFileHelper.CREATE_DATABASE);
+        db.execSQL(NextCloudSyncedFoldersDBHelper.CREATE_DATABASE);
+        db.execSQL(NextCloudCredentialsHelper.CREATE_DATABASE);
     }
 }

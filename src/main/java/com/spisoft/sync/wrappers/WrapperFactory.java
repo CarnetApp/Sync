@@ -1,6 +1,7 @@
 package com.spisoft.sync.wrappers;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 
 import com.spisoft.sync.wrappers.nextcloud.NextCloudWrapper;
 
@@ -22,15 +23,11 @@ public class WrapperFactory {
     public static Wrapper getWrapper(Context ct, int accountType, Integer accountID) {
         try {
             for(Class wrapperClass : wrappers){
-            Method m = null;
-
-                m = wrapperClass.getMethod("isMyAccount", Integer.class);
-                m.setAccessible(true);
-                boolean result = (boolean) m.invoke(wrapperClass, new Integer(accountType));
-                if(result){
-                    return(Wrapper) wrapperClass.getConstructor(Context.class, Integer.class).newInstance(ct, accountID);
+                Wrapper wrapper = (Wrapper) wrapperClass.getConstructor(Context.class, Integer.class).newInstance();
+                if(wrapper.isMyAccount(accountType)){
+                    wrapper.init(ct, accountID);
+                    return wrapper;
                 }
-
         }
         } catch (NoSuchMethodException e) {
             e.printStackTrace();
@@ -43,5 +40,24 @@ public class WrapperFactory {
         }
 
         return null;
+    }
+
+    public static List<Wrapper> getWrapperList(){
+        List<Wrapper> wrapperList = new ArrayList<>();
+        try {
+            for(Class wrapperClass : wrappers){
+                Wrapper wrapper = (Wrapper) wrapperClass.getConstructor(Context.class, Integer.class).newInstance();
+                wrapperList.add(wrapper);
+            }
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return wrapperList;
     }
 }

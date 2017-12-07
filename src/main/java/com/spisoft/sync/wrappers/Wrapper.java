@@ -2,6 +2,7 @@ package com.spisoft.sync.wrappers;
 
 import android.app.Activity;
 import android.content.Context;
+import android.database.sqlite.SQLiteDatabase;
 
 import com.spisoft.sync.database.SyncedFolderDBHelper;
 import com.spisoft.sync.synchro.SyncWrapper;
@@ -13,14 +14,26 @@ import java.sql.PreparedStatement;
  */
 
 public abstract class Wrapper {
-    protected final int mAccountId;
-    protected final Context mContext;
+    protected  int mAccountId;
+    protected  Context mContext;
 
     public Wrapper(Context context, Integer  accountID){
-        mAccountId = accountID;
+       init(context, accountID);
+    }
+
+    public Wrapper(){
+    }
+
+    public void init(Context context, Integer accountId){
+        mAccountId = accountId;
         mContext = context;
     }
-    //public static boolean isMyAccount(Integer type);
+
+    public boolean isInitialized(){
+        return mContext!=null;
+    }
+
+    public boolean isMyAccount(Integer type){ return false; }
 
     public abstract void listFiles();
 
@@ -44,6 +57,9 @@ public abstract class Wrapper {
     }
 
     protected abstract boolean internalAddFolderSync(String local, String remote);
+
+    public void initDB(SQLiteDatabase db) {
+    }
 
     public static interface ResultListener{
         public void onResult(int resultCode, Object data);

@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 
+import com.spisoft.sync.database.SyncDatabase;
+
 import java.io.Serializable;
 
 /**
@@ -48,7 +50,7 @@ public class NextCloudCredentialsHelper {
     }
 
     public Credentials addOrReplaceAccount(Credentials credentials) {
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             ContentValues initialValues = new ContentValues();
@@ -67,7 +69,7 @@ public class NextCloudCredentialsHelper {
         delete(account.accountID);
     }
     public void delete(long credentialsID){
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             sqLiteDatabase.delete(TABLE_NAME, KEY_INTERNAL_ID + "=?", new String[]{credentialsID + ""});
@@ -76,7 +78,7 @@ public class NextCloudCredentialsHelper {
     }
 
     public void deleteAll() {
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             sqLiteDatabase.delete(TABLE_NAME, null, null);
@@ -85,7 +87,7 @@ public class NextCloudCredentialsHelper {
     }
 
     public Credentials getCredentials(int accountId) {
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             Cursor cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, KEY_ACCOUNT_ID+" = ?", new String[]{accountId+""}, null, null, null);
@@ -100,7 +102,7 @@ public class NextCloudCredentialsHelper {
     }
 
     public Cursor getCursor() {
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             Cursor cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, null, null, null, null, null);

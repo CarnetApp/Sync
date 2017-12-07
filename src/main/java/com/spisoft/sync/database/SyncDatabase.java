@@ -5,6 +5,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 import com.spisoft.sync.account.DBAccountHelper;
+import com.spisoft.sync.wrappers.Wrapper;
+import com.spisoft.sync.wrappers.WrapperFactory;
 
 
 /**
@@ -47,6 +49,9 @@ public class SyncDatabase {
         public void onCreate(SQLiteDatabase db) {
             // This method is only called once when the database is created for the first time
             db.execSQL(DBAccountHelper.CREATE_DATABASE);
+            for(Wrapper wrapper : WrapperFactory.getWrapperList()){
+                wrapper.initDB(db);
+            }
         }
 
         @Override

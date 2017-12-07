@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.spisoft.sync.database.SyncDatabase;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +57,7 @@ public class NextCloudFileHelper {
     }
 
     public DBNextCloudFile getDBDriveFile(long accountID, String remotePath) {
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         DBNextCloudFile dbDriveFile = null;
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
@@ -78,7 +80,7 @@ public class NextCloudFileHelper {
     }
 
     public DBNextCloudFile addOrUpdateDBDriveFile(DBNextCloudFile dbDriveFile) {
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             ContentValues initialValues = new ContentValues();
@@ -104,7 +106,7 @@ public class NextCloudFileHelper {
     }
 
     public void delete(DBNextCloudFile dbDriveFile){
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             sqLiteDatabase.delete(TABLE_NAME, KEY_ACCOUNT + "=? AND " + KEY_REMOTE_PATH + "= ?", new String[]{dbDriveFile.accountID + "", dbDriveFile.relativePath});
@@ -112,7 +114,7 @@ public class NextCloudFileHelper {
         }
     }
     public void delete(long accountID){
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             sqLiteDatabase.delete(TABLE_NAME, KEY_ACCOUNT + "=?", new String[]{accountID + ""});
@@ -121,7 +123,7 @@ public class NextCloudFileHelper {
     }
 
     public void deleteAll() {
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
             sqLiteDatabase.delete(TABLE_NAME, null, null);
@@ -137,7 +139,7 @@ public class NextCloudFileHelper {
      * @return
      */
     public List<DBNextCloudFile> getChildrenTree(long accountID,String remotePath) {
-        NextCloudDatabase database = NextCloudDatabase.getInstance(mContext);
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
         List<DBNextCloudFile> dbDriveFiles = new ArrayList<>();
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
