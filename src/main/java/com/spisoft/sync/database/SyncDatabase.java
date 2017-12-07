@@ -49,6 +49,7 @@ public class SyncDatabase {
         public void onCreate(SQLiteDatabase db) {
             // This method is only called once when the database is created for the first time
             db.execSQL(DBAccountHelper.CREATE_DATABASE);
+            db.execSQL(SyncedFolderDBHelper.CREATE_DATABASE);
             for(Wrapper wrapper : WrapperFactory.getWrapperList()){
                 wrapper.initDB(db);
             }

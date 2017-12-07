@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
+import com.spisoft.sync.account.DBAccountHelper;
 import com.spisoft.sync.database.SyncDatabase;
 
 import java.util.ArrayList;
@@ -39,13 +40,14 @@ public class NextCloudFileHelper {
     };
     public static final java.lang.String CREATE_DATABASE = "create table " + TABLE_NAME + "( "
             + KEY_REMOTE_PATH + " text not null, "
-            + KEY_ACCOUNT + " long,"
+            + KEY_ACCOUNT + " INTEGER,"
             + KEY_SYNC_MD5 + " text, "
             + KEY_CURRENTLY_DOWNLOADED_ETAG + " text, "
             + KEY_REMOTE_ETAG + " text,"
             + KEY_REMOTE_MIME_TYPE + " text,"
-            + KEY_VISIT_STATUS + " INTEGER DEFAULT(-1), "+
-            "PRIMARY KEY ("+ KEY_REMOTE_PATH +", "+ KEY_ACCOUNT +"));";
+            + KEY_VISIT_STATUS + " INTEGER DEFAULT(-1), "
+            +" FOREIGN KEY("+KEY_ACCOUNT+") REFERENCES "+ DBAccountHelper.TABLE_NAME+"("+DBAccountHelper.KEY_ACCOUNT_ID+"), "
+            +"PRIMARY KEY ("+ KEY_REMOTE_PATH +", "+ KEY_ACCOUNT +"));";
     public NextCloudFileHelper(Context context){
         mContext = context.getApplicationContext();
     }
@@ -56,7 +58,7 @@ public class NextCloudFileHelper {
         return sDBDriveFileHelper;
     }
 
-    public DBNextCloudFile getDBDriveFile(long accountID, String remotePath) {
+    public DBNextCloudFile getDBDriveFile(int accountID, String remotePath) {
         SyncDatabase database = SyncDatabase.getInstance(mContext);
         DBNextCloudFile dbDriveFile = null;
         synchronized (database.lock) {
@@ -138,7 +140,7 @@ public class NextCloudFileHelper {
      * @param remotePath without slash at en or beginning
      * @return
      */
-    public List<DBNextCloudFile> getChildrenTree(long accountID,String remotePath) {
+    public List<DBNextCloudFile> getChildrenTree(int accountID,String remotePath) {
         SyncDatabase database = SyncDatabase.getInstance(mContext);
         List<DBNextCloudFile> dbDriveFiles = new ArrayList<>();
         synchronized (database.lock) {
@@ -182,7 +184,7 @@ public class NextCloudFileHelper {
         public String md5;
         public String relativePath;
         public String onlineEtag;
-        public long accountID;
+        public int accountID;
         public int visitStatus;
     }
 

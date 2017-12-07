@@ -52,6 +52,12 @@ public class AccountListActivity extends AppCompatActivity implements AdapterVie
 
     }
 
+    public void onResume(){
+        super.onResume();
+        if(mAdapter!=null)
+            refreshCursor();
+    }
+
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
         mAdapter.getCursor().moveToPosition(i);

@@ -14,10 +14,10 @@ public abstract class SyncWrapper {
     public static final int STATUS_FAILURE = 1;
     public static final int STATUS_PENDING = 2;
     protected final Context mContext;
-    protected final long mAccountID;
+    protected final int mAccountID;
 
     public abstract int loadDistantFiles();
-    public SyncWrapper(Context ct, long accountID){
+    public SyncWrapper(Context ct, int accountID){
         mAccountID = accountID;
         mContext = ct;
     }

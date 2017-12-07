@@ -2,6 +2,7 @@ package com.spisoft.sync.account;
 
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -15,6 +16,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.spisoft.sync.Configuration;
 import com.spisoft.sync.R;
 import com.spisoft.sync.wrappers.Wrapper;
 import com.spisoft.sync.wrappers.WrapperFactory;
@@ -31,6 +33,10 @@ public class AccountTypeActivity extends AppCompatActivity {
     private Button mAddButton;
     private LinearLayout mRootLayout;
     private LinearLayout mAccountTypeListLayout;
+    private final static int NEW_ACCOUNT_REQUEST = 1;
+    private static final String TAG = "AccountTypeActivity";
+    private int mAccountId;
+    private int mAccountType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +47,17 @@ public class AccountTypeActivity extends AppCompatActivity {
         mAccountTypeListLayout = findViewById(R.id.account_type_list);
         refreshWrapperList();
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if(requestCode == NEW_ACCOUNT_REQUEST){
+            if(resultCode == RESULT_OK){
+                Configuration.sOnAccountCreatedListener.onAccountCreated(mAccountId, mAccountType);
+                finish();
+            }
+        }
+        else super.onActivityResult(requestCode, resultCode, data);
     }
     private void refreshWrapperList(){
         try {
@@ -83,8 +100,10 @@ public class AccountTypeActivity extends AppCompatActivity {
                     public void onClick(DialogInterface dialogInterface, int i) {
                         DBAccountHelper.Account account = DBAccountHelper.getInstance(AccountTypeActivity.this)
                                 .addOrReplaceAccount(new DBAccountHelper.Account(-1, accountType, editText.getText().toString()));
-                        Log.d("accountdebug","account created "+account.accountID);
-                        WrapperFactory.getWrapper(AccountTypeActivity.this, accountType, account.accountID).startAuthorizeActivityForResult(AccountTypeActivity.this, 0);
+                        Log.d(TAG,"account created "+account.accountID);
+                        mAccountId = account.accountID;
+                        mAccountType = accountType;
+                        WrapperFactory.getWrapper(AccountTypeActivity.this, accountType, account.accountID).startAuthorizeActivityForResult(AccountTypeActivity.this, NEW_ACCOUNT_REQUEST);
                     }
                 }).setNegativeButton(android.R.string.cancel, null)
                         .show();

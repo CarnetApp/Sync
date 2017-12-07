@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
 
+import com.spisoft.sync.account.DBAccountHelper;
 import com.spisoft.sync.database.SyncDatabase;
 
 import java.io.Serializable;
@@ -38,7 +39,8 @@ public class NextCloudCredentialsHelper {
             + KEY_ACCOUNT_ID + " INTEGER, "
             + KEY_REMOTE + " TEXT, "
             + KEY_USERNAME + " TEXT, "
-            + KEY_PASSWORD + " TEXT);";
+            + KEY_PASSWORD + " TEXT,"
+            +" FOREIGN KEY("+KEY_ACCOUNT_ID+") REFERENCES "+ DBAccountHelper.TABLE_NAME+"("+DBAccountHelper.KEY_ACCOUNT_ID+"));";
     public NextCloudCredentialsHelper(Context context){
         mContext = context.getApplicationContext();
     }

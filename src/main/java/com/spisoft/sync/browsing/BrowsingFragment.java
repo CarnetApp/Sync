@@ -88,7 +88,7 @@ public class BrowsingFragment extends Fragment implements FileListAdapter.Listen
         if(item.getItemId() == R.string.pick_folder){
             Intent intent = new Intent();
             intent.putExtra(FilePickerActivity.RESULT_PICKER_PATH, mFileItem.getPath());
-            getActivity().setResult(0,intent);
+            getActivity().setResult(Activity.RESULT_OK,intent);
             getActivity().finish();
             return true;
         }

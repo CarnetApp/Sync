@@ -29,7 +29,7 @@ public class SyncedFolderDBHelper {
     public static final String CREATE_DATABASE = "create table " + TABLE_NAME + "( "
             + KEY_ACCOUNT_ID + " INTEGER,"
             + KEY_PATH + " text not null,"
-            +" FOREIGN KEY("+KEY_ACCOUNT_ID+") REFERENCES "+DBAccountHelper.TABLE_NAME+"("+DBAccountHelper.KEY_ACCOUNT_ID+") "
+            +" FOREIGN KEY("+KEY_ACCOUNT_ID+") REFERENCES "+DBAccountHelper.TABLE_NAME+"("+DBAccountHelper.KEY_ACCOUNT_ID+"), "
             + " PRIMARY KEY ("+ KEY_PATH +", "+ KEY_ACCOUNT_ID +"));";
     private final Context mContext;
 

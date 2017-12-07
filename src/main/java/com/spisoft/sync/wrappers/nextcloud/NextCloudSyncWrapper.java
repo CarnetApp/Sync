@@ -31,7 +31,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     private final NextCloudWrapper mWrapper;
     private String mRootPath;
     private String mRemoteRootPath;
-    private List<RemoteFile> mRemoteFiles;
+    private Map <String, RemoteFile> mRemoteFiles;
     //link between relative path and remoteFile
     private Map <String, RemoteFile> metadataDownloadList;
     private String mCurrentlyLocalSyncedDir;
@@ -45,10 +45,10 @@ public class NextCloudSyncWrapper extends SyncWrapper {
      private Activity mActiviy;
      private Map<String, Metadata> metadataDownloadList = new HashMap<>();
  */
-    public NextCloudSyncWrapper(Context ct, long accountID, NextCloudWrapper wrapper) {
+    public NextCloudSyncWrapper(Context ct, int accountID, NextCloudWrapper wrapper) {
         super(ct, accountID);
         mWrapper = wrapper;
-        mRemoteFiles = new ArrayList<>();
+        mRemoteFiles = new HashMap();
         metadataDownloadList = new HashMap();
       /*  mGoogleAccount = GoogleDriveAccountHelper.getInstance(ct).getGoogleAccount(accountID);
 
@@ -116,6 +116,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
                 dbNextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
                 dbNextCloudFile.md5 = "";//init md5 even when folder
+                dbNextCloudFile.accountID = mAccountID;
                 return uploadFileAndRecord(file, remotePath, null, dbNextCloudFile);
             }
         }
@@ -165,6 +166,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             Log.d(TAG, "db null");
 
             dbNextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
+            dbNextCloudFile.accountID = mAccountID;
 
         }
         if(remoteFile!=null) { //file exists !
@@ -184,7 +186,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     return uploadFileAndRecord(file, remotePath, md5,dbNextCloudFile);
                 }
             }else{
-                Log.d(TAG, "file wasn't modified locally");
+                Log.d(TAG, "file wasn't modified locally "+remoteFile.getRemotePath());
                 //check online state
                 if(!remoteFile.getEtag().equals(dbNextCloudFile.currentlyDownloadedOnlineEtag)) {//modified externally
                     Log.d(TAG, "remote file was modified, downloading... ");
@@ -235,7 +237,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 if(remoteOperationResult.isSuccess()){
                     RemoteFile remoteFile = (RemoteFile) remoteOperationResult.getData().get(0);
                     Log.d(TAG, "CreateRemoteFolderOperation etag  "+remoteFile.getEtag());
-
+                    mRemoteFiles.put(remotePath, remoteFile);
                     nextCloudFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
                     nextCloudFile.remoteMimeType = remoteFile.getMimeType();
                     NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFile);
@@ -277,8 +279,10 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             RemoteFile remoteFile = metadataDownloadList.get(file);
             //these files are on server but not local
             NextCloudFileHelper.DBNextCloudFile driveFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, file);
-            if(driveFile==null)
+            if(driveFile==null) {
                 driveFile = new NextCloudFileHelper.DBNextCloudFile(file);
+                driveFile.accountID = mAccountID;
+            }
             if(remoteFile.getEtag() == driveFile.currentlyDownloadedOnlineEtag){
                 //was deleted locally
 
@@ -334,7 +338,10 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     }
 
     private String getLocalPathFromRemote(String remotePath) {
-        String local = remotePath.substring(mRemoteRootPath.length());
+        int toCut = mRemoteRootPath.length();
+        if(mRemoteRootPath.startsWith("/")&& !remotePath.startsWith("/"))
+            toCut--;
+        String local = remotePath.substring(toCut);
         if(local.startsWith("/"))
             local = local.substring(1);
         if(local.endsWith("/"))
@@ -371,6 +378,8 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         }
         String etag = "";
         for(RemoteFile remoteFile : remoteFileList){
+            Log.d(TAG, "loading remote : path "+remoteFile.getRemotePath());
+
             //first we add them
             String remoteFilePath = remoteFile.getRemotePath();
             if(remoteFilePath.startsWith("/"))
@@ -386,11 +395,14 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     List<NextCloudFileHelper.DBNextCloudFile> list = NextCloudFileHelper.getInstance(mContext).getChildrenTree(mAccountID, remotePath);
                     remoteFileList.clear();
                     for(NextCloudFileHelper.DBNextCloudFile nextCloudFile1  : list){
+                        if(nextCloudFile1.onlineEtag == null){
+                            throw new RuntimeException("Invalid DB etag for "+nextCloudFile1.relativePath);
+                        }
                         RemoteFile remoteFile1 = new RemoteFile("/"+nextCloudFile1.relativePath);//RemoteFile path needs to start with a /
                         remoteFile1.setEtag(nextCloudFile1.onlineEtag);
 
                         remoteFile1.setMimeType(nextCloudFile1.remoteMimeType);
-                        mRemoteFiles.add(remoteFile1);
+                        mRemoteFiles.put( nextCloudFile1.relativePath, remoteFile1);
                         metadataDownloadList.put( nextCloudFile1.relativePath, remoteFile1);
 
                     }
@@ -401,13 +413,18 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
                 continue;
             }
-            mRemoteFiles.add(remoteFile);
+            mRemoteFiles.put(remoteFilePath, remoteFile);
             metadataDownloadList.put(remoteFilePath, remoteFile);
             NextCloudFileHelper.DBNextCloudFile nextCloudFileChild = new NextCloudFileHelper.DBNextCloudFile();
+            nextCloudFileChild.accountID = mAccountID;
             nextCloudFileChild.relativePath = remoteFilePath;
             nextCloudFileChild.remoteMimeType = remoteFile.getMimeType();
+            Log.d(TAG, "put etag for "+remoteFilePath+" : "+remoteFile.getEtag());
+
             nextCloudFileChild.onlineEtag = remoteFile.getEtag() ;//needed to fill in RemoteFile when loading from DB
             NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFileChild);
+            Log.d(TAG, "check etag "+NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID,remoteFilePath).onlineEtag);
+            ;
             Log.d(TAG, remoteFile.getRemotePath());
             if("DIR".equals(remoteFile.getMimeType())){
                 if(recursiveLoadFolder(remoteFilePath) == STATUS_FAILURE) {
@@ -417,8 +434,10 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
             }
         }
-        if(nextCloudFile == null)
+        if(nextCloudFile == null) {
             nextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
+            nextCloudFile.accountID = mAccountID;
+        }
         // write folder to db with visit = success
         nextCloudFile.currentlyDownloadedOnlineEtag = etag;
         nextCloudFile.visitStatus = NextCloudFileHelper.DBNextCloudFile.VisitStatus.STATUS_OK;
