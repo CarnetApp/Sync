@@ -3,7 +3,6 @@ package com.spisoft.sync.wrappers.nextcloud;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 
 import com.owncloud.android.lib.common.operations.OperationCancelledException;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;

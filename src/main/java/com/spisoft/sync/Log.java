@@ -41,7 +41,7 @@ public class Log {
             e.printStackTrace();
         }
 
-        android.util.Log.d(tag, str);
+        android.util.Log.d(tag+(Utils.isDebugPackage()?"Debug":""), str);
 
     }
 }
