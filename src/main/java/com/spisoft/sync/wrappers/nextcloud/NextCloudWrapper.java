@@ -36,21 +36,29 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
     private static final String TAG = "NextCloudWrapper";
     private final Handler mAsyncHandler;
     private final HandlerThread mHandlerThread;
-    private final int mAccountId;
-    private final Context mContext;
     private Object syncLock = new Object();
     private OwnCloudClient mClient;
 
     public NextCloudWrapper(Context context, Integer accountID){
         super(context, accountID);
-        mAccountId = accountID;
         Log.d("accounddebug","open "+accountID);
-        mContext = context;
         mHandlerThread = new HandlerThread("MyHandlerThread");
         mHandlerThread.start();
         mAsyncHandler = new Handler(mHandlerThread.getLooper());
-        setCredentials(accountID);
 
+
+    }
+
+    public void init(Context context, Integer accountID){
+        super.init(context, accountID);
+        setCredentials(accountID);
+    }
+
+    public NextCloudWrapper(){
+        super();
+        mHandlerThread = new HandlerThread("MyHandlerThread");
+        mHandlerThread.start();
+        mAsyncHandler = new Handler(mHandlerThread.getLooper());
     }
 
     private void setCredentials(int accountID) {
