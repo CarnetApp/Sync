@@ -1,0 +1,14 @@
+<resources>
+    <string name="action_settings">Settings</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="nextcloud_hint">NextCloud</string>
+    <string name="name_for_account">Account name</string>
+    <string name="create">Create</string>
+    <string name="server_address">Server address</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="connect">Connect</string>
+    <string name="pick_folder">Pick folder</string>
+</resources>
