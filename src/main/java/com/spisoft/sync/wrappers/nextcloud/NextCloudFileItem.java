@@ -12,6 +12,6 @@ import com.spisoft.sync.wrappers.FileItem;
 public class NextCloudFileItem extends FileItem {
 
     public NextCloudFileItem(RemoteFile remoteFile, long accountId) {
-        super(remoteFile.getRemotePath(),"DIR".equals(remoteFile.getMimeType()),0, accountId);
+        super(remoteFile.getRemotePath(),"DIR".equals(remoteFile.getMimeType()),0, accountId, remoteFile.getMimeType());
     }
 }

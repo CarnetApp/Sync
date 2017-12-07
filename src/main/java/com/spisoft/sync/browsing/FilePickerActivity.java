@@ -14,4 +14,5 @@ import com.spisoft.sync.wrappers.FileItem;
 
 public class FilePickerActivity extends BrowserActivity {
 
+    public static final String RESULT_PICKER_PATH = "picker_path";
 }

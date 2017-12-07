@@ -16,12 +16,15 @@ public class FileItem implements Serializable{
     protected long mAccountId;
     protected String mPath;
     protected String mName;
-    public FileItem(String path, boolean isDirectory, long modificationDate, long accountId){
+    protected String mMimetype;
+
+    public FileItem(String path, boolean isDirectory, long modificationDate, long accountId, String mimetype){
         mAccountId = accountId;
         mPath = path;
         mName = FileUtils.getName(Uri.parse(path));
         mIsDirectory = isDirectory;
         mModificationDate = modificationDate;
+        mMimetype = mimetype;
     }
 
     public boolean isDirectory(){
@@ -38,5 +41,9 @@ public class FileItem implements Serializable{
 
     public String getPath(){
         return mPath;
+    }
+
+    public String getMimetype() {
+        return mMimetype;
     }
 }

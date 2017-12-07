@@ -17,6 +17,8 @@ public class BrowserActivity extends AppCompatActivity {
 
     public static final String EXTRA_ACCOUNT_ID = "account_id";
     public static final String EXTRA_START_PATH = "start_path";
+    public static final String EXTRA_AS_FILE_PICKER = "as_file_picker";
+    public static final String EXTRA_DISPLAY_ONLY_MIMETYPE = "display_only_mimetype";
     private Fragment fragment;
     private int mAccountId;
     private DBAccountHelper.Account mAccount;
@@ -37,7 +39,7 @@ public class BrowserActivity extends AppCompatActivity {
         mAccount = DBAccountHelper.getInstance(this).getAccount(mAccountId);
         Log.d("accounddebug","brw get account "+mAccount.friendlyName);
 
-        setFragment(BrowsingFragment.newInstance(mAccount,new FileItem("/", true,0,0)));
+        setFragment(BrowsingFragment.newInstance(mAccount,new FileItem("/", true,0,0, "DIR"),getIntent().getBooleanExtra(EXTRA_AS_FILE_PICKER,false),getIntent().getStringExtra(EXTRA_DISPLAY_ONLY_MIMETYPE)));
     }
     public void setFragment(Fragment fragment) {
         this.fragment = fragment;
@@ -47,12 +49,19 @@ public class BrowserActivity extends AppCompatActivity {
                 .addToBackStack(null).commit();
     }
 
-
+    public void onBackPressed(){
+        if(getSupportFragmentManager().getBackStackEntryCount()==1){
+            finish();
+        }
+        else
+            super.onBackPressed();
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
+     //   getMenuInflater().inflate(R.menu.menu_main, menu);
+        return false;
     }
 
     @Override

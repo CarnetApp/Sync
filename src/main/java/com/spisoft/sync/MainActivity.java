@@ -50,7 +50,7 @@ public class MainActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-        setFragment(BrowsingFragment.newInstance(new DBAccountHelper.Account(0,0, null),new FileItem("/", true,0,0)));
+   //     setFragment(BrowsingFragment.newInstance(new DBAccountHelper.Account(0,0, null),new FileItem("/", true,0,0)));
     }
     public void setFragment(Fragment fragment) {
         this.fragment = fragment;
