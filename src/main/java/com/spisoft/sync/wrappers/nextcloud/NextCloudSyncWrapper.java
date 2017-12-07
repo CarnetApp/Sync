@@ -12,6 +12,7 @@ import com.owncloud.android.lib.resources.files.ReadRemoteFileOperation;
 import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.RemoteFile;
 import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
+import com.spisoft.sync.Log;
 import com.spisoft.sync.synchro.SyncWrapper;
 import com.spisoft.sync.synchro.SynchroService;
 import com.spisoft.sync.utils.FileUtils;
@@ -103,12 +104,20 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             NextCloudFileHelper.DBNextCloudFile dbNextCloudFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remotePath);
             if(dbNextCloudFile!=null){
                 //folder was there before, delaying folder creation
+                Log.d(TAG, "folder was there, should delete");
+
                 if(!secondPathWithFolderEmpty)
                     return STATUS_PENDING;
                 else {//folder empty, delete
-                    NextCloudFileHelper.getInstance(mContext).delete(dbNextCloudFile);
-                    file.delete();
-                    return STATUS_SUCCESS;
+                    Log.d(TAG, "deleting folder");
+
+                    boolean delete = file.delete();
+                    Log.d(TAG, "folder deleted "+delete);
+                    if(delete) {
+                        NextCloudFileHelper.getInstance(mContext).delete(dbNextCloudFile);
+                        return STATUS_SUCCESS;
+                    }
+                    else return STATUS_FAILURE;
                 }
 
             }else {
@@ -207,7 +216,9 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 //was on server, checking if last version has been deleted
                 if(md5.equals(dbNextCloudFile.md5)) {
                     //last version was on server, deleting local file
-
+                    if(!file.delete())
+                        return STATUS_FAILURE;
+                    NextCloudFileHelper.getInstance(mContext).delete(dbNextCloudFile);
                 }
                 else{
                     //uploading new version
