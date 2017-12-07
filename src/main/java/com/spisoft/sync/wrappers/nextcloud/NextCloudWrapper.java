@@ -31,7 +31,7 @@ import java.util.ArrayList;
  * Created by alexandre on 15/03/17.
  */
 
-public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
+public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListener {
     private static final String TAG = "NextCloudWrapper";
     private final Handler mAsyncHandler;
     private final HandlerThread mHandlerThread;
@@ -41,6 +41,7 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
     private OwnCloudClient mClient;
 
     public NextCloudWrapper(Context context, Integer accountID){
+        super(context, accountID);
         mAccountId = accountID;
         Log.d("accounddebug","open "+accountID);
         mContext = context;
@@ -109,6 +110,12 @@ public class NextCloudWrapper implements Wrapper, OnRemoteOperationListener {
     @Override
     public String getRemoteSyncDir(String rootPath) {
         return NextCloudSyncedFoldersDBHelper.getInstance(mContext).getRemoteSyncedPathForLocal(mAccountId,rootPath);
+    }
+
+    @Override
+    protected boolean internalAddFolderSync(String local, String remote) {
+        NextCloudSyncedFoldersDBHelper.getInstance(mContext).addOrReplaceSyncedFolder(mAccountId, local, remote);
+        return true;
     }
 
     @Override

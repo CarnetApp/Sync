@@ -19,7 +19,7 @@ public class  DBAccountHelper {
 
     private static DBAccountHelper sDBDriveFileHelper;
     private final Context mContext;
-    private static final String TABLE_NAME = "Account";
+    public static final String TABLE_NAME = "Account";
     public static final String KEY_ACCOUNT_ID = "_id";
     public static final String KEY_ACCOUNT_TYPE = "account_type";
     public static final String KEY_FRIENDLY_NAME = "friendly_name";

@@ -3,6 +3,7 @@ package com.spisoft.sync.wrappers;
 import android.app.Activity;
 import android.content.Context;
 
+import com.spisoft.sync.database.SyncedFolderDBHelper;
 import com.spisoft.sync.synchro.SyncWrapper;
 
 import java.sql.PreparedStatement;
@@ -11,21 +12,38 @@ import java.sql.PreparedStatement;
  * Created by alexandre on 15/03/17.
  */
 
-public interface Wrapper {
-   // public Wrapper(Context context, Long  accountID);
+public abstract class Wrapper {
+    protected final int mAccountId;
+    protected final Context mContext;
+
+    public Wrapper(Context context, Integer  accountID){
+        mAccountId = accountID;
+        mContext = context;
+    }
     //public static boolean isMyAccount(Integer type);
 
-    void listFiles();
+    public abstract void listFiles();
 
-    AsyncLister getAsyncLister(String path);
+    public abstract AsyncLister getAsyncLister(String path);
 
-    DBWrapper getDBWrapper();
+    public abstract DBWrapper getDBWrapper();
 
-    SyncWrapper getSyncWrapper(Context context);
+    public abstract SyncWrapper getSyncWrapper(Context context);
 
-    void startAuthorizeActivityForResult(Activity activity, int requestCode);
+    public abstract void startAuthorizeActivityForResult(Activity activity, int requestCode);
 
-    String getRemoteSyncDir(String rootPath);
+    public abstract String getRemoteSyncDir(String rootPath);
+
+    public final boolean addFolderSync(String local, String remote){
+        if(!internalAddFolderSync(local, remote))
+            return false;
+        else{
+            SyncedFolderDBHelper.getInstance(mContext).addPathToSync(mAccountId, local);
+            return true;
+        }
+    }
+
+    protected abstract boolean internalAddFolderSync(String local, String remote);
 
     public static interface ResultListener{
         public void onResult(int resultCode, Object data);
