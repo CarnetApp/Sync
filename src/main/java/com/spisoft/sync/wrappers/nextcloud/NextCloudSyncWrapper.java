@@ -10,6 +10,7 @@ import com.owncloud.android.lib.resources.files.CreateRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.ReadRemoteFileOperation;
 import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.RemoteFile;
+import com.owncloud.android.lib.resources.files.RemoveRemoteFileOperation;
 import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
 import com.spisoft.sync.Log;
 import com.spisoft.sync.synchro.SyncWrapper;
@@ -89,7 +90,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         mCurrentlyLocalSyncedDir = syncedDir;
     }
     @Override
-    public int onFolder(File file, boolean secondPathWithFolderEmpty) {
+    public SynchroService.Result onFolder(File file, boolean secondPathWithFolderEmpty) {
         String remotePath = getRemotePathFromLocal(file.getAbsolutePath());
 
         Log.d(TAG, "onFolder "+remotePath);
@@ -97,7 +98,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         if(metadataDownloadList.containsKey(remotePath)){
             Log.d(TAG, "already contains folder "+remotePath);
             metadataDownloadList.remove(remotePath);
-            return STATUS_SUCCESS;
+            return new SynchroService.Result(STATUS_SUCCESS);
         }
         else {
             NextCloudFileHelper.DBNextCloudFile dbNextCloudFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remotePath);
@@ -106,17 +107,16 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 Log.d(TAG, "folder was there, should delete");
 
                 if(!secondPathWithFolderEmpty)
-                    return STATUS_PENDING;
+                    return new SynchroService.Result(STATUS_PENDING);
                 else {//folder empty, delete
                     Log.d(TAG, "deleting folder");
-
                     boolean delete = file.delete();
                     Log.d(TAG, "folder deleted "+delete);
                     if(delete) {
                         NextCloudFileHelper.getInstance(mContext).delete(dbNextCloudFile);
-                        return STATUS_SUCCESS;
+                        return new SynchroService.Result(STATUS_SUCCESS,file.getAbsolutePath());
                     }
-                    else return STATUS_FAILURE;
+                    else return new  SynchroService.Result(STATUS_FAILURE);
                 }
 
             }else {
@@ -125,7 +125,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 dbNextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
                 dbNextCloudFile.md5 = "";//init md5 even when folder
                 dbNextCloudFile.accountID = mAccountID;
-                return uploadFileAndRecord(file, remotePath, null, dbNextCloudFile);
+                return new SynchroService.Result(uploadFileAndRecord(file, remotePath, null, dbNextCloudFile));
             }
         }
     }
@@ -163,7 +163,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
 
     @Override
-    public int onFile(File file, String md5) {
+    public SynchroService.Result onFile(File file, String md5) {
         String remotePath = getRemotePathFromLocal(file.getAbsolutePath());
         Log.d(TAG, "OnFile "+remotePath);
 
@@ -191,7 +191,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     //upload
                     Log.d(TAG, "file was modified locally");
 
-                    return uploadFileAndRecord(file, remotePath, md5,dbNextCloudFile);
+                    return new SynchroService.Result(uploadFileAndRecord(file, remotePath, md5,dbNextCloudFile));
                 }
             }else{
                 Log.d(TAG, "file wasn't modified locally "+remoteFile.getRemotePath());
@@ -199,13 +199,13 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 if(!remoteFile.getEtag().equals(dbNextCloudFile.currentlyDownloadedOnlineEtag)) {//modified externally
                     Log.d(TAG, "remote file was modified, downloading... ");
                     //download
-                    return downloadFileAndRecord(remoteFile, file.getAbsolutePath(), dbNextCloudFile);
+                    return new SynchroService.Result(downloadFileAndRecord(remoteFile, file.getAbsolutePath(), dbNextCloudFile),file.getAbsolutePath());
 
                 }
                 else {
                     Log.d(TAG, "file wasn't modified remotely");
 
-                    return STATUS_SUCCESS;
+                    return new SynchroService.Result(STATUS_SUCCESS);
                 }
             }
         }else {
@@ -215,19 +215,22 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 //was on server, checking if last version has been deleted
                 if(md5.equals(dbNextCloudFile.md5)) {
                     //last version was on server, deleting local file
-                    if(!file.delete())
-                        return STATUS_FAILURE;
-                    NextCloudFileHelper.getInstance(mContext).delete(dbNextCloudFile);
+                    if (!file.delete())
+                        return new SynchroService.Result(STATUS_FAILURE);
+                    else{
+                        NextCloudFileHelper.getInstance(mContext).delete(dbNextCloudFile);
+                        return new SynchroService.Result(STATUS_SUCCESS, file.getAbsolutePath());
+                    }
                 }
                 else{
                     //uploading new version
-                    return uploadFileAndRecord(file, remotePath, md5,dbNextCloudFile);
+                    return new SynchroService.Result(uploadFileAndRecord(file, remotePath, md5,dbNextCloudFile));
                 }
             }else{
-                return uploadFileAndRecord(file, remotePath, md5,dbNextCloudFile);
+                return new SynchroService.Result(uploadFileAndRecord(file, remotePath, md5,dbNextCloudFile));
             }
         }
-        return STATUS_SUCCESS;
+        return new SynchroService.Result(STATUS_SUCCESS);
     }
 
     private int uploadFileAndRecord(File file, String remotePath, String md5, NextCloudFileHelper.DBNextCloudFile nextCloudFile) {
@@ -283,7 +286,8 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     }
 
     @Override
-    public int endOfSync() {
+    public SynchroService.Result endOfSync() {
+        List<String> modified = new ArrayList<>();
         //download
         for(String file : metadataDownloadList.keySet()){
             RemoteFile remoteFile = metadataDownloadList.get(file);
@@ -295,16 +299,22 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             }
             if(remoteFile.getEtag() == driveFile.currentlyDownloadedOnlineEtag){
                 //was deleted locally
+                RemoveRemoteFileOperation uploadOperation = new RemoveRemoteFileOperation(remoteFile.getRemotePath());
+                RemoteOperationResult result = uploadOperation.execute(mWrapper.getClient());
+                if(!result.isSuccess()){
+                    return new SynchroService.Result(STATUS_FAILURE, modified);
+                }
 
             }else{
                 Log.d(TAG, "Distant File "+file+" not on local");
                 //downloading
                 int res = downloadFileAndRecord(remoteFile, getLocalPathFromRemote(file), driveFile);
                 if(res == STATUS_FAILURE)
-                    return STATUS_FAILURE;
+                    return new SynchroService.Result(STATUS_FAILURE, modified);
+                modified.add(getLocalPathFromRemote(file));
             }
         }
-        return STATUS_SUCCESS;
+        return new SynchroService.Result(STATUS_SUCCESS,modified);
     }
 
     private int downloadFileAndRecord(RemoteFile remoteFile, String localFile, NextCloudFileHelper.DBNextCloudFile driveFile) {

@@ -22,9 +22,9 @@ public abstract class SyncWrapper {
         mContext = ct;
     }
 
-    public abstract int onFile(File file, String md5);
+    public abstract SynchroService.Result onFile(File file, String md5);
 
-    public abstract int endOfSync();
+    public abstract SynchroService.Result endOfSync();
 
     public abstract int connect();
 
@@ -32,7 +32,7 @@ public abstract class SyncWrapper {
 
     public abstract void setCurrentlySyncedDir(String rootPath);
 
-    public abstract int onFolder(File file, boolean secondPathWithFolderEmpty);
+    public abstract SynchroService.Result onFolder(File file, boolean secondPathWithFolderEmpty);
 
     public abstract void setLocalRootFolder(String rootFolder);
 

@@ -10,6 +10,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.util.Pair;
 
+import com.spisoft.sync.Configuration;
 import com.spisoft.sync.Log;
 import com.spisoft.sync.R;
 import com.spisoft.sync.RecursiveFileObserver;
@@ -21,6 +22,7 @@ import com.spisoft.sync.wrappers.WrapperFactory;
 
 import java.io.File;
 import java.text.DateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.EmptyStackException;
 import java.util.HashMap;
@@ -50,6 +52,21 @@ public class SynchroService extends Service{
     private Handler mHandler;
     public static SynchroService sService;
 
+    public static class Result{
+        public Result(int status){
+            this.status = status;
+        }
+        public Result(int status, String path){
+            this.status = status;
+            this.modifiedFiles.add(path);
+        }
+        public Result(int status, List<String> paths){
+            this.status = status;
+            this.modifiedFiles.addAll(paths);
+        }
+        public List<String> modifiedFiles = new ArrayList();
+        public int status;
+    }
     @Override
     public IBinder onBind(Intent intent) {
         return null;
@@ -139,8 +156,9 @@ public class SynchroService extends Service{
         we give the wrapper currently modified synced folder as well as the root it cames from
      */
     private class SyncThread extends Thread {
-        private int syncFolder(String syncedFolder, String rootFolder) {
-
+        private Result syncFolder(String syncedFolder, String rootFolder) {
+            int status = ERROR;
+            List<String> modifiedFiles = new ArrayList<>();
             List<DBAccountHelper.Account> syncedAccounts = mSyncedFolderDBHelper.getRemoteAccountForSyncedFolder(rootFolder);
             {
                 for (DBAccountHelper.Account syncedAccount : syncedAccounts) {
@@ -148,30 +166,44 @@ public class SynchroService extends Service{
                     SyncWrapper syncWrapper = wrapper.getSyncWrapper(SynchroService.this);
                     syncWrapper.setLocalRootFolder(rootFolder);
                     syncWrapper.setCurrentlySyncedDir(syncedFolder);
-                    int status = -1;
                     if ((status = syncWrapper.connect())!= SyncWrapper.STATUS_SUCCESS)
-                        return status;
+                        return new Result(status, modifiedFiles);
                     if ((status = syncWrapper.loadRootFolder()) != SyncWrapper.STATUS_SUCCESS)
-                        return status;
+                        return new Result(status, modifiedFiles);
                     Log.d(TAG, "populating");
                     if ((status = syncWrapper.loadDistantFiles()) != SyncWrapper.STATUS_SUCCESS) {
                         Log.d(TAG, "failure");
 
-                        return status;
+                        return new Result(status, modifiedFiles);
                     }
                     Log.d(TAG, "success");
                     if (!new File(syncedFolder).exists()) {
                         Log.d(TAG, "creating root " + new File(syncedFolder).mkdirs());
 
                     }
-                    if (recursiveSync(new File(syncedFolder), syncWrapper, true) == SUCCESS) {
-                        if (syncWrapper.endOfSync() == SUCCESS) {
-                            return SUCCESS;
+                    Result res = recursiveSync(new File(syncedFolder), syncWrapper, true);
+                    modifiedFiles.addAll(res.modifiedFiles);
+                    if (res.status == SUCCESS) {
+                        res = syncWrapper.endOfSync();
+                        modifiedFiles.addAll(res.modifiedFiles);
+
+                        //put parents
+                        for(String path : res.modifiedFiles){
+                            File parent = new File(path).getParentFile();
+                            while(!modifiedFiles.contains(parent.getAbsolutePath())&&!parent.getAbsolutePath().equals(syncedFolder)){
+                                Log.d(TAG, "adding parent "+parent.getAbsolutePath());
+                                modifiedFiles.add(parent.getAbsolutePath());
+                                parent = parent.getParentFile();
+                            }
+                        }
+                        if (res.status == SUCCESS) {
+                            status = SUCCESS;
+
                         }
                     }
                 }
             }
-            return ERROR;
+            return new Result(status, modifiedFiles);
         }
         public void run(){
 
@@ -196,12 +228,20 @@ public class SynchroService extends Service{
                     hasAll = true;
 
                 List<Pair<String, String>> syncedFolders = mSyncedFolderDBHelper.getLocalSyncedFolders(syncPath);
-
+                List<String> modifiedFiles = new ArrayList<>();
                 for (Pair<String, String> syncedFolder : syncedFolders) {
                     Log.d(TAG, "syncing folder "+syncedFolder.first);
-
-                    if (syncFolder(syncedFolder.first, syncedFolder.second) == ERROR)
+                    Result res = syncFolder(syncedFolder.first, syncedFolder.second);
+                    modifiedFiles.addAll(res.modifiedFiles);
+                    if (res.status == ERROR)
                         break;
+                }
+                for(String path : modifiedFiles){
+                    Configuration.PathObserver observer = Configuration.pathObservers.get(path);
+                    Log.d(TAG, "notify observers "+path);
+
+                    if(observer!=null)
+                        observer.onPathChanged(path);
                 }
 
             }
@@ -246,28 +286,46 @@ public class SynchroService extends Service{
             return sb.toString();
         }
 
-        private int recursiveSync(File file, SyncWrapper syncWrapper, boolean isRoot) {
+        private Result recursiveSync(File file, SyncWrapper syncWrapper, boolean isRoot) {
+            List<String>modifiedFiles = new ArrayList<>();
+            Result result;
             if(file.isDirectory()){
                 int folderStatus = 0;
                 if(true) {
+                    boolean hasAddedFolder = false;
                     Log.d(TAG,"folder detected "+file.getAbsolutePath());
                     if(!isRoot) {
-                        if ((folderStatus = syncWrapper.onFolder(file, false)) == ERROR)
-                            return ERROR;
+                        result = syncWrapper.onFolder(file, false);
+                        folderStatus = result.status;
+                        modifiedFiles.addAll(result.modifiedFiles);
+                        if(result.modifiedFiles.size()>0)
+                            hasAddedFolder = true;
+                        if (folderStatus == ERROR)
+                            return new Result(ERROR, modifiedFiles);
                     }
                     File[] files = file.listFiles();
                     if (files != null) {
                         for (File f : files) {
                             Log.d(TAG, "for file "+f.getAbsolutePath());
-                            if (recursiveSync(f, syncWrapper, false) != SUCCESS)
-                                return ERROR;
+                            result = recursiveSync(f, syncWrapper, false);
+                            modifiedFiles.addAll(result.modifiedFiles);
+                            if(result.modifiedFiles.size()>0 && !hasAddedFolder){
+                                Log.d(TAG, "adding folder "+file.getAbsolutePath());
+
+                                modifiedFiles.add(file.getAbsolutePath());
+                                hasAddedFolder = true;
+                            }
+                            if (result.status != SUCCESS)
+                                return new Result(ERROR, modifiedFiles);
                         }
                     }
                     if(folderStatus == PENDING){
                         files = file.listFiles();
                         if (files != null || files.length == 0) {
-                            if (syncWrapper.onFolder(file, true) == ERROR)
-                                return ERROR;
+                            result = syncWrapper.onFolder(file, true);
+                            modifiedFiles.addAll(result.modifiedFiles);
+                            if (result.status == ERROR)
+                                return new Result(ERROR, modifiedFiles);
                         }
                     }
                 }
@@ -276,16 +334,17 @@ public class SynchroService extends Service{
                 Log.d(TAG,"file detected "+file.getAbsolutePath());
                 //sync
                 String md5 = FileUtils.md5(file.getAbsolutePath());
-
-                if(syncWrapper.onFile(file, md5) == ERROR)
+                result = syncWrapper.onFile(file, md5);
+                modifiedFiles.addAll(result.modifiedFiles);
+                if(result.status == ERROR)
                 {
                     Log.d(TAG,"file ERROR ");
 
-                    return ERROR;
+                    return new Result(ERROR, modifiedFiles);
                 }
 
             }
-            return SUCCESS;
+            return new Result(SUCCESS, modifiedFiles);
 
         }
     }
