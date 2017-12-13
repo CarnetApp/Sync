@@ -1,6 +1,6 @@
 # Sync
 Sync library for now only compatible with NextCloud
-
+This is a work in progress
 
 
 Supports :
@@ -31,3 +31,37 @@ add folder to sync
 ```java
 WrapperFactory.getWrapper(context, NextCloudWrapper.ACCOUNT_TYPE, account.accountID).addFolderSync(local_path, remote_path)
 ```
+
+
+add on account selected listener (when user selects an account on AccountListActivity)
+```java
+  Configuration.sOnAccountSelectedListener = new Configuration.OnAccountSelectedListener() {
+      @Override
+      public void onAccountSelected(int accountId, int accountType) {
+
+      }
+  };
+```
+On account created (will be called after authorization)
+```java
+        Configuration.sOnAccountCreatedListener = new Configuration.OnAccountCreatedListener() {
+            @Override
+            public void onAccountCreated(int accountId, int accountType) {
+                startAccountConfigActivity(accountId, accountType);
+            }
+        };
+  ```
+ add path observer (will be called when a file or folder is locally modified)
+```java
+Configuration.addPathObserver(local_path, this);
+```
+        
+File picker / browser
+```java
+  Intent intent = new Intent(getActivity(), FilePickerActivity.class);
+  intent.putExtra(FilePickerActivity.EXTRA_ACCOUNT_ID, mAccountId);
+  intent.putExtra(FilePickerActivity.EXTRA_START_PATH, mCurrentlySetPath);
+  intent.putExtra(FilePickerActivity.EXTRA_AS_FILE_PICKER, true);
+  intent.putExtra(FilePickerActivity.EXTRA_DISPLAY_ONLY_MIMETYPE, "DIR");
+  startActivityForResult(intent,REQUEST_FILE_PICK);
+ ```
