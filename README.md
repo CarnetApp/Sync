@@ -28,5 +28,6 @@ WrapperFactory.getWrapper(context, NextCloudWrapper.ACCOUNT_TYPE, account.accoun
 
 
 add folder to sync
-
+```java
 WrapperFactory.getWrapper(context, NextCloudWrapper.ACCOUNT_TYPE, account.accountID).addFolderSync(local_path, remote_path)
+```
