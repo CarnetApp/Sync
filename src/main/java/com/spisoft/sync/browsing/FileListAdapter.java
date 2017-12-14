@@ -77,6 +77,10 @@ public class FileListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolde
 
         public void setFileItem(final FileItem item){
             mNameTextView.setText(item.getName());
+            if(item.isDirectory())
+                mIconImgView.setImageResource(R.drawable.directory);
+            else
+                mIconImgView.setImageResource(R.drawable.file);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
