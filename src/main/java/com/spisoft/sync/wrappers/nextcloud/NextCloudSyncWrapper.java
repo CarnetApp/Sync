@@ -203,7 +203,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                             List<String> modPath = new ArrayList<>();
                             modPath.add(file.getAbsolutePath());
                             modPath.add(newFile.getAbsolutePath());
-                            return new SynchroService.Result(?STATUS_SUCCESS, modPath);
+                            return new SynchroService.Result(STATUS_SUCCESS, modPath);
                         }
                     }
                 }else{
