@@ -14,7 +14,7 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
-
+import android.support.v7.widget.Toolbar;
 import com.spisoft.sync.Configuration;
 import com.spisoft.sync.Log;
 import com.spisoft.sync.R;
@@ -28,6 +28,7 @@ public class AccountListActivity extends AppCompatActivity implements AdapterVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_list);
+        setSupportActionBar((Toolbar)findViewById(R.id.toolbar2));
         mAddButton = findViewById(R.id.addButton);
         mAddButton.setOnClickListener(new View.OnClickListener() {
             @Override

@@ -11,4 +11,5 @@
     <string name="password">Password</string>
     <string name="connect">Connect</string>
     <string name="pick_folder">Pick folder</string>
+    <string name="account_list">Account list</string>
 </resources>

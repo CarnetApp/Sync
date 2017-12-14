@@ -124,7 +124,7 @@ public class SynchroService extends Service{
                 Notification notification = new Notification.Builder(getApplicationContext())
                         .setContentTitle(getString(R.string.app_name))
                         .setContentText(contentText)
-                        .setSmallIcon(R.drawable.threedots)
+                        .setSmallIcon(R.drawable.sync_icon)
                         .setWhen(System.currentTimeMillis())
                         .build();
                 startForeground(NOTIFICATION_ID, notification);

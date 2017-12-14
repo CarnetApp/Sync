@@ -17,7 +17,7 @@
 
         <service android:name=".synchro.SynchroService" />
 
-        <activity android:name=".account.AccountListActivity" />
+        <activity android:name=".account.AccountListActivity" android:label="@string/account_list"/>
         <activity android:name=".wrappers.nextcloud.NextCloudAuthorizeActivity"></activity>
         <activity android:name=".browsing.FilePickerActivity"></activity>
     </application>
