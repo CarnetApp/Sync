@@ -186,7 +186,26 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 if(!remoteFile.getEtag().equals(dbNextCloudFile.currentlyDownloadedOnlineEtag)) {//modified externally
                     // try to avoid conflict
                     Log.d(TAG, "conflict (dl: "+dbNextCloudFile.currentlyDownloadedOnlineEtag+", online: "+remoteFile.getEtag()+")");
+                    File newFile = new File(FileUtils.stripExtensionFromName(file.getAbsolutePath())+System.currentTimeMillis()+"."+FileUtils.getExtension(file.getAbsolutePath()));
+                    file.renameTo(newFile);
+                    int success = downloadFileAndRecord(remoteFile, file.getAbsolutePath(), dbNextCloudFile);
+                    if(success != STATUS_SUCCESS)
+                        return new SynchroService.Result(success);
+                    String downloadedMD5 = FileUtils.md5(file.getAbsolutePath());
+                    Log.d(TAG,"dl "+dbNextCloudFile.md5+" calc "+downloadedMD5);
 
+                    if(downloadedMD5.equals(md5)){
+                        return new SynchroService.Result(newFile.delete()?STATUS_SUCCESS:STATUS_FAILURE, file.getAbsolutePath());
+                    }else{
+                        NextCloudFileHelper.DBNextCloudFile newDbNextCloudFile = new NextCloudFileHelper.DBNextCloudFile(getRemotePathFromLocal(newFile.getAbsolutePath()));
+                        newDbNextCloudFile.accountID = mAccountID;
+                        if(uploadFileAndRecord(newFile, newDbNextCloudFile.relativePath,md5, newDbNextCloudFile)==STATUS_SUCCESS){
+                            List<String> modPath = new ArrayList<>();
+                            modPath.add(file.getAbsolutePath());
+                            modPath.add(newFile.getAbsolutePath());
+                            return new SynchroService.Result(newFile.delete()?STATUS_SUCCESS:STATUS_FAILURE, modPath);
+                        }
+                    }
                 }else{
                     //upload
                     Log.d(TAG, "file was modified locally");
