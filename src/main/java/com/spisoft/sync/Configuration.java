@@ -10,6 +10,7 @@ import java.util.Map;
 public class Configuration {
     public static OnAccountCreatedListener sOnAccountCreatedListener;
     public static Map<String, PathObserver> pathObservers = new HashMap<>();
+    public static boolean dontDisplayNotification;
 
     public static void addPathObserver(String path, PathObserver observer) {
         pathObservers.put(path, observer);

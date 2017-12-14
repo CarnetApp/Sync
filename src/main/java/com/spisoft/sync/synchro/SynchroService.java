@@ -116,6 +116,8 @@ public class SynchroService extends Service{
     private static final int NOTIFICATION_ID = 1;
 
     public void showForegroundNotification(final String contentText) {
+        if(Configuration.dontDisplayNotification)
+            return;
         mHandler.post(new Runnable() {
             @Override
             public void run() {
