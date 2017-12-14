@@ -50,7 +50,7 @@ public class SyncDatabase {
             // This method is only called once when the database is created for the first time
             db.execSQL(DBAccountHelper.CREATE_DATABASE);
             db.execSQL(SyncedFolderDBHelper.CREATE_DATABASE);
-            for(Wrapper wrapper : WrapperFactory.getWrapperList()){
+            for(Wrapper wrapper : WrapperFactory.getWrapperList(mContext)){
                 wrapper.initDB(db);
             }
         }

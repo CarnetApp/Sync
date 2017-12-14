@@ -23,7 +23,7 @@ public class WrapperFactory {
     public static Wrapper getWrapper(Context ct, int accountType, Integer accountID) {
         try {
             for(Class wrapperClass : wrappers){
-                Wrapper wrapper = (Wrapper) wrapperClass.getConstructor().newInstance();
+                Wrapper wrapper = (Wrapper) wrapperClass.getConstructor(Context.class).newInstance(ct);
                 if(wrapper.isMyAccount(accountType)){
                     wrapper.init(ct, accountID);
                     return wrapper;
@@ -42,11 +42,11 @@ public class WrapperFactory {
         return null;
     }
 
-    public static List<Wrapper> getWrapperList(){
+    public static List<Wrapper> getWrapperList(Context context){
         List<Wrapper> wrapperList = new ArrayList<>();
         try {
             for(Class wrapperClass : wrappers){
-                Wrapper wrapper = (Wrapper) wrapperClass.getConstructor().newInstance();
+                Wrapper wrapper = (Wrapper) wrapperClass.getConstructor(Context.class).newInstance(context);
                 wrapperList.add(wrapper);
             }
         } catch (NoSuchMethodException e) {

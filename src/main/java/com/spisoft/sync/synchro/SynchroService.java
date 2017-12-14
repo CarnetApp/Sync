@@ -240,8 +240,10 @@ public class SynchroService extends Service{
                     Configuration.PathObserver observer = Configuration.pathObservers.get(path);
                     Log.d(TAG, "notify observers "+path);
 
-                    if(observer!=null)
+                    if(observer!=null) {
                         observer.onPathChanged(path);
+
+                    }
                 }
 
             }

@@ -60,6 +60,10 @@ public class AccountTypeActivity extends AppCompatActivity {
         else super.onActivityResult(requestCode, resultCode, data);
     }
     private void refreshWrapperList(){
+
+        for(Wrapper wrapper : WrapperFactory.getWrapperList(this)){
+            createAccountTypeView(wrapper.getFriendlyName(), wrapper.getIcon(), wrapper.getAccountType());
+        }
         try {
             for(Class wrapperClass : WrapperFactory.wrappers){
                 Method m = null;

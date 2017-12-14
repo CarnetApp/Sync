@@ -3,6 +3,7 @@ package com.spisoft.sync.wrappers;
 import android.app.Activity;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.drawable.Drawable;
 
 import com.spisoft.sync.database.SyncedFolderDBHelper;
 import com.spisoft.sync.synchro.SyncWrapper;
@@ -21,7 +22,8 @@ public abstract class Wrapper {
        init(context, accountID);
     }
 
-    public Wrapper(){
+    public Wrapper(Context context){
+        mContext = context;
     }
 
     public void init(Context context, Integer accountId){
@@ -46,6 +48,14 @@ public abstract class Wrapper {
     public abstract void startAuthorizeActivityForResult(Activity activity, int requestCode);
 
     public abstract String getRemoteSyncDir(String rootPath);
+
+    public abstract int getAccountType();
+
+    public abstract Drawable getIcon();
+
+    public abstract String getFriendlyName();
+
+
 
     public final boolean addFolderSync(String local, String remote){
         if(!internalAddFolderSync(local, remote))

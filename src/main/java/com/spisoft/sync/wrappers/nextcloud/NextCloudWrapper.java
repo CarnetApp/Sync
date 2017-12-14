@@ -38,7 +38,7 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
     private final HandlerThread mHandlerThread;
     private Object syncLock = new Object();
     private OwnCloudClient mClient;
-
+    public static final int ACCOUNT_TYPE = 1;
     public NextCloudWrapper(Context context, Integer accountID){
         super(context, accountID);
         Log.d("accounddebug","open "+accountID);
@@ -54,8 +54,8 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
         setCredentials(accountID);
     }
 
-    public NextCloudWrapper(){
-        super();
+    public NextCloudWrapper(Context context){
+        super(context);
         mHandlerThread = new HandlerThread("MyHandlerThread");
         mHandlerThread.start();
         mAsyncHandler = new Handler(mHandlerThread.getLooper());
@@ -157,17 +157,17 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
 
     }
 
-    public static String getFriendlyName(Context context){
+    public String getFriendlyName(){
         return "NextCloud";
     }
 
-    public static int getAccountType(){
-        return 1;
+    public int getAccountType(){
+        return ACCOUNT_TYPE;
     }
 
-    public static Drawable getIcon(Context context){
+    public Drawable getIcon(){
 
-        return context.getResources().getDrawable(R.drawable.nextcloud_small);
+        return mContext.getResources().getDrawable(R.drawable.nextcloud_small);
     }
 
     public void initDB(SQLiteDatabase db) {
