@@ -96,8 +96,8 @@ public class SynchroService extends Service{
     @Override
     public int onStartCommand(Intent intent,int flags, int startId) {
         int ret = super.onStartCommand(intent,flags, startId);
-        String path = intent.getDataString();
-        if(path==null)
+        String path;
+        if(intent == null || (path = intent.getDataString())==null)
             path = "all";
         synchronized (lock){
             if(!toSync.contains(path))
