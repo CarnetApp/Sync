@@ -51,6 +51,7 @@ public class SynchroService extends Service{
     private Object lock = new Object();
     private Handler mHandler;
     public static SynchroService sService;
+    public static boolean isSyncing = false;
 
     public static class Result{
         public Result(int status){
@@ -126,7 +127,7 @@ public class SynchroService extends Service{
                 Notification notification = new Notification.Builder(getApplicationContext())
                         .setContentTitle(getString(R.string.app_name))
                         .setContentText(contentText)
-                        .setSmallIcon(R.drawable.sync_icon)
+                        .setSmallIcon(R.drawable.file)
                         .setWhen(System.currentTimeMillis())
                         .build();
                 startForeground(NOTIFICATION_ID, notification);
@@ -208,7 +209,10 @@ public class SynchroService extends Service{
             return new Result(status, modifiedFiles);
         }
         public void run(){
-
+            isSyncing = true;
+            for (Configuration.SyncStatusListener listener : Configuration.syncStatusListener){
+                listener.onSyncStatusChanged(isSyncing);
+            }
             showForegroundNotification("Syncing...");
             long start = System.currentTimeMillis();
             Log.d(TAG,"starting sync at "+ DateFormat.getDateTimeInstance().format(new Date(start)));
