@@ -23,6 +23,7 @@ public class AccountListActivity extends AppCompatActivity implements AdapterVie
     private View mAddButton;
     private ListView mListView;
     private AccountAdapter mAdapter;
+    private View mEmptyView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,7 @@ public class AccountListActivity extends AppCompatActivity implements AdapterVie
             }
         });
         mListView = findViewById(R.id.account_list);
+        mEmptyView = findViewById(R.id.empty_view);
         mListView.setOnItemClickListener(this);
         refreshCursor();
 
@@ -44,9 +46,10 @@ public class AccountListActivity extends AppCompatActivity implements AdapterVie
     private void refreshCursor(){
         Cursor cursor = DBAccountHelper.getInstance(this).getCursor();
         if(cursor == null || cursor.getCount() == 0){
-
+            mEmptyView.setVisibility(View.VISIBLE);
         }
         else {
+            mEmptyView.setVisibility(View.GONE);
             mAdapter = new AccountAdapter(this,cursor, 0);
             mListView.setAdapter(mAdapter);
         }
