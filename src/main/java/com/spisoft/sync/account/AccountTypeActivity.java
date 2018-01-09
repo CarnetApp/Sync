@@ -88,7 +88,7 @@ public class AccountTypeActivity extends AppCompatActivity {
         }
     }
 
-    private void createAccountTypeView(String friendlyName, Drawable drawable, final int accountType){
+    private void createAccountTypeView(final String friendlyName, Drawable drawable, final int accountType){
 
         View accoutTypeView = LayoutInflater.from(this).inflate(R.layout.account_item, null);
         accoutTypeView.setOnClickListener(new View.OnClickListener() {
@@ -97,13 +97,16 @@ public class AccountTypeActivity extends AppCompatActivity {
                 AlertDialog.Builder builder = new AlertDialog.Builder(AccountTypeActivity.this);
                 builder.setTitle(R.string.name_for_account);
                 final EditText editText = new EditText(AccountTypeActivity.this);
-                editText.setHint(R.string.nextcloud_hint);
+                editText.setHint(friendlyName);
                 builder.setView(editText);
                 builder.setPositiveButton(R.string.create, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        String name =editText.getText().toString();
+                        if(name.isEmpty())
+                            name = friendlyName;
                         DBAccountHelper.Account account = DBAccountHelper.getInstance(AccountTypeActivity.this)
-                                .addOrReplaceAccount(new DBAccountHelper.Account(-1, accountType, editText.getText().toString()));
+                                .addOrReplaceAccount(new DBAccountHelper.Account(-1, accountType, name));
                         Log.d(TAG,"account created "+account.accountID);
                         mAccountId = account.accountID;
                         mAccountType = accountType;
