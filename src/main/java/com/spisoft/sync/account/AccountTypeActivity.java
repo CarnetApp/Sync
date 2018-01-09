@@ -56,6 +56,10 @@ public class AccountTypeActivity extends AppCompatActivity {
                 Configuration.sOnAccountCreatedListener.onAccountCreated(mAccountId, mAccountType);
                 finish();
             }
+            else{
+                //delete account
+                DBAccountHelper.getInstance(AccountTypeActivity.this).delete(mAccountId);
+            }
         }
         else super.onActivityResult(requestCode, resultCode, data);
     }
