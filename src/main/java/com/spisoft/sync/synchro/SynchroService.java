@@ -253,6 +253,10 @@ public class SynchroService extends Service{
                 }
 
             }
+            isSyncing = false;
+            for (Configuration.SyncStatusListener listener : Configuration.syncStatusListener){
+                listener.onSyncStatusChanged(isSyncing);
+            }
             if(hasAll) {
                 Log.d(TAG,"sync took "+ getDurationBreakdown(System.currentTimeMillis()-start)
                 );

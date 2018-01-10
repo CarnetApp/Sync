@@ -280,13 +280,16 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             }
         }
         else {
+            Log.d(TAG, "upload file ");
+
             UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation(file.getAbsolutePath(), remotePath, null);
-            if (uploadOperation.execute(mWrapper.getClient()).isSuccess()) {
+            RemoteOperationResult result = uploadOperation.execute(mWrapper.getClient());
+            if (result.isSuccess()) {
                 //record it
                 Log.d(TAG, "upload success ");
 
                 ReadRemoteFileOperation readRemoteFileOperation = new ReadRemoteFileOperation(remotePath);
-                RemoteOperationResult result = readRemoteFileOperation.execute(mWrapper.getClient());
+                result = readRemoteFileOperation.execute(mWrapper.getClient());
                 if (result.isSuccess()) {
                     Log.d(TAG, "read success ");
 
@@ -299,6 +302,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 }
 
             }
+            else Log.d(TAG, result.getLogMessage());
         }
         return STATUS_FAILURE;
 
