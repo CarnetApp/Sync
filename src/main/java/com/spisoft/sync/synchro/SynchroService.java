@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.os.Build;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.IBinder;
@@ -260,9 +261,11 @@ public class SynchroService extends Service{
             if(hasAll) {
                 Log.d(TAG,"sync took "+ getDurationBreakdown(System.currentTimeMillis()-start)
                 );
+
                 AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
                 Intent intent = new Intent(SynchroService.this, SynchroService.class);
                 PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+                if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M)
                 alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + REPEAT, alarmIntent);
                 showForegroundNotification("Pending");
 

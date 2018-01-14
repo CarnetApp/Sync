@@ -27,7 +27,6 @@ public class NextCloudAuthorizeActivity extends AppCompatActivity implements Vie
         mRemoteInput = findViewById(R.id.input_remote);
         mUsernameInput = findViewById(R.id.input_username);
         mPasswordInput = findViewById(R.id.input_password);
-
         mConnectButton.setOnClickListener(this);
     }
 

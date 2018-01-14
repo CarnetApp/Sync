@@ -31,16 +31,17 @@ public class Log {
                 e.printStackTrace();
             }
         }
-        try {
-            DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
-            Date today = Calendar.getInstance().getTime();
-            String reportDate = df.format(today);
-            fw.append(reportDate+" : "+tag+" "+str+" \n");
-            fw.flush();
-        } catch (IOException e) {
-            e.printStackTrace();
+        if(fw != null) {
+            try {
+                DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss");
+                Date today = Calendar.getInstance().getTime();
+                String reportDate = df.format(today);
+                fw.append(reportDate + " : " + tag + " " + str + " \n");
+                fw.flush();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
-
         android.util.Log.d(tag+(Utils.isDebugPackage()?"Debug":""), str);
 
     }
