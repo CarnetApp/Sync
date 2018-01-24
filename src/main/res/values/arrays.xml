@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="nextcloud_array">
+        <item>Framadrive</item>
+        <item>Array Item Two</item>
+        <item>@string/custom</item>
+    </string-array>
+    <string-array name="nextcloud_values">
+        <item>https://framadrive.org</item>
+    </string-array>
+    <string-array name="nextcloud_full_instances">
+        <item>Framadrive</item>
+    </string-array>
+
+    <string name="custom">Custom</string>
+</resources>
