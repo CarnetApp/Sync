@@ -8,7 +8,7 @@ allprojects {
 
 android {
     compileSdkVersion 27
-    buildToolsVersion "25.0.2"
+    buildToolsVersion '26.0.2'
     useLibrary 'org.apache.http.legacy'
     defaultConfig {
         minSdkVersion 14
@@ -43,9 +43,6 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
-        exclude group: 'com.android.support', module: 'support-annotations'
-    })
     compile 'com.android.support:appcompat-v7:27.0.2'
     compile 'com.android.support:design:27.0.2'
     compile 'com.github.nextcloud:android-library:1.0.13'

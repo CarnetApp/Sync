@@ -37,6 +37,7 @@
         <EditText
             android:id="@+id/input_remote"
             android:layout_width="match_parent"
+            android:inputType="textFilter|textNoSuggestions"
             android:layout_height="wrap_content"
             android:hint="@string/server_address" />
 
@@ -50,6 +51,7 @@
         <EditText
             android:id="@+id/input_username"
             android:layout_width="match_parent"
+            android:inputType="textFilter|textNoSuggestions"
             android:layout_height="wrap_content"
             android:hint="@string/username" />
 
