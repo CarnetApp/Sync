@@ -138,25 +138,14 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     }
 
     public String getRemotePathFromLocal(String localPath){
-        Log.d("filedebug","path1 "+localPath);
         String remotePath = localPath.substring(mRootPath.length());
-        Log.d("filedebug","path2 "+remotePath);
-
         if (remotePath.startsWith("/"))
             remotePath = remotePath.substring(1);
-        Log.d("filedebug","path3 "+remotePath);
-
-
-        Log.d("filedebug","path4 "+remotePath);
-
         remotePath = mRemoteRootPath + (mRemoteRootPath.endsWith("/")?"":"/")+remotePath;
-        Log.d("filedebug","path5 "+remotePath);
-
         if (remotePath.startsWith("/"))
             remotePath = remotePath.substring(1);
         if(remotePath.endsWith("/"))
             remotePath = remotePath.substring(0, remotePath.length()-1);
-        Log.d("filedebug","path6 "+remotePath);
 
         return remotePath;
     }
