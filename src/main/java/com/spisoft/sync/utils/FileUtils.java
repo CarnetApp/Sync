@@ -5,6 +5,9 @@ import android.net.Uri;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.RandomAccessFile;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -14,7 +17,29 @@ import java.security.NoSuchAlgorithmException;
 
 public class FileUtils {
 
+    public static void copy(RandomAccessFile inputStream, OutputStream outputStream) throws IOException {
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = inputStream.read(buf)) > 0) {
+            outputStream.write(buf, 0, len);
 
+        }
+        inputStream.close();
+        outputStream.close();
+
+    }
+
+    public static void copy(InputStream inputStream, OutputStream outputStream) throws IOException {
+        byte[] buf = new byte[1024];
+        int len;
+        while ((len = inputStream.read(buf)) > 0) {
+            outputStream.write(buf, 0, len);
+
+        }
+        inputStream.close();
+        outputStream.close();
+
+    }
     public static String getName(Uri uri){
         if(uri!=null) {
             String name = uri.getLastPathSegment();

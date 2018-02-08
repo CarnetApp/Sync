@@ -23,6 +23,7 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.spisoft.sync.synchro.SyncWrapper;
 import com.spisoft.sync.synchro.SynchroService;
+import com.spisoft.sync.utils.FileUtils;
 import com.spisoft.sync.wrappers.Wrapper;
 import com.spisoft.sync.wrappers.nextcloud.NextCloudSyncedFoldersDBHelper;
 
@@ -52,6 +53,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
     private Activity mActiviy;
     private Map<String, Metadata> metadataDownloadList = new HashMap<>();
     private String mRootPath;
+    private String mRemoteRootPath;
 
     public DriveSyncWrapper(Context ct, Integer accountID) {
         super(ct, accountID);
@@ -89,7 +91,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
     public void setLocalRootFolder(String rootPath){
         mRootPath = rootPath;
         //load distant path
-        mRemoteRootPath = NextCloudSyncedFoldersDBHelper.getInstance(mContext).getRemoteSyncedPathForLocal(mAccountID,mRootPath);
+        mRemoteRootPath = DriveSyncedFoldersDBHelper.getInstance(mContext).getRemoteSyncedPathForLocal(mAccountID,mRootPath);
     }
 
     public String getRelativePathFromAbsolute(String localPath) {
@@ -116,11 +118,12 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
                     Log.d(TAG, "distant File has been modified on "+distant.getModifiedDate().getTime());
                     Log.d(TAG, "whereas last time "+driveFile.lastOnlineModifiedDate);
                     //get file, get md5, compare
-                    String tmpDownloadPath = NoteManager.getDontTouchFolder(mContext)+"/.tmpdrivenote.sqd";
-                    int result = dowloadFile(relativePath,tmpDownloadPath);
+                    File newFile = new File(FileUtils.stripExtensionFromName(file.getAbsolutePath())+System.currentTimeMillis()+"."+FileUtils.getExtension(file.getAbsolutePath()));
+                    file.renameTo(newFile);
+                    int result = dowloadFile(relativePath,file.getAbsolutePath());
                     if(result==ERROR)
-                        return result;
-                    String md5Download = FileUtils.md5(tmpDownloadPath);
+                        return new SynchroService.Result(ERROR);
+                    String md5Download = FileUtils.md5(file.getAbsolutePath());
                     Log.d(TAG, "distant File md5Download "+md5Download);
                     Log.d(TAG, "whereas local "+md5);
 
@@ -129,7 +132,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
                         driveFile.lastOnlineModifiedDate = distant.getModifiedDate().getTime();
                         driveFile.md5 = md5;
                         //delete tmp file
-                        new File(tmpDownloadPath).delete();
+                        newFile.delete();
                         DBDriveFileHelper.getInstance(mContext).addOrReplaceDBDriveFile(driveFile);
 
                     }else{ //conflict
@@ -141,7 +144,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
                     Log.d(TAG, "File wasn't up to date on server, uploading local file"+relativePath);
                     int result = uploadAndSave(driveFile, relativePath, md5, file);
                     if(result==ERROR)
-                        return result;
+                        return new SynchroService.Result(ERROR);
                 }
 
             }else{//Not modified locally
@@ -155,12 +158,13 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
                     Log.d(TAG, "sub date "+(distant.getModifiedDate().getTime()-driveFile.lastOnlineModifiedDate));
                     int result = dowloadFile(relativePath,file.getAbsolutePath());
                     if(result==ERROR)
-                        return result;
+                        return new SynchroService.Result(ERROR);;
                     String md5Download = FileUtils.md5(file.getAbsolutePath());
                     driveFile.md5 = md5Download;
                     driveFile.lastOnlineModifiedDate = distant.getModifiedDate().getTime();
 
                     DBDriveFileHelper.getInstance(mContext).addOrReplaceDBDriveFile(driveFile);
+                    new SynchroService.Result(STATUS_SUCCESS, file.getAbsolutePath());
                 }
                 else {
                     //nothing to do here
@@ -175,21 +179,21 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
             if(/**/true){
                 //check whether we had LAST version online
                 if(md5.equals(driveFile.md5)){
-                    RecentHelper.getInstance(mContext).removeRecent(new Note(relativePath));
                     Log.d(TAG, "File was up to date on server, deleting local file"+relativePath);
                     if(file.delete());
-                    DBDriveFileHelper.getInstance(mContext).delete(driveFile);
+                        DBDriveFileHelper.getInstance(mContext).delete(driveFile);
+                    new SynchroService.Result(STATUS_SUCCESS, file.getAbsolutePath());
                 }
                 else{
                     Log.d(TAG, "File wasn't up to date on server, uploading local file"+relativePath);
                     int result = uploadAndSave(driveFile, relativePath, md5, file);
                     if(result==ERROR)
-                        return result;
+                        return new SynchroService.Result(ERROR);
                 }
             }
 
         }
-        return STATUS_SUCCESS;
+        return new SynchroService.Result(STATUS_SUCCESS);;
     }
 
     @Override
@@ -209,7 +213,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
 
             }else{
                 Log.d(TAG, "Distant File "+file+" not on local");
-                String dest = PreferenceHelper.getRootPath(mContext)+"/"+file;
+                String dest = mRootPath+"/"+file;
                 Log.d(TAG, "Download distant File "+file+" to "+dest);
                 Log.d(TAG, "Distant File "+file+" not on local");
                 int result = dowloadFile(file, dest);
@@ -277,8 +281,6 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
 
         if(mGoogleAccount==null){
             mGoogleAccount = new GoogleDriveAccountHelper.GoogleAccount();
-            mGoogleAccount.rootPath=getRootPath();
-
 
         }
         if(mGoogleAccount.rootFolder==null){ //get folder if exists
@@ -289,7 +291,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
             }
             for(Metadata metadata : result.getMetadataBuffer()){
                 if(metadata.isFolder()){
-                    if(metadata.getTitle().equals(mGoogleAccount.rootPath)&&!metadata.isTrashed()&&!metadata.isExplicitlyTrashed()&&metadata.isEditable())
+                    if(metadata.getTitle().equals(mRemoteRootPath)&&!metadata.isTrashed()&&!metadata.isExplicitlyTrashed()&&metadata.isEditable())
                         mGoogleAccount.rootFolder = metadata.getDriveId().encodeToString();
 
                 }
@@ -297,7 +299,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
             }
             if(mGoogleAccount.rootFolder==null){ //create folder if doesn't exist
                 MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                        .setTitle(mGoogleAccount.rootPath).build();
+                        .setTitle(mRemoteRootPath).build();
                 DriveFolder.DriveFolderResult result2 = folder.createFolder(mGoogleApiClient, changeSet).await();
                 if (!result2.getStatus().isSuccess()) {
                     return ERROR;
@@ -318,9 +320,6 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
         return STATUS_SUCCESS;
     }
 
-    private String getRootPath() {
-        return Utils.isDebug(mContext)?"QuickNoteDebug":"QuickNote";
-    }
 
     public int upload(File file, String md5, String relativePath) {
         synchronized (FileLocker.getLockOnPath(file.getAbsolutePath())) {
@@ -464,11 +463,9 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
                     return status;
             }
             else {
-                if(metadata.getFileExtension().equals(NoteManager.EXTENSION)){
-                    Log.d(TAG,"adding file sqd "+relativePath+metadata.getTitle());
-                    metadataList.put(relativePath+metadata.getTitle(),metadata);
-                    metadataDownloadList.put(relativePath+metadata.getTitle(),metadata);
-                }
+                Log.d(TAG,"adding file "+relativePath+metadata.getTitle());
+                metadataList.put(relativePath+metadata.getTitle(),metadata);
+                metadataDownloadList.put(relativePath+metadata.getTitle(),metadata);
 
             }
             metadataFullList.put(relativePath+metadata.getTitle(),metadata);

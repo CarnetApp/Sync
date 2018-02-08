@@ -24,8 +24,6 @@ public class GoogleDriveAccountHelper {
 
     public static class GoogleAccount{
         public String rootFolder; //folder uid
-        public String rootPath; //
-        public GoogleApiClient googleApiClient;
     }
 
     public GoogleAccount getGoogleAccount(long accountID) {
