@@ -23,6 +23,7 @@ import com.google.android.gms.drive.MetadataChangeSet;
 import com.google.android.gms.drive.metadata.CustomPropertyKey;
 import com.spisoft.sync.synchro.SyncWrapper;
 import com.spisoft.sync.synchro.SynchroService;
+import com.spisoft.sync.utils.FileLocker;
 import com.spisoft.sync.utils.FileUtils;
 import com.spisoft.sync.wrappers.Wrapper;
 import com.spisoft.sync.wrappers.nextcloud.NextCloudSyncedFoldersDBHelper;
@@ -193,12 +194,13 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
             }
 
         }
-        return new SynchroService.Result(STATUS_SUCCESS);;
+        return new SynchroService.Result(STATUS_SUCCESS);
     }
 
     @Override
-    public void endOfSync() {
+    public SynchroService.Result endOfSync() {
         //download
+        List<String> modifiedFiles = new ArrayList<>();
         for(String file : metadataDownloadList.keySet()){
             Metadata metadata = metadataDownloadList.get(file);
             DBDriveFileHelper.DBDriveFile driveFile =DBDriveFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, file);
@@ -208,7 +210,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
                 Log.d(TAG, "File was deleted locally, deleting distant File");
                 Status result = metadata.getDriveId().asDriveFile().trash(mGoogleApiClient).await();
                 if(!result.isSuccess())
-                    return ;
+                    return new SynchroService.Result(ERROR, modifiedFiles);
                 DBDriveFileHelper.getInstance(mContext).delete(driveFile);
 
             }else{
@@ -218,8 +220,8 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
                 Log.d(TAG, "Distant File "+file+" not on local");
                 int result = dowloadFile(file, dest);
                 if(result==ERROR)
-                    return ;
-
+                    return new SynchroService.Result(ERROR, modifiedFiles);
+                modifiedFiles.add(dest);
                 String md5Download = FileUtils.md5(dest);
                 driveFile.md5 = md5Download;
                 Log.d(TAG, "Distant down debug time "+ metadata.getModifiedDate().getTime());
@@ -229,7 +231,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
 
 
         }
-
+        return new SynchroService.Result(STATUS_SUCCESS, modifiedFiles);
     }
 
     public int uploadAndSave(DBDriveFileHelper.DBDriveFile driveFile, String relativePath,String md5, File file){
@@ -318,6 +320,16 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
         }
 
         return STATUS_SUCCESS;
+    }
+
+    @Override
+    public void setCurrentlySyncedDir(String rootPath) {
+
+    }
+
+    @Override
+    public SynchroService.Result onFolder(File file, boolean secondPathWithFolderEmpty) {
+        return null;
     }
 
 

@@ -18,10 +18,13 @@ public class FileItem implements Serializable{
     protected String mName;
     protected String mMimetype;
 
-    public FileItem(String path, boolean isDirectory, long modificationDate, long accountId, String mimetype){
+    public FileItem(String path, String name, boolean isDirectory, long modificationDate, long accountId, String mimetype){
         mAccountId = accountId;
         mPath = path;
-        mName = FileUtils.getName(Uri.parse(path));
+        if(name == null)
+            mName = FileUtils.getName(Uri.parse(path));
+        else
+            mName = name;
         mIsDirectory = isDirectory;
         mModificationDate = modificationDate;
         mMimetype = mimetype;

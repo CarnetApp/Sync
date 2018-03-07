@@ -6,4 +6,5 @@ package com.spisoft.sync.wrappers;
 
 public class ResultCode {
     public static final int RESULT_OK = 0;
+    public static final int RESULT_FAILURE = 1;
 }

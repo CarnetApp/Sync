@@ -3,6 +3,8 @@ package com.spisoft.sync.wrappers;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 
+import com.spisoft.sync.wrappers.googledrive.GDriveDatabase;
+import com.spisoft.sync.wrappers.googledrive.GDriveWrapper;
 import com.spisoft.sync.wrappers.nextcloud.NextCloudWrapper;
 
 import java.lang.reflect.InvocationTargetException;
@@ -17,7 +19,8 @@ import java.util.List;
 public class WrapperFactory {
 
     public static Class[] wrappers = new Class[]{
-            NextCloudWrapper.class
+            NextCloudWrapper.class,
+            GDriveWrapper.class
     };
 
     public static Wrapper getWrapper(Context ct, int accountType, Integer accountID) {
