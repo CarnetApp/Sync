@@ -15,4 +15,5 @@
     <string name="no_accounts">No accounts configured yet, please add a new online account</string>
     <string name="select_provider">Select cloud provider</string>
     <string name="server">Server</string>
+    <string name="google_drive">Google Drive</string>
 </resources>

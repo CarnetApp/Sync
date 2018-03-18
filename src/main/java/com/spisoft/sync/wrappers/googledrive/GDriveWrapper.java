@@ -7,16 +7,20 @@ import android.graphics.drawable.Drawable;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.drive.DriveResourceClient;
+import com.spisoft.sync.R;
 import com.spisoft.sync.synchro.SyncWrapper;
 import com.spisoft.sync.wrappers.AsyncLister;
 import com.spisoft.sync.wrappers.DBWrapper;
 import com.spisoft.sync.wrappers.Wrapper;
+
 
 /**
  * Created by phoenamandre on 04/03/18.
  */
 
 public class GDriveWrapper extends Wrapper {
+    public static final int ACCOUNT_TYPE = 2;
+
     private DriveResourceClient mDriveResourceClient;
 
     public GDriveWrapper(Context context, Integer accountID) {
@@ -73,22 +77,22 @@ public class GDriveWrapper extends Wrapper {
 
     @Override
     public int getAccountType() {
-        return 0;
+        return ACCOUNT_TYPE;
     }
 
     @Override
     public Drawable getIcon() {
-        return null;
+        return mContext.getResources().getDrawable(R.drawable.drive);
     }
 
     @Override
     public String getFriendlyName() {
-        return null;
+        return mContext.getString(R.string.google_drive);
     }
 
     @Override
     protected boolean internalAddFolderSync(String local, String remote) {
-        return false;
+        return true;
     }
 
     public int getAccountId() {
