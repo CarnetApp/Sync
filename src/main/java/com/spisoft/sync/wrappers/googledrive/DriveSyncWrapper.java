@@ -77,7 +77,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
         ConnectionResult connectionResult = mGoogleApiClient.blockingConnect();
         if(!connectionResult.isSuccess())
             return ERROR;
-      //  Status result = Drive.DriveApi.requestSync(mGoogleApiClient).await(); //SYNC file status
+        Status result = Drive.DriveApi.requestSync(mGoogleApiClient).await(); //SYNC file status
 
         return STATUS_SUCCESS;
     }
