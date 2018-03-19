@@ -41,10 +41,11 @@ public class GDriveWrapper extends Wrapper {
     }
     public void init(Context context, Integer accountID){
         super.init(context, accountID);
-        setCredentials(accountID);
+       // setCredentials(accountID);
     }
 
     private void setCredentials(Integer accountID) {
+
         mDriveResourceClient =
                 Drive.getDriveResourceClient(mContext, GoogleSignIn.getLastSignedInAccount(mContext));
     }

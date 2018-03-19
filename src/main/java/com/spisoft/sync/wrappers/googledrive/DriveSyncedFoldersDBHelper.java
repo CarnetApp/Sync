@@ -66,11 +66,11 @@ public class DriveSyncedFoldersDBHelper {
     }
 
     public String getRemoteSyncedPathForLocal(long accountID, String localPath) {
-            Cursor cursor = getCursor(KEY_ACCOUNT_ID +" = ? AND "+KEY_LOCAL_PATH+" = ? ", new String[]{accountID+"",localPath});
+      /*      Cursor cursor = getCursor(KEY_ACCOUNT_ID +" = ? AND "+KEY_LOCAL_PATH+" = ? ", new String[]{accountID+"",localPath});
             if(cursor.getCount()>0) {
                 cursor.moveToFirst();
                 return cursor.getString(cursor.getColumnIndex(KEY_REMOTE_PATH));
-            }
-        return null;
+            }*/
+        return "QuickNote";
     }
 }

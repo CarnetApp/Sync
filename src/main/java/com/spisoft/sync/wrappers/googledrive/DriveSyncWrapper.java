@@ -77,7 +77,7 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
         ConnectionResult connectionResult = mGoogleApiClient.blockingConnect();
         if(!connectionResult.isSuccess())
             return ERROR;
-        Status result = Drive.DriveApi.requestSync(mGoogleApiClient).await(); //SYNC file status
+      //  Status result = Drive.DriveApi.requestSync(mGoogleApiClient).await(); //SYNC file status
 
         return STATUS_SUCCESS;
     }
@@ -398,18 +398,55 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
 
     @Override
     public SynchroService.Result onFolder(File file, boolean secondPathWithFolderEmpty) {
-        return null;
+
+        String remotePath = getRelativePathFromAbsolute(file.getAbsolutePath());
+        Log.d(TAG, "onFolder "+remotePath);
+
+        if(metadataFullList.containsKey(remotePath)){
+            Log.d(TAG, "already contains folder "+remotePath);
+            metadataFullList.remove(remotePath);
+            return new SynchroService.Result(STATUS_SUCCESS);
+        }
+        else {
+           /* NextCloudFileHelper.DBNextCloudFile dbNextCloudFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remotePath);
+            if(dbNextCloudFile!=null){
+                //folder was there before, delaying folder creation
+                Log.d(TAG, "folder was there, should delete");
+
+                if(!secondPathWithFolderEmpty)
+                    return new SynchroService.Result(STATUS_PENDING);
+                else {//folder empty, delete
+                    Log.d(TAG, "deleting folder");
+                    boolean delete = file.delete();
+                    Log.d(TAG, "folder deleted "+delete);
+                    if(delete) {
+                        NextCloudFileHelper.getInstance(mContext).delete(dbNextCloudFile);
+                        return new SynchroService.Result(STATUS_SUCCESS,file.getAbsolutePath());
+                    }
+                    else return new  SynchroService.Result(STATUS_FAILURE);
+                }
+
+            }else {*/
+                Log.d(TAG, "creating folder " + remotePath);
+
+               // dbNextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
+               // dbNextCloudFile.md5 = "";//init md5 even when folder
+               // dbNextCloudFile.accountID = mAccountID;
+                return new SynchroService.Result(upload(file,  null, remotePath));
+           // }
+        }
+        //return null;
     }
 
 
     public int upload(File file, String md5, String relativePath) {
         synchronized (FileLocker.getLockOnPath(file.getAbsolutePath())) {
             List<String> folderToCreate = new ArrayList<>();
-
-            boolean leave = false;
+            if(file.isDirectory())
+                folderToCreate.add(relativePath);
             File relativeFile = new File(relativePath).getParentFile();
             String highestPath = "";
-            while (!leave && relativeFile != null) {
+            while (relativeFile != null) {
 
                 String path = relativeFile.getAbsolutePath();
                 if (path.startsWith("/"))
@@ -441,80 +478,82 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
                     currentDriveFolder = result.getDriveFolder();
                     metadataFullList.put(folderToCreate.get(i), currentDriveFolder);
                 }
+                if (file.isFile()) {
+                    FileLock lock = null;
+                    try {
+                        RandomAccessFile random = new RandomAccessFile(file, "rw");
+                        lock = random.getChannel().lock();
+                        OutputStream out;
+                        DriveApi.DriveContentsResult resultContent;
+                        boolean create = false;
+                        if (metadataList.containsKey(relativePath)) {
+                            resultContent = metadataList.get(relativePath).getDriveId().asDriveFile().open(mGoogleApiClient, DriveFile.MODE_WRITE_ONLY, null).await();
+                        } else {
+                            resultContent = Drive.DriveApi.newDriveContents(mGoogleApiClient).await();
+                            create = true;
+                        }
 
-                FileLock lock = null;
-                try {
-                    RandomAccessFile random = new RandomAccessFile(file, "rw");
-                    lock = random.getChannel().lock();
-                    OutputStream out;
-                    DriveApi.DriveContentsResult resultContent;
-                    boolean create = false;
-                    if (metadataList.containsKey(relativePath)) {
-                        resultContent = metadataList.get(relativePath).getDriveId().asDriveFile().open(mGoogleApiClient, DriveFile.MODE_WRITE_ONLY, null).await();
-                    } else {
-                        resultContent = Drive.DriveApi.newDriveContents(mGoogleApiClient).await();
-                        create = true;
-                    }
-
-                    if (!resultContent.getStatus().isSuccess()) {
-                        return ERROR;
-                    }
-                    out = resultContent.getDriveContents().getOutputStream();
-                    FileUtils.copy(random, out);
-
-                    MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
-                            .setTitle(Uri.parse(relativePath).getLastPathSegment())
-                            .setCustomProperty(new CustomPropertyKey(MD5_CUSTOM_KEY, CustomPropertyKey.PUBLIC), md5).build();
-                    DriveFile toPut = null;
-                    if (create) {
-                        DriveFolder.DriveFileResult result = currentDriveFolder.createFile(mGoogleApiClient, changeSet, resultContent.getDriveContents()).await();
-                        if (!result.getStatus().isSuccess()) {
+                        if (!resultContent.getStatus().isSuccess()) {
                             return ERROR;
                         }
-                        toPut = result.getDriveFile();
-                    } else {
-                        Status result2 = resultContent.getDriveContents().commit(mGoogleApiClient, changeSet).await();
-                        if (!result2.getStatus().isSuccess()) {
+                        out = resultContent.getDriveContents().getOutputStream();
+                        FileUtils.copy(random, out);
+
+                        MetadataChangeSet changeSet = new MetadataChangeSet.Builder()
+                                .setTitle(Uri.parse(relativePath).getLastPathSegment())
+                                .setCustomProperty(new CustomPropertyKey(MD5_CUSTOM_KEY, CustomPropertyKey.PUBLIC), md5).build();
+                        DriveFile toPut = null;
+                        if (create) {
+                            DriveFolder.DriveFileResult result = currentDriveFolder.createFile(mGoogleApiClient, changeSet, resultContent.getDriveContents()).await();
+                            if (!result.getStatus().isSuccess()) {
+                                return ERROR;
+                            }
+                            toPut = result.getDriveFile();
+                        } else {
+                            Status result2 = resultContent.getDriveContents().commit(mGoogleApiClient, changeSet).await();
+                            if (!result2.getStatus().isSuccess()) {
+                                return ERROR;
+                            }
+                            toPut = metadataList.get(relativePath).getDriveId().asDriveFile();
+
+                        }
+
+                        metadataFullList.put(relativePath, toPut);
+                        DriveResource.MetadataResult resultMetadata = toPut.getMetadata(mGoogleApiClient).await();
+                        if (!resultMetadata.getStatus().isSuccess()) {
                             return ERROR;
                         }
-                        toPut = metadataList.get(relativePath).getDriveId().asDriveFile();
-
-                    }
-
-                    metadataFullList.put(relativePath, toPut);
-                    DriveResource.MetadataResult resultMetadata = toPut.getMetadata(mGoogleApiClient).await();
-                    if (!resultMetadata.getStatus().isSuccess()) {
+                        Log.d(TAG, "upload success");
+                        metadataList.put(relativePath, resultMetadata.getMetadata());
+                        //setLast
+                        if (lock != null)
+                            try {
+                                lock.release();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                    } catch (FileNotFoundException e) {
+                        if (lock != null)
+                            try {
+                                lock.release();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
+                        return ERROR;
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                        if (lock != null)
+                            try {
+                                lock.release();
+                            } catch (IOException e1) {
+                                e1.printStackTrace();
+                            }
                         return ERROR;
                     }
-                    Log.d(TAG, "upload success");
-                    metadataList.put(relativePath, resultMetadata.getMetadata());
-                    //setLast
-                    if (lock != null)
-                        try {
-                            lock.release();
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                } catch (FileNotFoundException e) {
-                    if (lock != null)
-                        try {
-                            lock.release();
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                    return ERROR;
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    if (lock != null)
-                        try {
-                            lock.release();
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                    return ERROR;
+
+
                 }
-
-            } else
+            }else
                 return ERROR;
             return STATUS_SUCCESS;
         }
