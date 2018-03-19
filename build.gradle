@@ -24,13 +24,7 @@ android {
             zipAlignEnabled true
             resValue "string", "app_name", "Sync"
         }
-        phie {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-            zipAlignEnabled true
-            resValue "string", "app_name", "Sync Phie"
-            signingConfig signingConfigs.Phie
-        }
+
         debug {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'

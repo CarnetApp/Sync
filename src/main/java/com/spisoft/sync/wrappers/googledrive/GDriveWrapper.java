@@ -61,6 +61,11 @@ public class GDriveWrapper extends Wrapper {
     }
 
     @Override
+    public boolean isMyAccount(Integer type) {
+        return type == ACCOUNT_TYPE;
+    }
+
+    @Override
     public SyncWrapper getSyncWrapper(Context context) {
         return new DriveSyncWrapper(context,mAccountId);
     }

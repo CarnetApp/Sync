@@ -1,10 +1,11 @@
 package com.spisoft.sync.wrappers.googledrive;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
-public class AuthorizeActivity extends AppCompatActivity {
+public class AuthorizeActivity extends AppCompatActivity implements DriveSyncWrapper.OnConnectiongListener {
 
     private DriveSyncWrapper mDriveWrapper;
 
@@ -13,22 +14,23 @@ public class AuthorizeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
        // setContentView(R.layout.activity_authorize);
         mDriveWrapper = new DriveSyncWrapper(this, -1);
-        mDriveWrapper.authorize(this);
+        mDriveWrapper.authorize(this, this);
     }
 
     @Override
     protected void onActivityResult(final int requestCode, final int resultCode, final Intent data) {
-        switch (requestCode) {
-            case DriveSyncWrapper.RESOLVE_CONNECTION_REQUEST_CODE:
-                if (resultCode == RESULT_OK) {
+        mDriveWrapper.onActivityResult(requestCode, resultCode, data);
+    }
 
-                 //   startService(new Intent(this, SynchroService.class));
-
-                }
-
-                break;
-        }
+    @Override
+    public void onConnected() {
+        setResult(Activity.RESULT_OK);
         finish();
     }
 
+    @Override
+    public void onConnectionFailed() {
+        setResult(Activity.RESULT_CANCELED);
+        finish();
+    }
 }

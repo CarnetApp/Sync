@@ -166,6 +166,7 @@ public class SynchroService extends Service{
             List<DBAccountHelper.Account> syncedAccounts = mSyncedFolderDBHelper.getRemoteAccountForSyncedFolder(rootFolder);
             {
                 for (DBAccountHelper.Account syncedAccount : syncedAccounts) {
+                    Log.d(TAG, "account type "+syncedAccount.accountType);
                     Wrapper wrapper = WrapperFactory.getWrapper(SynchroService.this, syncedAccount.accountType, syncedAccount.accountID);
                     SyncWrapper syncWrapper = wrapper.getSyncWrapper(SynchroService.this);
                     syncWrapper.setLocalRootFolder(rootFolder);

@@ -79,7 +79,7 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
 
 
     public boolean isMyAccount(Integer type) {
-        return true;
+        return type == ACCOUNT_TYPE;
     }
 
 

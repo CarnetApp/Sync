@@ -2,6 +2,7 @@ package com.spisoft.sync.wrappers.googledrive;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.IntentSender;
 import android.net.Uri;
 import android.os.Bundle;
@@ -81,12 +82,80 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
         return STATUS_SUCCESS;
     }
 
-    public void authorize(Activity activity){
+
+
+
+
+
+
+
+
+
+
+
+
+
+    OnConnectiongListener mOnConnectiongListener = null;
+
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case DriveSyncWrapper.RESOLVE_CONNECTION_REQUEST_CODE:
+                if (resultCode == Activity.RESULT_OK) {
+                    mGoogleApiClient.connect();
+                }
+
+                break;
+        }
+    }
+
+    public interface OnConnectiongListener{
+        void onConnected();
+        void onConnectionFailed();
+
+    }
+
+    public void authorize(Activity activity, OnConnectiongListener listener){
+        mOnConnectiongListener = listener;
         mActiviy = activity;
         mGoogleApiClient.connect();
 
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
 
     }
+
+    @Override
+    public void onConnectionFailed( ConnectionResult connectionResult) {
+        if(mActiviy==null)
+            return;
+        if (connectionResult.hasResolution()) {
+            try {
+                connectionResult.startResolutionForResult(mActiviy, RESOLVE_CONNECTION_REQUEST_CODE);
+            } catch (IntentSender.SendIntentException e) {
+                // Unable to resolve, message user appropriately
+            }
+        } else {
+
+            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), mActiviy, 0).show();
+        }
+    }
+
+    @Override
+    public void onConnected( Bundle bundle) {
+        if(mOnConnectiongListener != null)
+            mOnConnectiongListener.onConnected();
+    }
+
+    public void resolve(int requestCode) {
+    }
+
+
+
+
+
+
 
     @Override
     public void setLocalRootFolder(String rootPath){
@@ -492,39 +561,4 @@ public class DriveSyncWrapper extends SyncWrapper implements ResultCallback<Driv
 
     }
 
-    @Override
-    public void onConnected( Bundle bundle) {
-        new Thread(){
-            public void run(){
-               /* connect();
-                loadRootFolder();
-                loadDistantFiles();
-                upload(new File("/sdcard/test.sqd"), "", "relative/test.sqd");*/
-            }
-        }.start();
-    }
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
-    }
-
-    @Override
-    public void onConnectionFailed( ConnectionResult connectionResult) {
-        if(mActiviy==null)
-            return;
-        if (connectionResult.hasResolution()) {
-            try {
-                connectionResult.startResolutionForResult(mActiviy, RESOLVE_CONNECTION_REQUEST_CODE);
-            } catch (IntentSender.SendIntentException e) {
-                // Unable to resolve, message user appropriately
-            }
-        } else {
-
-            GooglePlayServicesUtil.getErrorDialog(connectionResult.getErrorCode(), mActiviy, 0).show();
-        }
-    }
-
-    public void resolve(int requestCode) {
-    }
 }
