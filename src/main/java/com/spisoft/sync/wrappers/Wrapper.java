@@ -71,6 +71,17 @@ public abstract class Wrapper {
     public void initDB(SQLiteDatabase db) {
     }
 
+    public abstract boolean internalRemoveSyncDir(String localPath);
+
+    public boolean removeSyncDir(String localPath) {
+        if(!internalRemoveSyncDir(localPath))
+            return false;
+        else{
+            SyncedFolderDBHelper.getInstance(mContext).removePathtoSync(mAccountId, localPath);
+            return true;
+        }
+    }
+
     public static interface ResultListener{
         public void onResult(int resultCode, Object data);
     }

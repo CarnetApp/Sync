@@ -73,4 +73,13 @@ public class NextCloudSyncedFoldersDBHelper {
             }
         return null;
     }
+
+    public void removeSyncedFolder(int accountId, String localPath) {
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
+        synchronized (database.lock) {
+            SQLiteDatabase sqLiteDatabase = database.open();
+            sqLiteDatabase.delete(TABLE_NAME, KEY_ACCOUNT_ID +" = ? AND "+KEY_LOCAL_PATH+" = ? ", new String[]{accountId+"",localPath});
+            database.close();
+        }
+    }
 }

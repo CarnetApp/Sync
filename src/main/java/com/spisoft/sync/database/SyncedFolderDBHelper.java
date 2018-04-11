@@ -103,4 +103,13 @@ public class SyncedFolderDBHelper {
             database.close();
         }
     }
+
+    public void removePathtoSync(int accountId, String localPath) {
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
+        synchronized (database.lock) {
+            SQLiteDatabase sqLiteDatabase = database.open();
+            sqLiteDatabase.delete(TABLE_NAME,KEY_PATH + " = ? AND "+KEY_ACCOUNT_ID+" = ? ",new String[]{localPath, accountId+""});
+            sqLiteDatabase.close();
+        }
+    }
 }

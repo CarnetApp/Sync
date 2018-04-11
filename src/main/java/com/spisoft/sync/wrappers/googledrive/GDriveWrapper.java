@@ -101,6 +101,11 @@ public class GDriveWrapper extends Wrapper {
         return true;
     }
 
+    @Override
+    public boolean internalRemoveSyncDir(String localPath) {
+        return true;
+    }
+
     public int getAccountId() {
         return mAccountId;
     }

@@ -175,4 +175,10 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
         db.execSQL(NextCloudSyncedFoldersDBHelper.CREATE_DATABASE);
         db.execSQL(NextCloudCredentialsHelper.CREATE_DATABASE);
     }
+
+    @Override
+    public boolean internalRemoveSyncDir(String localPath) {
+        NextCloudSyncedFoldersDBHelper.getInstance(mContext).removeSyncedFolder(mAccountId, localPath);
+        return true;
+    }
 }
