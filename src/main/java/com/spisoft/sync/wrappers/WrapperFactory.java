@@ -1,14 +1,11 @@
 package com.spisoft.sync.wrappers;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
+import android.util.Log;
 
-import com.spisoft.sync.wrappers.googledrive.GDriveDatabase;
-import com.spisoft.sync.wrappers.googledrive.GDriveWrapper;
 import com.spisoft.sync.wrappers.nextcloud.NextCloudWrapper;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,10 +15,11 @@ import java.util.List;
 
 public class WrapperFactory {
 
-    public static Class[] wrappers = new Class[]{
-            NextCloudWrapper.class,
-            GDriveWrapper.class
-    };
+    public static List<Class> wrappers = new ArrayList<>();
+    static {
+        wrappers.add(NextCloudWrapper.class);
+    }
+
 
     public static Wrapper getWrapper(Context ct, int accountType, Integer accountID) {
         try {
@@ -62,5 +60,9 @@ public class WrapperFactory {
             e.printStackTrace();
         }
         return wrapperList;
+    }
+
+    public static List<Class> getWrapperRaw() {
+        return wrappers;
     }
 }

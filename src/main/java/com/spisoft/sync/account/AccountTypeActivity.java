@@ -69,7 +69,7 @@ public class AccountTypeActivity extends AppCompatActivity {
             createAccountTypeView(wrapper.getFriendlyName(), wrapper.getIcon(), wrapper.getAccountType());
         }
         try {
-            for(Class wrapperClass : WrapperFactory.wrappers){
+            for(Class wrapperClass : WrapperFactory.getWrapperRaw()){
                 Method m = null;
 
                 m = wrapperClass.getMethod("getFriendlyName", Context.class);

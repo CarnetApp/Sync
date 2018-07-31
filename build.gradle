@@ -32,12 +32,22 @@ android {
             resValue "string", "app_name", "Sync debug"
         }
     }
+    flavorDimensions "version"
+    productFlavors {
+        fdroid {
+            dimension "version"
+        }
+        google {
+            dimension "version"
+        }
+    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
-    compile 'com.google.android.gms:play-services:11.8.0'
+
+
     compile 'com.android.support:appcompat-v7:27.0.2'
     compile 'com.android.support:design:27.0.2'
     compile 'com.github.nextcloud:android-library:1.0.13'
