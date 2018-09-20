@@ -5,10 +5,12 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 
 import com.spisoft.sync.Configuration;
@@ -98,6 +100,8 @@ public class SynchroService extends Service{
     @Override
     public int onStartCommand(Intent intent,int flags, int startId) {
         int ret = super.onStartCommand(intent,flags, startId);
+        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
+            return ret;
         String path;
         if(intent == null || (path = intent.getDataString())==null)
             path = "all";
