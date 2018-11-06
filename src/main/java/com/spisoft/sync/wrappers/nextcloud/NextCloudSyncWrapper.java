@@ -302,6 +302,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         List<String> modified = new ArrayList<>();
         //download
         for(String file : metadataDownloadList.keySet()){
+            Log.d(TAG, "remote "+file);
             RemoteFile remoteFile = metadataDownloadList.get(file);
             //these files are on server but not local
             NextCloudFileHelper.DBNextCloudFile driveFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, file);
@@ -309,12 +310,15 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 driveFile = new NextCloudFileHelper.DBNextCloudFile(file);
                 driveFile.accountID = mAccountID;
             }
-            if(remoteFile.getEtag() == driveFile.currentlyDownloadedOnlineEtag){
+            if(remoteFile.getEtag().equals(driveFile.currentlyDownloadedOnlineEtag)){
+                Log.d(TAG, "was deleted locally");
                 //was deleted locally
                 RemoveRemoteFileOperation uploadOperation = new RemoveRemoteFileOperation(remoteFile.getRemotePath());
                 RemoteOperationResult result = uploadOperation.execute(mWrapper.getClient());
                 if(!result.isSuccess()){
                     return new SynchroService.Result(STATUS_FAILURE, modified);
+                }else{
+                    NextCloudFileHelper.getInstance(mContext).delete(driveFile);
                 }
 
             }else{
