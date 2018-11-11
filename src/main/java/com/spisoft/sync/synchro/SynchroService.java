@@ -2,14 +2,20 @@ package com.spisoft.sync.synchro;
 
 import android.app.AlarmManager;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.os.Build;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.RequiresApi;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Pair;
 
@@ -55,6 +61,7 @@ public class SynchroService extends Service{
     private Handler mHandler;
     public static SynchroService sService;
     public static boolean isSyncing = false;
+    private String mChannelId = "";
 
     public static class Result{
         public Result(int status){
@@ -129,15 +136,28 @@ public class SynchroService extends Service{
             public void run() {
                 // Create intent that will bring our app to the front, as if it was tapped in the app
                 // launcher
-                Notification notification = new Notification.Builder(getApplicationContext())
-                        .setContentTitle(getString(R.string.app_name))
-                        .setContentText(contentText)
-                        .setSmallIcon(R.drawable.file)
-                        .setWhen(System.currentTimeMillis())
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O&&mChannelId.isEmpty()) {
+                    mChannelId = createNotificationChannel("sync", "Sync Service");
+                }
+                NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(SynchroService.this, mChannelId);
+                Notification notification = notificationBuilder.setOngoing(true)
+                        .setSmallIcon(Configuration.icon)
+                        .setPriority(NotificationCompat.PRIORITY_MIN)
+                        .setCategory(Notification.CATEGORY_SERVICE)
                         .build();
                 startForeground(NOTIFICATION_ID, notification);
             }
         });
+    }
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private String createNotificationChannel(String channelId, String channelName){
+        NotificationChannel chan = new NotificationChannel(channelId,
+                channelName, NotificationManager.IMPORTANCE_NONE);
+        chan.setLightColor(Color.BLUE);
+        chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
+        NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        service.createNotificationChannel(chan);
+        return channelId;
     }
 
     public void resetNotification(){
@@ -271,12 +291,12 @@ public class SynchroService extends Service{
                 Intent intent = new Intent(SynchroService.this, SynchroService.class);
                 PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
                 if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M)
-                alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + REPEAT, alarmIntent);
+                    alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + REPEAT, alarmIntent);
                 showForegroundNotification("Pending");
 
-                 SynchroService.this.stopSelf();
+                SynchroService.this.stopSelf();
             }
-           // sendBroadcast(new Intent(NoteListFragment.ACTION_RELOAD));
+            // sendBroadcast(new Intent(NoteListFragment.ACTION_RELOAD));
 
         }
 

@@ -14,6 +14,7 @@ public class Configuration {
     public static Map<String, PathObserver> pathObservers = new HashMap<>();
     public static boolean dontDisplayNotification;
     public static List<SyncStatusListener> syncStatusListener = new ArrayList<>();
+    public static int icon;
 
     public static void addPathObserver(String path, PathObserver observer) {
         pathObservers.put(path, observer);
