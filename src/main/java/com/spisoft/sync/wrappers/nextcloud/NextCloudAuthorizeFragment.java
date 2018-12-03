@@ -19,11 +19,18 @@ import android.widget.Spinner;
 import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.OwnCloudClientFactory;
 import com.owncloud.android.lib.common.OwnCloudCredentialsFactory;
+import com.owncloud.android.lib.common.network.CertificateCombinedException;
+import com.owncloud.android.lib.common.network.NetworkUtils;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.resources.files.FileUtils;
 import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
 import com.spisoft.sync.Log;
 import com.spisoft.sync.R;
+
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 
 public class NextCloudAuthorizeFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     public static final String EXTRA_ACCOUNT_ID="account_id";
@@ -142,6 +149,23 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
             );
             ReadRemoteFolderOperation refreshOperation = new ReadRemoteFolderOperation(FileUtils.PATH_SEPARATOR);
             RemoteOperationResult remoteOperationResult = refreshOperation.execute(client);
+            if(!remoteOperationResult.isSuccess()){
+                if(remoteOperationResult.getException() instanceof CertificateCombinedException){
+                    try {
+                        NetworkUtils.addCertToKnownServersStore(((CertificateCombinedException)remoteOperationResult.getException()).getServerCertificate(), getContext());
+                        refreshOperation = new ReadRemoteFolderOperation(FileUtils.PATH_SEPARATOR);
+                        remoteOperationResult = refreshOperation.execute(client);
+                    } catch (KeyStoreException e) {
+                        e.printStackTrace();
+                    } catch (NoSuchAlgorithmException e) {
+                        e.printStackTrace();
+                    } catch (CertificateException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
             return remoteOperationResult.isSuccess();
         }
         @Override
