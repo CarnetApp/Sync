@@ -31,7 +31,7 @@ public class NextCloudSyncLister {
      * returns null when error
      * @param path
      */
-    public List<RemoteFile> retrieveList(String path) {
+    public List<RemoteFile> retrieveList(String path) throws Exception {
         Log.d(TAG, "retrieveList "+path);
 
         ReadRemoteFolderOperation refreshOperation = new ReadRemoteFolderOperation((path.equals("/"))? FileUtils.PATH_SEPARATOR:path);
@@ -48,8 +48,7 @@ public class NextCloudSyncLister {
             }
             return remoteFiles;
         }else{
-            Log.d(TAG, "failure : "+remoteOperationResult.getException());
-            return null;
+            throw remoteOperationResult.getException();
         }
 
     }

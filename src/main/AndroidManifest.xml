@@ -13,13 +13,16 @@
         <activity
             android:name=".MainActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <service android:name=".synchro.SynchroService" />
 
-        <activity android:name=".account.AccountListActivity" android:label="@string/account_list"/>
-        <activity android:name=".wrappers.nextcloud.NextCloudAuthorizeActivity"></activity>
-        <activity android:name=".browsing.FilePickerActivity"></activity>
+        <activity
+            android:name=".account.AccountListActivity"
+            android:label="@string/account_list" />
+        <activity android:name=".wrappers.nextcloud.NextCloudAuthorizeActivity" />
+        <activity android:name=".browsing.FilePickerActivity" />
+        <activity android:name=".wrappers.nextcloud.CertificateActivity"></activity>
     </application>
 
 </manifest>

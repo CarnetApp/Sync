@@ -2,8 +2,12 @@ package com.spisoft.sync.wrappers.nextcloud;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Handler;
+import android.preference.PreferenceManager;
 
+import com.owncloud.android.lib.common.network.CertificateCombinedException;
 import com.owncloud.android.lib.common.operations.OperationCancelledException;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.resources.files.CreateRemoteFolderOperation;
@@ -19,6 +23,7 @@ import com.spisoft.sync.utils.FileUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +41,8 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     //link between relative path and remoteFile
     private Map <String, RemoteFile> metadataDownloadList;
     private String mCurrentlyLocalSyncedDir;
+
+    public static X509Certificate cert = null;
 
     /* private static final String MD5_CUSTOM_KEY = "md5_key";
      public static final int RESOLVE_CONNECTION_REQUEST_CODE = 1001;
@@ -404,7 +411,20 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     private int recursiveLoadFolder(String remotePath) {
 
         NextCloudSyncLister nextCloudSyncLister = mWrapper.getSyncLister();
-        List<RemoteFile> remoteFileList = nextCloudSyncLister.retrieveList(remotePath);
+        List<RemoteFile> remoteFileList = null;
+        try {
+            remoteFileList = nextCloudSyncLister.retrieveList(remotePath);
+        } catch (final Exception e) {
+
+            e.printStackTrace();
+            if(e instanceof  com.owncloud.android.lib.common.network.CertificateCombinedException && !PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("refuse_certificate", false)){
+                cert = ((CertificateCombinedException) e).getServerCertificate();
+                mContext.startActivity(new Intent(mContext, CertificateActivity.class));
+
+
+            }
+            return STATUS_FAILURE;
+        }
         Log.d(TAG,"retrieveList remotePath "+remotePath);
         NextCloudFileHelper.DBNextCloudFile nextCloudFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remotePath);
         if(remoteFileList == null) {
