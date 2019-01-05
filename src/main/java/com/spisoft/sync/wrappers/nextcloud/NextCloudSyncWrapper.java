@@ -419,7 +419,9 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             e.printStackTrace();
             if(e instanceof  com.owncloud.android.lib.common.network.CertificateCombinedException && !PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("refuse_certificate", false)){
                 cert = ((CertificateCombinedException) e).getServerCertificate();
-                mContext.startActivity(new Intent(mContext, CertificateActivity.class));
+                Intent i = new Intent(mContext, CertificateActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                mContext.startActivity(i);
 
 
             }
