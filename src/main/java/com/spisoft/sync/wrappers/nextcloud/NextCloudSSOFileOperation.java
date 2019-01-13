@@ -1,5 +1,7 @@
 package com.spisoft.sync.wrappers.nextcloud;
 
+import android.net.Uri;
+
 import com.nextcloud.android.sso.aidl.NextcloudRequest;
 import com.owncloud.android.lib.resources.files.RemoteFile;
 import com.spisoft.sync.utils.FileUtils;
@@ -21,6 +23,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
 
     @Override
     public boolean download(String remotePath, String to) {
+        remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
         NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
                 .setMethod("GET")
                 .setUrl("/remote.php/webdav/"+remotePath)
@@ -37,6 +40,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
 
     @Override
     public boolean upload(String fromFile, String remotePath) {
+        remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
         NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
                 .setMethod("PUT")
                 .setRequestFilePathToUpload(fromFile)
@@ -53,6 +57,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
 
     @Override
     public boolean mkdir(String remotePath) {
+        remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
         NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
                 .setMethod("MKCOL")
                 .setUrl("/remote.php/webdav/"+remotePath)
@@ -68,6 +73,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
 
     @Override
     public boolean delete(String remotePath) {
+        remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
         NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
                 .setMethod("DELETE")
                 .setUrl("/remote.php/webdav/"+remotePath)
@@ -83,6 +89,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
 
     @Override
     public RemoteFile getFileInfo(String remotePath) {
+        remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
         Map<String, List<String>> header = new HashMap<>();
         List<String>depth = new ArrayList<>();
         depth.add("0");

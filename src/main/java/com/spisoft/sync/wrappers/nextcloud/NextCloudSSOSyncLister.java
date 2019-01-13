@@ -1,5 +1,6 @@
 package com.spisoft.sync.wrappers.nextcloud;
 
+import android.net.Uri;
 import android.util.Log;
 
 import com.nextcloud.android.sso.aidl.NextcloudRequest;
@@ -80,11 +81,21 @@ public class NextCloudSSOSyncLister implements NextCloudSyncLister{
         return files;
     }
 
+    public static String encodePath(String remotePath){
+        String encoded = "";
+        for(String part:remotePath.split("/")){
+            encoded+="/"+Uri.encode(part);
+        }
+        encoded = encoded.substring(1);
+        return encoded;
+    }
+
     /**
      * throws exception when error
      * @param path
      */
     public List<RemoteFile> retrieveList(String path) throws Exception {
+        path = encodePath(path);
         Log.d(TAG, "retrieveList "+path);
         NextcloudAPI nextcloudAPI = mNextCloudWrapper.getNextcloudApi();
         NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
