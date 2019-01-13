@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +15,15 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.Spinner;
 
+import com.google.gson.GsonBuilder;
+import com.nextcloud.android.sso.AccountImporter;
+import com.nextcloud.android.sso.api.NextcloudAPI;
+import com.nextcloud.android.sso.exceptions.NextcloudFilesAppAccountNotFoundException;
+import com.nextcloud.android.sso.exceptions.NextcloudFilesAppNotInstalledException;
+import com.nextcloud.android.sso.exceptions.NoCurrentAccountSelectedException;
+import com.nextcloud.android.sso.helper.SingleAccountHelper;
+import com.nextcloud.android.sso.model.SingleSignOnAccount;
+import com.nextcloud.android.sso.ui.UiExceptionManager;
 import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.OwnCloudClientFactory;
 import com.owncloud.android.lib.common.OwnCloudCredentialsFactory;
@@ -42,11 +50,59 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
     private int mAccountId;
     private Spinner mServerSpinner;
     private View mRemoteInputContainer;
-    private OnConnectClickListener mOnConnectClickListener;
+    private OnConnectedListener mOnConnectedListener;
     private View mNewAccountButton;
     private View mLoadingView;
     private CheckCredentialsTask mCheckCredentialsTask;
     private View mErrorTV;
+
+    private void openAccountChooser() {
+        try {
+            AccountImporter.pickNewAccount(this);
+        } catch (NextcloudFilesAppNotInstalledException e) {
+            UiExceptionManager.showDialogForException(getActivity(), e);
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        AccountImporter.onActivityResult(requestCode, resultCode, data, this, new AccountImporter.IAccountAccessGranted() {
+            @Override
+            public void accountAccessGranted(SingleSignOnAccount account) {
+                // As this library supports multiple accounts we created some helper methods if you only want to use one.
+                // The following line stores the selected account as the "default" account which can be queried by using
+                // the SingleAccountHelper.getCurrentSingleSignOnAccount(context) method
+                SingleAccountHelper.setCurrentAccount(getActivity(), account.name);
+
+                // Get the "default" account
+                SingleSignOnAccount ssoAccount = null;
+                try {
+                    ssoAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(getActivity());
+                    NextcloudAPI nextcloudAPI = new NextcloudAPI(getActivity(), ssoAccount, new GsonBuilder().create(), callback);
+                } catch (NextcloudFilesAppAccountNotFoundException e) {
+                    e.printStackTrace();
+                } catch (NoCurrentAccountSelectedException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+    }
+
+    NextcloudAPI.ApiConnectedListener callback = new NextcloudAPI.ApiConnectedListener() {
+        @Override
+        public void onConnected() {
+            NextCloudAuthorizeFragment.this.onConnected(true);
+        }
+
+        @Override
+        public void onError(Exception ex) {
+            // TODO handle errors
+        }
+    };
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -73,17 +129,18 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
         mNewAccountButton.setOnClickListener(this);
         mServerSpinner.setOnItemSelectedListener(this);
         mLoadingView = view.findViewById(R.id.loading);
+        openAccountChooser();
     }
 
     public void setInstance(String instance) {
         mRemoteInput.setText(instance);
     }
 
-    public interface OnConnectClickListener{
-        void onConnectClick(String remote, String username, String password);
+    public interface OnConnectedListener {
+        void onConnected(boolean singleSignOn, String remote, String username, String password);
     }
-    public void setOnConnectClickListener(OnConnectClickListener onConnectClickListener){
-        mOnConnectClickListener = onConnectClickListener;
+    public void setOnConnectClickListener(OnConnectedListener onConnectedListener){
+        mOnConnectedListener = onConnectedListener;
     }
     @Override
     public void onClick(View view) {
@@ -133,7 +190,19 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
     public void onNothingSelected(AdapterView<?> adapterView) {
 
     }
+    private void onConnected(boolean singleSignOn){
+        if(mOnConnectedListener != null){
+            mOnConnectedListener.onConnected(singleSignOn, mRemoteInput.getText().toString(),
+                    mUsernameInput.getText().toString(), mPasswordInput.getText().toString());
 
+        }else {
+            NextCloudCredentialsHelper.Credentials cred = NextCloudCredentialsHelper.getInstance(getActivity()).addOrReplaceAccount(new NextCloudCredentialsHelper.Credentials(-1, mAccountId, mRemoteInput.getText().toString(),
+                    mUsernameInput.getText().toString(), mPasswordInput.getText().toString()));
+            Log.d("accounddebug", "added " + cred.id);
+            getActivity().setResult(Activity.RESULT_OK);
+            getActivity().finish();
+        }
+    }
 
     public class CheckCredentialsTask extends AsyncTask<Void, Void, Boolean>{
 
@@ -168,21 +237,12 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
             }
             return remoteOperationResult.isSuccess();
         }
+
         @Override
         protected void onPostExecute(Boolean result) {
             mLoadingView.setVisibility(View.GONE);
             if(result){
-                if(mOnConnectClickListener != null){
-                    mOnConnectClickListener.onConnectClick(mRemoteInput.getText().toString(),
-                            mUsernameInput.getText().toString(), mPasswordInput.getText().toString());
-
-                }else {
-                    NextCloudCredentialsHelper.Credentials cred = NextCloudCredentialsHelper.getInstance(getActivity()).addOrReplaceAccount(new NextCloudCredentialsHelper.Credentials(-1, mAccountId, mRemoteInput.getText().toString(),
-                            mUsernameInput.getText().toString(), mPasswordInput.getText().toString()));
-                    Log.d("accounddebug", "added " + cred.id);
-                    getActivity().setResult(Activity.RESULT_OK);
-                    getActivity().finish();
-                }
+                onConnected(false);
             }
             else{
                 mErrorTV.setVisibility(View.VISIBLE);

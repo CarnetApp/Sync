@@ -10,23 +10,28 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.Log;
 
+import com.google.gson.GsonBuilder;
+import com.nextcloud.android.sso.api.NextcloudAPI;
+import com.nextcloud.android.sso.exceptions.NextcloudFilesAppAccountNotFoundException;
+import com.nextcloud.android.sso.exceptions.NoCurrentAccountSelectedException;
+import com.nextcloud.android.sso.helper.SingleAccountHelper;
+import com.nextcloud.android.sso.model.SingleSignOnAccount;
 import com.owncloud.android.lib.common.OwnCloudClient;
 import com.owncloud.android.lib.common.OwnCloudClientFactory;
 import com.owncloud.android.lib.common.OwnCloudCredentialsFactory;
 import com.owncloud.android.lib.common.operations.OnRemoteOperationListener;
 import com.owncloud.android.lib.common.operations.RemoteOperation;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
-import com.owncloud.android.lib.resources.files.FileUtils;
 import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.RemoteFile;
 import com.spisoft.sync.R;
 import com.spisoft.sync.synchro.SyncWrapper;
-import com.spisoft.sync.utils.Utils;
 import com.spisoft.sync.wrappers.AsyncLister;
 import com.spisoft.sync.wrappers.DBWrapper;
 import com.spisoft.sync.wrappers.Wrapper;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Created by alexandre on 15/03/17.
@@ -39,6 +44,9 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
     private Object syncLock = new Object();
     private OwnCloudClient mClient;
     public static final int ACCOUNT_TYPE = 1;
+    private SingleSignOnAccount mSsoAccount;
+    private NextcloudAPI mNextcloudAPI;
+
     public NextCloudWrapper(Context context, Integer accountID){
         super(context, accountID);
         Log.d("accounddebug","open "+accountID);
@@ -65,16 +73,69 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
         //check whether we have credentials
         NextCloudCredentialsHelper.Credentials credentials = NextCloudCredentialsHelper.getInstance(mContext).getCredentials(accountID);
         if(credentials!=null) {
-            mClient = OwnCloudClientFactory.createOwnCloudClient(
-                    Uri.parse(credentials.remote),
-                    mContext,
-                    // Activity or Service context
-                    true);
-            mClient.setCredentials(
-                   OwnCloudCredentialsFactory.newBasicCredentials(credentials.username, credentials.password)
-            );
+            if(credentials.remote != null && !credentials.remote.isEmpty()) {
+                mClient = OwnCloudClientFactory.createOwnCloudClient(
+                        Uri.parse(credentials.remote),
+                        mContext,
+                        // Activity or Service context
+                        true);
+
+                mClient.setCredentials(
+                        OwnCloudCredentialsFactory.newBasicCredentials(credentials.username, credentials.password)
+                );
+            } else {
+                try {
+                    mSsoAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(mContext);
+                } catch (NextcloudFilesAppAccountNotFoundException e) {
+                    e.printStackTrace();
+                } catch (NoCurrentAccountSelectedException e) {
+                    e.printStackTrace();
+                }
+
+            }
+
+        }else {
+            try {
+                mSsoAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(mContext);
+            } catch (NextcloudFilesAppAccountNotFoundException e) {
+                e.printStackTrace();
+            } catch (NoCurrentAccountSelectedException e) {
+                e.printStackTrace();
+            }
 
         }
+    }
+
+    public boolean connectToApi(){
+        boolean result = false;
+        final AtomicReference<Boolean> notifier = new AtomicReference();
+        mNextcloudAPI = new NextcloudAPI(mContext, mSsoAccount, new GsonBuilder().create(), new NextcloudAPI.ApiConnectedListener() {
+            @Override
+            public void onConnected() {
+                synchronized (notifier) {
+                    notifier.set(true);
+                    notifier.notify();
+                }
+            }
+
+            @Override
+            public void onError(Exception e) {
+                synchronized (notifier) {
+                    notifier.set(false);
+                    notifier.notify();
+                }
+            }
+        });
+        synchronized (notifier) {
+            while (notifier.get() == null) {
+                try {
+                    notifier.wait();
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return notifier.get();
     }
 
 
@@ -92,11 +153,14 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
 
     @Override
     public AsyncLister getAsyncLister(String path) {
-        return new NextCloudAsyncLister(mClient, path, mAccountId);
+        return new NextCloudAsyncLister(this, path, mAccountId);
     }
 
     public NextCloudSyncLister getSyncLister() {
-        return new NextCloudSyncLister(mClient);
+        if(mSsoAccount == null)
+            return new NextCloudOCSyncLister(mClient);
+        else
+            return new NextCloudSSOSyncLister(this);
     }
 
     @Override
@@ -145,6 +209,23 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
 
     public OwnCloudClient getClient() {
         return mClient;
+    }
+
+    public NextcloudAPI getNextcloudApi() {
+        if(mNextcloudAPI == null)
+            connectToApi();
+        return mNextcloudAPI;
+    }
+
+    public SingleSignOnAccount getSSOAccount() {
+        return mSsoAccount;
+    }
+
+    public NextCloudFileOperation getFileOperation() {
+        if(mSsoAccount == null)
+            return new NextCloudOCFileOperation(mClient);
+        else
+            return new NextCloudSSOFileOperation(this);
     }
 
     public static abstract class NextCloudResultListener implements OnRemoteOperationListener{

@@ -4,25 +4,16 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Handler;
 import android.preference.PreferenceManager;
 
 import com.owncloud.android.lib.common.network.CertificateCombinedException;
-import com.owncloud.android.lib.common.operations.OperationCancelledException;
-import com.owncloud.android.lib.common.operations.RemoteOperationResult;
-import com.owncloud.android.lib.resources.files.CreateRemoteFolderOperation;
-import com.owncloud.android.lib.resources.files.ReadRemoteFileOperation;
-import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.RemoteFile;
-import com.owncloud.android.lib.resources.files.RemoveRemoteFileOperation;
-import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
 import com.spisoft.sync.Log;
 import com.spisoft.sync.synchro.SyncWrapper;
 import com.spisoft.sync.synchro.SynchroService;
 import com.spisoft.sync.utils.FileUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,40 +35,17 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
     public static X509Certificate cert = null;
 
-    /* private static final String MD5_CUSTOM_KEY = "md5_key";
-     public static final int RESOLVE_CONNECTION_REQUEST_CODE = 1001;
-     private GoogleDriveAccountHelper.GoogleAccount mGoogleAccount;
-     private Map<String,Metadata> metadataList = new HashMap<>();
-     private Map<String,Object> metadataFullList = new HashMap<>(); // even when folder, do not start with / or end with /
-     private GoogleApiClient mGoogleApiClient;
-     private Activity mActiviy;
-     private Map<String, Metadata> metadataDownloadList = new HashMap<>();
- */
     public NextCloudSyncWrapper(Context ct, int accountID, NextCloudWrapper wrapper) {
         super(ct, accountID);
         mWrapper = wrapper;
         mRemoteFiles = new HashMap();
         metadataDownloadList = new HashMap();
-      /*  mGoogleAccount = GoogleDriveAccountHelper.getInstance(ct).getGoogleAccount(accountID);
 
-        mGoogleApiClient = new GoogleApiClient.Builder(ct)
-                .addApi(Drive.API)
-                .addScope(Drive.SCOPE_FILE)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .build();
-
-*/
-       // mGoogleApiClient = mGoogleAccount.googleApiClient;
     }
 
 
     public int connect(){
-      /*  ConnectionResult connectionResult = mGoogleApiClient.blockingConnect();
-        if(!connectionResult.isSuccess())
-            return ERROR;
-        Status result = Drive.DriveApi.requestSync(mGoogleApiClient).await(); //SYNC file status
-*/
+
         return STATUS_SUCCESS;
     }
 
@@ -253,17 +221,15 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         if(file.isDirectory()) {
             Log.d(TAG, "uploading directory ");
 
-            CreateRemoteFolderOperation remoteFolderOperation = new CreateRemoteFolderOperation(remotePath, true);
-            if(remoteFolderOperation.execute(mWrapper.getClient()).isSuccess()){
+            boolean success = mWrapper.getFileOperation().mkdir(remotePath);
+            if(success){
                 Log.d(TAG, "CreateRemoteFolderOperation success ");
 
                 //record it
-                ReadRemoteFolderOperation readRemoteFolderOperation = new ReadRemoteFolderOperation(remotePath);
-                RemoteOperationResult remoteOperationResult = readRemoteFolderOperation.execute(mWrapper.getClient());
+                RemoteFile remoteFile = mWrapper.getFileOperation().getFileInfo(remotePath);
                 Log.d(TAG, "CreateRemoteFolderOperation success ");
 
-                if(remoteOperationResult.isSuccess()){
-                    RemoteFile remoteFile = (RemoteFile) remoteOperationResult.getData().get(0);
+                if(remoteFile != null){
                     Log.d(TAG, "CreateRemoteFolderOperation etag  "+remoteFile.getEtag());
                     mRemoteFiles.put(remotePath, remoteFile);
                     nextCloudFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
@@ -277,19 +243,13 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         }
         else {
             Log.d(TAG, "upload file ");
-
-            UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation(file.getAbsolutePath(), remotePath, null);
-            RemoteOperationResult result = uploadOperation.execute(mWrapper.getClient());
-            if (result.isSuccess()) {
+            boolean isSuccess = mWrapper.getFileOperation().upload(file.getAbsolutePath(), remotePath);
+            if (isSuccess) {
                 //record it
                 Log.d(TAG, "upload success ");
-
-                ReadRemoteFileOperation readRemoteFileOperation = new ReadRemoteFileOperation(remotePath);
-                result = readRemoteFileOperation.execute(mWrapper.getClient());
-                if (result.isSuccess()) {
+                RemoteFile remoteFile = mWrapper.getFileOperation().getFileInfo(remotePath);
+                if (remoteFile != null) {
                     Log.d(TAG, "read success ");
-
-                    RemoteFile remoteFile = (RemoteFile) result.getData().get(0);
                     nextCloudFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
                     nextCloudFile.md5 = md5;
                     nextCloudFile.remoteMimeType = remoteFile.getMimeType();
@@ -298,7 +258,6 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 }
 
             }
-            else Log.d(TAG, result.getLogMessage());
         }
         return STATUS_FAILURE;
 
@@ -320,9 +279,8 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             if(remoteFile.getEtag().equals(driveFile.currentlyDownloadedOnlineEtag)){
                 Log.d(TAG, "was deleted locally");
                 //was deleted locally
-                RemoveRemoteFileOperation uploadOperation = new RemoveRemoteFileOperation(remoteFile.getRemotePath());
-                RemoteOperationResult result = uploadOperation.execute(mWrapper.getClient());
-                if(!result.isSuccess()){
+                boolean success = mWrapper.getFileOperation().delete(remoteFile.getRemotePath());
+                if(!success){
                     return new SynchroService.Result(STATUS_FAILURE, modified);
                 }else{
                     NextCloudFileHelper.getInstance(mContext).delete(driveFile);
@@ -353,19 +311,12 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             return STATUS_SUCCESS;
         } else {
             SynchroService.sService.showForegroundNotification("Downloading "+ Uri.parse(remoteFile.getRemotePath()).getLastPathSegment());
-            MyDownloadRemoteFileOperation readRemoteFileOperation = new MyDownloadRemoteFileOperation(remoteFile.getRemotePath(), localFile);
-            try {
-                readRemoteFileOperation.logHeader(mWrapper.getClient());
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (OperationCancelledException e) {
-                e.printStackTrace();
-            }
-            RemoteOperationResult result = readRemoteFileOperation.execute(mWrapper.getClient());
+            boolean success = mWrapper.getFileOperation().download(remoteFile.getRemotePath(), localFile);
+
             Log.d(TAG,"download ?");
             SynchroService.sService.resetNotification();
 
-            if (result.isSuccess()) {
+            if (success) {
                 Log.d(TAG,"success ?");
 
                 //record in DB

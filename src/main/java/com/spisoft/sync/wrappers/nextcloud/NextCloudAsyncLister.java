@@ -1,5 +1,6 @@
 package com.spisoft.sync.wrappers.nextcloud;
 
+import android.os.AsyncTask;
 import android.util.Log;
 
 import com.owncloud.android.lib.common.OwnCloudClient;
@@ -23,13 +24,13 @@ import android.os.Handler;
 
 public class NextCloudAsyncLister implements AsyncLister {
     private static final String TAG = "NextCloudAsyncLister";
-    private final OwnCloudClient mClient;
     private final long mAccountId;
     private final Handler mHandler;
     private final String mPath;
+    private final NextCloudWrapper mWrapper;
     private Map<Integer, AsyncListerListener> mListenerMap ;
-    public NextCloudAsyncLister(OwnCloudClient client, String path, long accountId){
-        mClient = client;
+    public NextCloudAsyncLister(NextCloudWrapper wrapper, String path, long accountId){
+        mWrapper = wrapper;
         mListenerMap = new HashMap<>();
         mAccountId = accountId;
         mHandler = new Handler();
@@ -43,30 +44,29 @@ public class NextCloudAsyncLister implements AsyncLister {
 
     @Override
     public void retrieveList(int requestCode, AsyncListerListener asyncListerListener) {
-        ReadRemoteFolderOperation refreshOperation = new ReadRemoteFolderOperation((mPath.equals("/"))?FileUtils.PATH_SEPARATOR:mPath);
-        // root folder
 
-        refreshOperation.execute(mClient, new NextCloudListerResultListener(requestCode,asyncListerListener), mHandler);
+        new ListerTask(requestCode, asyncListerListener,  mPath.equals("/")?FileUtils.PATH_SEPARATOR:mPath).execute();
 
     }
 
-    private class NextCloudListerResultListener extends NextCloudWrapper.NextCloudResultListener {
-
+    public class ListerTask extends AsyncTask<Void, Void, List<FileItem>>{
         private final AsyncListerListener mAsyncListerListener;
+        private final String mRemotePath;
+        private final int mRequestCode;
 
-        public NextCloudListerResultListener(int requestCode, AsyncListerListener asyncListerListener) {
-            super(requestCode);
+        public ListerTask(int requestCode, AsyncListerListener asyncListerListener, String remotePath) {
+            mRequestCode = requestCode;
             mAsyncListerListener = asyncListerListener;
+            mRemotePath = remotePath;
         }
 
         @Override
-        public void onRemoteOperationFinish(RemoteOperation remoteOperation, RemoteOperationResult remoteOperationResult) {
-            if(remoteOperationResult.isSuccess()){
+        protected List<FileItem> doInBackground(Void... voids) {
+            try {
+                List<RemoteFile> list = mWrapper.getSyncLister().retrieveList(mRemotePath);
                 List<FileItem> files= new ArrayList<>();
                 List<FileItem> folders= new ArrayList<>();
-                ArrayList<Object> objects = remoteOperationResult.getData();
-                for(Object obj : objects){
-                    RemoteFile file = (RemoteFile) obj;
+                for(RemoteFile file : list){
                     FileItem item = new NextCloudFileItem(file, mAccountId);
                     Log.d(TAG,"file "+file.getRemotePath());
                     if(!file.getRemotePath().equals(mPath)) {
@@ -80,8 +80,19 @@ public class NextCloudAsyncLister implements AsyncLister {
                 List<FileItem> items = new ArrayList<>();
                 items.addAll(folders);
                 items.addAll(files);
-                mAsyncListerListener.onListingResult(mRequestCode, ResultCode.RESULT_OK, items);
+                return items;
+            } catch (Exception e) {
+                e.printStackTrace();
             }
+
+            return null;
+        }
+
+        protected void onPostExecute(List<FileItem> result) {
+            if(result!=null)
+                mAsyncListerListener.onListingResult(mRequestCode, ResultCode.RESULT_OK, result);
+            else
+                mAsyncListerListener.onListingResult(mRequestCode, ResultCode.RESULT_FAILURE, result);
         }
     }
 }

@@ -28,6 +28,7 @@ import com.spisoft.sync.database.SyncedFolderDBHelper;
 import com.spisoft.sync.utils.FileUtils;
 import com.spisoft.sync.wrappers.Wrapper;
 import com.spisoft.sync.wrappers.WrapperFactory;
+import com.spisoft.sync.wrappers.nextcloud.NextCloudSyncWrapper;
 
 import java.io.File;
 import java.text.DateFormat;
