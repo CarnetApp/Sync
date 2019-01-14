@@ -102,12 +102,10 @@ public class NextCloudSSOSyncLister implements NextCloudSyncLister{
                 .setMethod("PROPFIND")
                 .setUrl("/remote.php/webdav/"+path)
                 .build();
-
         InputStream inputStream = nextcloudAPI.performNetworkRequest(nextcloudRequest);
-        /*StringWriter writer = new StringWriter();
-        IOUtils.copy(inputStream, writer, "utf8");
-        String theString = writer.toString();
-        Log.d(TAG,theString);*/
-        return parseInputStream(inputStream);
+        List<RemoteFile> result = parseInputStream(inputStream);
+        if(result.size()>0)
+            result.remove(0);
+        return result;
     }
 }

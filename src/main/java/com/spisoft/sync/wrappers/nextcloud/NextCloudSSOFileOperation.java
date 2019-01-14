@@ -55,11 +55,10 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
         remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
         NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
                 .setMethod("PUT")
-                .setRequestFilePathToUpload(fromFile)
                 .setUrl("/remote.php/webdav/"+remotePath)
                 .build();
         try {
-            mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
+            mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest, new FileInputStream(fromFile));
             return true;
         } catch (Exception e) {
             e.printStackTrace();
