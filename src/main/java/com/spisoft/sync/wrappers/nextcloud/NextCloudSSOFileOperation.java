@@ -1,11 +1,14 @@
 package com.spisoft.sync.wrappers.nextcloud;
 
 import android.net.Uri;
+import android.util.Log;
 
 import com.nextcloud.android.sso.aidl.NextcloudRequest;
 import com.owncloud.android.lib.resources.files.RemoteFile;
 import com.spisoft.sync.utils.FileUtils;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -14,6 +17,7 @@ import java.util.List;
 import java.util.Map;
 
 public class NextCloudSSOFileOperation implements NextCloudFileOperation {
+    static final String TAG = "NextCloudSSOFileOperation";
     private final NextCloudWrapper mNextCloudWrapper;
 
 
@@ -23,15 +27,23 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
 
     @Override
     public boolean download(String remotePath, String to) {
+        File parent =  new File(to).getParentFile();
+        parent.mkdirs();
         remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
         NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
                 .setMethod("GET")
                 .setUrl("/remote.php/webdav/"+remotePath)
                 .build();
         try {
+            File tmp = new File(parent, ".tmp"+System.currentTimeMillis());
             InputStream inputStream = mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
-            FileUtils.copy(inputStream, new FileOutputStream(to));
-            return true;
+            FileUtils.copy(inputStream, new FileOutputStream(tmp));
+            if(tmp.exists() && tmp.length() > 0){
+                File dest = new File(to);
+                dest.delete();
+                return tmp.renameTo(dest);
+            }
+            return false;
         } catch (Exception e) {
             e.printStackTrace();
         }
