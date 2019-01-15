@@ -129,7 +129,7 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
         mNewAccountButton.setOnClickListener(this);
         mServerSpinner.setOnItemSelectedListener(this);
         mLoadingView = view.findViewById(R.id.loading);
-        openAccountChooser();
+        //openAccountChooser();
     }
 
     public void setInstance(String instance) {
