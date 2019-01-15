@@ -34,17 +34,24 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
                 .setMethod("GET")
                 .setUrl("/remote.php/webdav/"+remotePath)
                 .build();
+        File tmp = new File(parent, ".donotsync.tmp"+System.currentTimeMillis());
         try {
-            File tmp = new File(parent, ".tmp"+System.currentTimeMillis());
             InputStream inputStream = mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
             FileUtils.copy(inputStream, new FileOutputStream(tmp));
-            if(tmp.exists() && tmp.length() > 0){
-                File dest = new File(to);
-                dest.delete();
-                return tmp.renameTo(dest);
+            if(tmp.exists()){
+                if(tmp.length() > 0) {
+                    File dest = new File(to);
+                    dest.delete();
+                    boolean success = tmp.renameTo(dest);
+                    if(!success)
+                        tmp.delete();
+                    return success;
+                }
+                tmp.delete();
             }
-            return false;
         } catch (Exception e) {
+            if(tmp.exists())
+                tmp.delete();
             e.printStackTrace();
         }
         return false;

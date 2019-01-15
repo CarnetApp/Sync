@@ -14,6 +14,7 @@ import com.owncloud.android.lib.resources.files.RemoveRemoteFileOperation;
 import com.owncloud.android.lib.resources.files.UploadRemoteFileOperation;
 import com.spisoft.sync.wrappers.FileItem;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,17 +25,24 @@ import java.util.List;
 
 public class NextCloudOCFileOperation implements NextCloudFileOperation {
 
-    private static final String TAG = "NextCloudSyncLister";
+    private static final String TAG = "NextCloudOCFileOperation";
     private final OwnCloudClient mClient;
+    private final NextCloudWrapper mNextCloudWrapper;
 
-    public NextCloudOCFileOperation(OwnCloudClient client) {
-        mClient = client;
+    public NextCloudOCFileOperation(NextCloudWrapper wrapper) {
+        mNextCloudWrapper = wrapper;
+        mClient = wrapper.getClient();
     }
 
 
     @Override
     public boolean download(String remotePath, String to) {
-        MyDownloadRemoteFileOperation readRemoteFileOperation = new MyDownloadRemoteFileOperation(remotePath, to);
+        Log.d(TAG, "download " +remotePath+" to "+to);
+        File dest = new File(to);
+        File parent = dest.getParentFile();
+        parent.mkdirs();
+        File tmp = new File(parent, ".donotsync.tmp"+System.currentTimeMillis());
+        MyDownloadRemoteFileOperation readRemoteFileOperation = new MyDownloadRemoteFileOperation(remotePath, tmp.getAbsolutePath());
         try {
             readRemoteFileOperation.logHeader(mClient);
         } catch (IOException e) {
@@ -43,7 +51,22 @@ public class NextCloudOCFileOperation implements NextCloudFileOperation {
             e.printStackTrace();
         }
         RemoteOperationResult result = readRemoteFileOperation.execute(mClient);
-        return result.isSuccess();
+        if(tmp.exists()) {
+            Log.d(TAG, "tmp.exists");
+            if (result.isSuccess()) {
+                Log.d(TAG, "result success");
+                if(tmp.length()>0){
+                    dest.delete();
+                    boolean success = tmp.renameTo(dest);
+                    Log.d(TAG, "renaming... "+success);
+                    if(!success)
+                        tmp.delete();
+                    return success;
+                }
+            }
+            tmp.delete();
+        }
+        return false;
     }
 
     @Override

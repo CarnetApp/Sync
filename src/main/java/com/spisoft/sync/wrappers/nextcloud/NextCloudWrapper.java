@@ -227,7 +227,7 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
 
     public NextCloudFileOperation getFileOperation() {
         if(mSsoAccount == null)
-            return new NextCloudOCFileOperation(mClient);
+            return new NextCloudOCFileOperation(this);
         else
             return new NextCloudSSOFileOperation(this);
     }
