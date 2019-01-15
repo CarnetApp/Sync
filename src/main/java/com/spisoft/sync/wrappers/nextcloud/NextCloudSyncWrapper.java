@@ -266,6 +266,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     @Override
     public SynchroService.Result endOfSync() {
         List<String> modified = new ArrayList<>();
+        List<RemoteFile> folderToEventuallyDelete = new ArrayList<>();
         //download
         for(String file : metadataDownloadList.keySet()){
             Log.d(TAG, "remote "+file);
@@ -277,13 +278,19 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 driveFile.accountID = mAccountID;
             }
             if(remoteFile.getEtag().equals(driveFile.currentlyDownloadedOnlineEtag)){
-                Log.d(TAG, "was deleted locally");
-                //was deleted locally
-                boolean success = mWrapper.getFileOperation().delete(remoteFile.getRemotePath());
-                if(!success){
-                    return new SynchroService.Result(STATUS_FAILURE, modified);
-                }else{
-                    NextCloudFileHelper.getInstance(mContext).delete(driveFile);
+                if(remoteFile.getMimeType().equals("DIR")) {
+                    folderToEventuallyDelete.add(remoteFile);
+                    //delete folder only if no files are downloaded after.
+                }
+                else {
+                    Log.d(TAG, "was deleted locally");
+                    //was deleted locally
+                    boolean success = mWrapper.getFileOperation().delete(remoteFile.getRemotePath());
+                    if (!success) {
+                        return new SynchroService.Result(STATUS_FAILURE, modified);
+                    } else {
+                        NextCloudFileHelper.getInstance(mContext).delete(driveFile);
+                    }
                 }
 
             }else{
@@ -294,6 +301,25 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     return new SynchroService.Result(STATUS_FAILURE, modified);
                 modified.add(getLocalPathFromRemote(file));
             }
+        }
+        for (RemoteFile folder : folderToEventuallyDelete){
+            if(!new File(getLocalPathFromRemote(folder.getRemotePath())).exists()){
+                String remoteFilePath = folder.getRemotePath();
+                if(remoteFilePath.startsWith("/"))
+                    remoteFilePath = remoteFilePath.substring(1);
+                if(remoteFilePath.endsWith("/"))
+                    remoteFilePath = remoteFilePath.substring(0, remoteFilePath.length()-1);
+                NextCloudFileHelper.DBNextCloudFile driveFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remoteFilePath);
+                Log.d(TAG, "folder " + folder.getRemotePath() + " was deleted locally");
+                //was deleted locally
+                boolean success = mWrapper.getFileOperation().delete(folder.getRemotePath());
+                if (!success) {
+                    return new SynchroService.Result(STATUS_FAILURE, modified);
+                } else {
+                    NextCloudFileHelper.getInstance(mContext).delete(driveFile);
+                }
+            }
+
         }
         return new SynchroService.Result(STATUS_SUCCESS,modified);
     }
@@ -399,8 +425,8 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 etag = remoteFile.getEtag();
                 //check dire etag with db, if last visit = OK and ETAG hasn't changed, fill with DB and break
 
-                if(nextCloudFile!=null&&etag.equals(nextCloudFile.currentlyDownloadedOnlineEtag) && nextCloudFile.visitStatus == NextCloudFileHelper.DBNextCloudFile.VisitStatus.STATUS_OK) {
-                    Log.d(TAG, "hasn't changed");
+                if(nextCloudFile!=null&&etag.equals(nextCloudFile.onlineEtag) && nextCloudFile.visitStatus == NextCloudFileHelper.DBNextCloudFile.VisitStatus.STATUS_OK) {
+                    Log.d(TAG, "hasn't changed "+etag);
                     List<NextCloudFileHelper.DBNextCloudFile> list = NextCloudFileHelper.getInstance(mContext).getChildrenTree(mAccountID, remotePath);
                     remoteFileList.clear();
                     for(NextCloudFileHelper.DBNextCloudFile nextCloudFile1  : list){
@@ -448,7 +474,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             nextCloudFile.accountID = mAccountID;
         }
         // write folder to db with visit = success
-        nextCloudFile.currentlyDownloadedOnlineEtag = etag;
+        nextCloudFile.onlineEtag = etag;
         nextCloudFile.visitStatus = NextCloudFileHelper.DBNextCloudFile.VisitStatus.STATUS_OK;
         NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFile);
         return STATUS_SUCCESS;

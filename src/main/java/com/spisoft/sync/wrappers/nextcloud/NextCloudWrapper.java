@@ -69,6 +69,10 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
         mAsyncHandler = new Handler(mHandlerThread.getLooper());
     }
 
+    public Context getContext(){
+        return mContext;
+    }
+
     private void setCredentials(int accountID) {
         //check whether we have credentials
         NextCloudCredentialsHelper.Credentials credentials = NextCloudCredentialsHelper.getInstance(mContext).getCredentials(accountID);
