@@ -388,6 +388,10 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     private int recursiveLoadFolder(String remotePath) {
 
         NextCloudSyncLister nextCloudSyncLister = mWrapper.getSyncLister();
+        NextCloudFileHelper.DBNextCloudFile nextCloudFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remotePath);
+        if(nextCloudFile == null) {
+            nextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
+        }
         List<RemoteFile> remoteFileList = null;
         try {
             remoteFileList = nextCloudSyncLister.retrieveList(remotePath);
@@ -399,13 +403,12 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 Intent i = new Intent(mContext, CertificateActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivity(i);
-
-
             }
+            markVisitFailed(nextCloudFile);
             return STATUS_FAILURE;
         }
         Log.d(TAG,"retrieveList remotePath "+remotePath);
-        NextCloudFileHelper.DBNextCloudFile nextCloudFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remotePath);
+
         if(remoteFileList == null) {
             Log.d(TAG,"remoteFileList is null");
             markVisitFailed(nextCloudFile);
@@ -423,7 +426,8 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 remoteFilePath = remoteFilePath.substring(0, remoteFilePath.length()-1);
             if(remoteFilePath.equals(remotePath)) {
                 etag = remoteFile.getEtag();
-                //check dire etag with db, if last visit = OK and ETAG hasn't changed, fill with DB and break
+                //First item is usually current directory
+                //check dir etag with db, if last visit = OK and ETAG hasn't changed, fill with DB and break
 
                 if(nextCloudFile!=null&&etag.equals(nextCloudFile.onlineEtag) && nextCloudFile.visitStatus == NextCloudFileHelper.DBNextCloudFile.VisitStatus.STATUS_OK) {
                     Log.d(TAG, "hasn't changed "+etag);
@@ -449,25 +453,25 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 continue;
             }
             mRemoteFiles.put(remoteFilePath, remoteFile);
-            metadataDownloadList.put(remoteFilePath, remoteFile);
-            NextCloudFileHelper.DBNextCloudFile nextCloudFileChild = new NextCloudFileHelper.DBNextCloudFile();
-            nextCloudFileChild.accountID = mAccountID;
-            nextCloudFileChild.relativePath = remoteFilePath;
-            nextCloudFileChild.remoteMimeType = remoteFile.getMimeType();
-            Log.d(TAG, "put etag for "+remoteFilePath+" : "+remoteFile.getEtag());
-
-            nextCloudFileChild.onlineEtag = remoteFile.getEtag() ;//needed to fill in RemoteFile when loading from DB
-            NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFileChild);
-            Log.d(TAG, "check etag "+NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID,remoteFilePath).onlineEtag);
-            ;
+            metadataDownloadList.put(remoteFilePath, remoteFile);;
             Log.d(TAG, remoteFile.getRemotePath());
             if("DIR".equals(remoteFile.getMimeType())){
                 if(recursiveLoadFolder(remoteFilePath) == STATUS_FAILURE) {
                     markVisitFailed(nextCloudFile);
                     return STATUS_FAILURE;
                 }
-
             }
+            // saving item to database
+            // online etag must be updated AFTER visiting the folder otherwise it will be marked as visited OK even if it wasn't
+            NextCloudFileHelper.DBNextCloudFile nextCloudFileChild = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remoteFilePath);
+            if(nextCloudFileChild == null) {
+                nextCloudFileChild = new NextCloudFileHelper.DBNextCloudFile(remoteFilePath);
+            }
+            nextCloudFileChild.accountID = mAccountID;
+            nextCloudFileChild.relativePath = remoteFilePath;
+            nextCloudFileChild.remoteMimeType = remoteFile.getMimeType();
+            nextCloudFileChild.onlineEtag = remoteFile.getEtag() ;//needed to fill in RemoteFile when loading from DB
+            NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFileChild);
         }
         if(nextCloudFile == null) {
             nextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
