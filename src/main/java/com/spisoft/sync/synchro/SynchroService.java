@@ -330,6 +330,8 @@ public class SynchroService extends Service{
         private Result recursiveSync(File file, SyncWrapper syncWrapper, boolean isRoot) {
             List<String>modifiedFiles = new ArrayList<>();
             Result result;
+            if(file.getName().startsWith(".donotsync"))
+                return new Result(SUCCESS, modifiedFiles);
             if(file.isDirectory()){
                 int folderStatus = 0;
                 if(true) {
