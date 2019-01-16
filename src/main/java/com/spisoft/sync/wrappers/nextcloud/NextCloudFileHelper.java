@@ -24,6 +24,7 @@ public class NextCloudFileHelper {
     private static final String KEY_REMOTE_PATH = "key_remote_path";
     private static final String KEY_ACCOUNT = "account_id";
     private static final String KEY_SYNC_MD5 = "key_sync_md5";
+    private static final String KEY_SYNC_LASTMOD = "key_sync_lastmod";
     private static final String KEY_CURRENTLY_DOWNLOADED_ETAG = "key_sync_etag";
     private static final String KEY_VISIT_STATUS = "key_visit_status";
     private static final String KEY_REMOTE_ETAG = "key_online_etag";
@@ -34,6 +35,7 @@ public class NextCloudFileHelper {
             KEY_ACCOUNT,
             KEY_REMOTE_ETAG,
             KEY_SYNC_MD5,
+            KEY_SYNC_LASTMOD,
             KEY_CURRENTLY_DOWNLOADED_ETAG,
             KEY_REMOTE_MIME_TYPE,
             KEY_VISIT_STATUS
@@ -42,12 +44,15 @@ public class NextCloudFileHelper {
             + KEY_REMOTE_PATH + " text not null, "
             + KEY_ACCOUNT + " INTEGER,"
             + KEY_SYNC_MD5 + " text, "
+            + KEY_SYNC_LASTMOD + " long DEFAULT(-1), "
             + KEY_CURRENTLY_DOWNLOADED_ETAG + " text, "
             + KEY_REMOTE_ETAG + " text,"
             + KEY_REMOTE_MIME_TYPE + " text,"
             + KEY_VISIT_STATUS + " INTEGER DEFAULT(-1), "
             +" FOREIGN KEY("+KEY_ACCOUNT+") REFERENCES "+ DBAccountHelper.TABLE_NAME+"("+DBAccountHelper.KEY_ACCOUNT_ID+"), "
             +"PRIMARY KEY ("+ KEY_REMOTE_PATH +", "+ KEY_ACCOUNT +"));";
+    public static final String UPDATE_DB_V1_TO_V2 = "ALTER TABLE "+TABLE_NAME+" ADD "+KEY_SYNC_LASTMOD+" long DEFAULT(-1)";
+
     public NextCloudFileHelper(Context context){
         mContext = context.getApplicationContext();
     }
@@ -68,6 +73,7 @@ public class NextCloudFileHelper {
                 cursor.moveToFirst();
                 dbDriveFile = new DBNextCloudFile();
                 dbDriveFile.md5 = cursor.getString(cursor.getColumnIndex(KEY_SYNC_MD5));
+                dbDriveFile.lastMod = cursor.getLong(cursor.getColumnIndex(KEY_SYNC_LASTMOD));
                 dbDriveFile.relativePath = remotePath;
                 dbDriveFile.accountID = accountID;
                 dbDriveFile.remoteMimeType = cursor.getString(cursor.getColumnIndex(KEY_REMOTE_MIME_TYPE));
@@ -90,6 +96,7 @@ public class NextCloudFileHelper {
             initialValues.put(KEY_ACCOUNT, dbDriveFile.accountID);
             if(dbDriveFile.md5!=null)
                 initialValues.put(KEY_SYNC_MD5, dbDriveFile.md5);
+            initialValues.put(KEY_SYNC_LASTMOD, dbDriveFile.lastMod);
             if(dbDriveFile.remoteMimeType!=null)
             initialValues.put(KEY_REMOTE_MIME_TYPE, dbDriveFile.remoteMimeType);
             if( dbDriveFile.currentlyDownloadedOnlineEtag!=null)
@@ -154,6 +161,7 @@ public class NextCloudFileHelper {
                     dbDriveFile.relativePath = cursor.getString(cursor.getColumnIndex(KEY_REMOTE_PATH));
                     dbDriveFile.accountID = accountID;
                     dbDriveFile.remoteMimeType = cursor.getString(cursor.getColumnIndex(KEY_REMOTE_MIME_TYPE));
+                    dbDriveFile.lastMod = cursor.getLong(cursor.getColumnIndex(KEY_SYNC_LASTMOD));
                     dbDriveFile.currentlyDownloadedOnlineEtag = cursor.getString(cursor.getColumnIndex(KEY_CURRENTLY_DOWNLOADED_ETAG));
                     dbDriveFile.onlineEtag = cursor.getString(cursor.getColumnIndex(KEY_REMOTE_ETAG));
                     dbDriveFile.visitStatus = cursor.getInt(cursor.getColumnIndex(KEY_VISIT_STATUS));
@@ -182,6 +190,7 @@ public class NextCloudFileHelper {
         }
         public DBNextCloudFile(){}
         public String md5;
+        public long lastMod = -1;
         public String relativePath;
         public String onlineEtag;
         public int accountID;

@@ -22,7 +22,7 @@ public abstract class SyncWrapper {
         mContext = ct;
     }
 
-    public abstract SynchroService.Result onFile(File file, String md5);
+    public abstract SynchroService.Result onFile(File file);
 
     public abstract SynchroService.Result endOfSync();
 

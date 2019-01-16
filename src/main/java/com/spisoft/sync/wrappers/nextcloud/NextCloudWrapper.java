@@ -266,4 +266,10 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
         NextCloudSyncedFoldersDBHelper.getInstance(mContext).removeSyncedFolder(mAccountId, localPath);
         return true;
     }
+
+    @Override
+    public void updateDB(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if(oldVersion == 1 && newVersion == 2)
+            db.execSQL(NextCloudFileHelper.UPDATE_DB_V1_TO_V2);
+    }
 }

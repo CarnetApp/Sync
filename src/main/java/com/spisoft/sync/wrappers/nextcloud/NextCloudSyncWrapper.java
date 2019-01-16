@@ -127,7 +127,8 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
 
     @Override
-    public SynchroService.Result onFile(File file, String md5) {
+    public SynchroService.Result onFile(File file) {
+        String md5 = null;
         String remotePath = getRemotePathFromLocal(file.getAbsolutePath());
         Log.d(TAG, "OnFile "+remotePath);
 
@@ -136,18 +137,23 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
         if(dbNextCloudFile == null) {
             Log.d(TAG, "db null");
-
             dbNextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
             dbNextCloudFile.accountID = mAccountID;
 
+        }
+        else if (dbNextCloudFile.lastMod == -1 && dbNextCloudFile.md5 != null && ! dbNextCloudFile.md5.isEmpty()){
+            //last round wasn't using last modification date, but md5. So we will need the md5 sum for the process
+            md5 = FileUtils.md5(file.getAbsolutePath());
         }
         if(remoteFile!=null) { //file exists !
             metadataDownloadList.remove(remotePath);//won't need to download
             Log.d(TAG, "Distant File exists "+remotePath);
 
-
-            if(!md5.equals(dbNextCloudFile.md5)) { //file was modified locally
+            // md5 != null => we need to use md5
+            if(md5 != null && !md5.equals(dbNextCloudFile.md5) || md5 == null && dbNextCloudFile.lastMod != file.lastModified()) { //file was modified locally
                 if(!remoteFile.getEtag().equals(dbNextCloudFile.currentlyDownloadedOnlineEtag)) {//modified externally
+                    if(md5 == null)
+                        md5 = FileUtils.md5(file.getAbsolutePath()); //we will need the md5 to avoid the conflict
                     // try to avoid conflict
                     Log.d(TAG, "conflict (dl: "+dbNextCloudFile.currentlyDownloadedOnlineEtag+", online: "+remoteFile.getEtag()+")");
                     File newFile = new File(FileUtils.stripExtensionFromName(file.getAbsolutePath())+System.currentTimeMillis()+"."+FileUtils.getExtension(file.getAbsolutePath()));
@@ -187,6 +193,11 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 }
                 else {
                     Log.d(TAG, "file wasn't modified remotely");
+                    if(md5 != null){// we need to update lastMod parameter to avoid using md5 on next sync
+                        dbNextCloudFile.lastMod = file.lastModified();
+                        NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(dbNextCloudFile);
+                        Log.d(TAG, "saving last modified to avoid using md5");
+                    }
 
                     return new SynchroService.Result(STATUS_SUCCESS);
                 }
@@ -196,7 +207,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             //check if was deleted
             if(dbNextCloudFile.currentlyDownloadedOnlineEtag !=null && !dbNextCloudFile.currentlyDownloadedOnlineEtag.isEmpty()){
                 //was on server, checking if last version has been deleted
-                if(md5.equals(dbNextCloudFile.md5)) {
+                if(md5 != null && md5.equals(dbNextCloudFile.md5) || md5 == null && dbNextCloudFile.lastMod == file.lastModified()) {
                     //last version was on server, deleting local file
                     if (!file.delete())
                         return new SynchroService.Result(STATUS_FAILURE);
@@ -252,6 +263,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     Log.d(TAG, "read success ");
                     nextCloudFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
                     nextCloudFile.md5 = md5;
+                    nextCloudFile.lastMod = file.lastModified();
                     nextCloudFile.remoteMimeType = remoteFile.getMimeType();
                     NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFile);
                     return STATUS_SUCCESS;
@@ -350,6 +362,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 driveFile.onlineEtag = remoteFile.getEtag();
                 driveFile.remoteMimeType = remoteFile.getMimeType();
                 driveFile.md5 = FileUtils.md5(localFile);
+                driveFile.lastMod = new File(localFile).lastModified();
                 NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(driveFile);
                 return STATUS_SUCCESS;
             }
@@ -391,6 +404,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         NextCloudFileHelper.DBNextCloudFile nextCloudFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remotePath);
         if(nextCloudFile == null) {
             nextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
+            nextCloudFile.accountID = mAccountID;
         }
         List<RemoteFile> remoteFileList = null;
         try {

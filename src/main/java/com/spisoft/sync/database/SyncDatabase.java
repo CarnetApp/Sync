@@ -14,7 +14,7 @@ import com.spisoft.sync.wrappers.WrapperFactory;
  */
 public class SyncDatabase {
     public static final String DATABASE_NAME = "DBAccount";
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 2;
     public static SyncDatabase sSyncDatabase =null;
     private final Context mContext;
     public static Object lock = new Object();
@@ -57,6 +57,9 @@ public class SyncDatabase {
 
         @Override
         public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+            for(Wrapper wrapper : WrapperFactory.getWrapperList(mContext)){
+                wrapper.updateDB(db, oldVersion, newVersion);
+            }
         }
     }
 }

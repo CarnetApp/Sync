@@ -71,7 +71,10 @@ public class NextCloudOCFileOperation implements NextCloudFileOperation {
 
     @Override
     public boolean upload(String fromFile, String remotePath) {
-        UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation(fromFile, remotePath, null, null);
+        Long timeStampLong = new File(fromFile).lastModified()/1000;
+        String timeStamp = timeStampLong.toString();
+
+        UploadRemoteFileOperation uploadOperation = new UploadRemoteFileOperation(fromFile, remotePath, null, timeStamp);
         RemoteOperationResult result = uploadOperation.execute(mClient);
         return result.isSuccess();
     }

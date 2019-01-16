@@ -376,8 +376,7 @@ public class SynchroService extends Service{
             else {
                 Log.d(TAG,"file detected "+file.getAbsolutePath());
                 //sync
-                String md5 = FileUtils.md5(file.getAbsolutePath());
-                result = syncWrapper.onFile(file, md5);
+                result = syncWrapper.onFile(file);
                 modifiedFiles.addAll(result.modifiedFiles);
                 if(result.status == ERROR)
                 {
