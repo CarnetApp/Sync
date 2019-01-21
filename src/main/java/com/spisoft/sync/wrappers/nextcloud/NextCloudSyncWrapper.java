@@ -398,6 +398,22 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         }
     }
 
+    private void fillWithDBRemoteFiles(String remotePath){
+        List<NextCloudFileHelper.DBNextCloudFile> list = NextCloudFileHelper.getInstance(mContext).getChildrenTree(mAccountID, remotePath);
+        for(NextCloudFileHelper.DBNextCloudFile nextCloudFile1  : list){
+            if(nextCloudFile1.onlineEtag == null){
+                throw new RuntimeException("Invalid DB etag for "+nextCloudFile1.relativePath);
+            }
+            RemoteFile remoteFile1 = new RemoteFile("/"+nextCloudFile1.relativePath);//RemoteFile path needs to start with a /
+            remoteFile1.setEtag(nextCloudFile1.onlineEtag);
+
+            remoteFile1.setMimeType(nextCloudFile1.remoteMimeType);
+            mRemoteFiles.put( nextCloudFile1.relativePath, remoteFile1);
+            metadataDownloadList.put( nextCloudFile1.relativePath, remoteFile1);
+
+        }
+    }
+
     private int recursiveLoadFolder(String remotePath) {
 
         NextCloudSyncLister nextCloudSyncLister = mWrapper.getSyncLister();
@@ -445,20 +461,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
                 if(nextCloudFile!=null&&etag.equals(nextCloudFile.onlineEtag) && nextCloudFile.visitStatus == NextCloudFileHelper.DBNextCloudFile.VisitStatus.STATUS_OK) {
                     Log.d(TAG, "hasn't changed "+etag);
-                    List<NextCloudFileHelper.DBNextCloudFile> list = NextCloudFileHelper.getInstance(mContext).getChildrenTree(mAccountID, remotePath);
-                    remoteFileList.clear();
-                    for(NextCloudFileHelper.DBNextCloudFile nextCloudFile1  : list){
-                        if(nextCloudFile1.onlineEtag == null){
-                            throw new RuntimeException("Invalid DB etag for "+nextCloudFile1.relativePath);
-                        }
-                        RemoteFile remoteFile1 = new RemoteFile("/"+nextCloudFile1.relativePath);//RemoteFile path needs to start with a /
-                        remoteFile1.setEtag(nextCloudFile1.onlineEtag);
-
-                        remoteFile1.setMimeType(nextCloudFile1.remoteMimeType);
-                        mRemoteFiles.put( nextCloudFile1.relativePath, remoteFile1);
-                        metadataDownloadList.put( nextCloudFile1.relativePath, remoteFile1);
-
-                    }
+                    fillWithDBRemoteFiles(remotePath);
                     break;
                 }else{
                     Log.d(TAG, "has changed");
@@ -470,7 +473,12 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             metadataDownloadList.put(remoteFilePath, remoteFile);;
             Log.d(TAG, remoteFile.getRemotePath());
             if("DIR".equals(remoteFile.getMimeType())){
-                if(recursiveLoadFolder(remoteFilePath) == STATUS_FAILURE) {
+                NextCloudFileHelper.DBNextCloudFile nextCloudChildFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remoteFilePath);
+
+                if(nextCloudChildFile!=null&&remoteFile.getEtag().equals(nextCloudChildFile.onlineEtag) && nextCloudChildFile.visitStatus == NextCloudFileHelper.DBNextCloudFile.VisitStatus.STATUS_OK) {
+                    Log.d(TAG, "child dir hasn't changed "+remoteFile.getEtag());
+                    fillWithDBRemoteFiles(remoteFilePath);
+                }else if(recursiveLoadFolder(remoteFilePath) == STATUS_FAILURE) {
                     markVisitFailed(nextCloudFile);
                     return STATUS_FAILURE;
                 }
