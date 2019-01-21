@@ -11,13 +11,29 @@ import java.util.Map;
 
 public class Configuration {
     public static OnAccountCreatedListener sOnAccountCreatedListener;
-    public static Map<String, PathObserver> pathObservers = new HashMap<>();
+    public static Map<String, List<PathObserver>> pathObservers = new HashMap<>();
     public static boolean dontDisplayNotification;
     public static List<SyncStatusListener> syncStatusListener = new ArrayList<>();
     public static int icon;
 
-    public static void addPathObserver(String path, PathObserver observer) {
-        pathObservers.put(path, observer);
+    public synchronized static void addPathObserver(String path, PathObserver observer) {
+        if(pathObservers.get(path) == null){
+            pathObservers.put(path, new ArrayList<PathObserver>());
+        }
+        pathObservers.get(path).add(observer);
+    }
+
+    public synchronized static void removePathOserver(String path, PathObserver pathObserver) {
+        List<PathObserver> observers = pathObservers.get(path);
+        if(observers != null){
+            observers.remove(pathObserver);
+        }
+    }
+
+    public static List<PathObserver> getPathObservers(String path) {
+        if(pathObservers.get(path) != null)
+            return new ArrayList<>(pathObservers.get(path));
+        return null;
     }
 
     public interface OnAccountSelectedListener{

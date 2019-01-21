@@ -270,12 +270,12 @@ public class SynchroService extends Service{
                         break;
                 }
                 for(String path : modifiedFiles){
-                    Configuration.PathObserver observer = Configuration.pathObservers.get(path);
+                    List<Configuration.PathObserver> observers = Configuration.getPathObservers(path);
                     Log.d(TAG, "notify observers "+path);
 
-                    if(observer!=null) {
-                        observer.onPathChanged(path);
-
+                    if(observers!=null) {
+                        for(Configuration.PathObserver observer : observers)
+                            observer.onPathChanged(path);
                     }
                 }
 
