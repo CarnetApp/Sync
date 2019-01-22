@@ -2,6 +2,7 @@ package com.spisoft.sync.wrappers.nextcloud;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -22,6 +23,7 @@ import com.nextcloud.android.sso.exceptions.NextcloudFilesAppAccountNotFoundExce
 import com.nextcloud.android.sso.exceptions.NextcloudFilesAppNotInstalledException;
 import com.nextcloud.android.sso.exceptions.NoCurrentAccountSelectedException;
 import com.nextcloud.android.sso.helper.SingleAccountHelper;
+import com.nextcloud.android.sso.helper.VersionCheckHelper;
 import com.nextcloud.android.sso.model.SingleSignOnAccount;
 import com.nextcloud.android.sso.ui.UiExceptionManager;
 import com.owncloud.android.lib.common.OwnCloudClient;
@@ -40,8 +42,11 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
+import okhttp3.internal.Version;
+
 public class NextCloudAuthorizeFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     public static final String EXTRA_ACCOUNT_ID="account_id";
+    private static final int NEXTCLOUD_APP_REQUIRED_VERSION = 0;
     private View mConnectButton;
     private EditText mPasswordInput;
     private EditText mRemoteInput;
@@ -55,6 +60,10 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
     private View mLoadingView;
     private CheckCredentialsTask mCheckCredentialsTask;
     private View mErrorTV;
+    private View mChooseConnectionView;
+    private View mFormView;
+    private View mSwitchToFormButton;
+    private View mConnectWithNCAppButton;
 
     private void openAccountChooser() {
         try {
@@ -129,10 +138,29 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
         mNewAccountButton.setOnClickListener(this);
         mServerSpinner.setOnItemSelectedListener(this);
         mLoadingView = view.findViewById(R.id.loading);
+        mFormView = view.findViewById(R.id.credential_form);
+        mChooseConnectionView = view.findViewById(R.id.login_choose);
+        mSwitchToFormButton = view.findViewById(R.id.switch_to_form_button);
+        mSwitchToFormButton.setOnClickListener(this);
+        mConnectWithNCAppButton = view.findViewById(R.id.connect_with_nc_app_button);
+        mConnectWithNCAppButton.setOnClickListener(this);
+        try {
+            if(VersionCheckHelper.getNextcloudFilesVersionCode(getActivity())< NEXTCLOUD_APP_REQUIRED_VERSION){
+                switchToForm();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            switchToForm();
+        }
         //openAccountChooser();
     }
 
+    public void switchToForm(){
+        mFormView.setVisibility(View.VISIBLE);
+        mChooseConnectionView.setVisibility(View.GONE);
+    }
+
     public void setInstance(String instance) {
+        switchToForm();
         mRemoteInput.setText(instance);
     }
 
@@ -156,6 +184,10 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
         else if(view == mNewAccountButton){
             Intent browserIntent = new Intent(Intent.ACTION_VIEW,Uri.parse((mRemoteInput.getText().toString().startsWith("http")?"":"https://")+mRemoteInput.getText().toString()+"/index.php/apps/registration/"));
             startActivity(browserIntent);
+        } else if(view == mSwitchToFormButton){
+            switchToForm();
+        } else if(view == mConnectWithNCAppButton){
+            openAccountChooser();
         }
         else{
             getActivity().setResult(Activity.RESULT_CANCELED);

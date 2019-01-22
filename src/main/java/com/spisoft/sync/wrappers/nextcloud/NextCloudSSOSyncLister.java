@@ -103,9 +103,6 @@ public class NextCloudSSOSyncLister implements NextCloudSyncLister{
                 .setUrl("/remote.php/webdav/"+path)
                 .build();
         InputStream inputStream = nextcloudAPI.performNetworkRequest(nextcloudRequest);
-        List<RemoteFile> result = parseInputStream(inputStream);
-        if(result.size()>0)
-            result.remove(0);
-        return result;
+        return parseInputStream(inputStream);
     }
 }

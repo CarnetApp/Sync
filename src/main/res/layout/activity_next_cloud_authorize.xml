@@ -11,6 +11,8 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/credential_form"
+        android:visibility="gone"
         >
         <LinearLayout
             android:layout_width="match_parent"
@@ -23,6 +25,7 @@
             <ImageView
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
+                android:layout_marginTop="25dp"
                 app:srcCompat="@drawable/nextcloud" />
             <TextView
                 android:layout_width="wrap_content"
@@ -119,6 +122,58 @@
 
         </LinearLayout>
     </ScrollView>
+    <LinearLayout
+        android:id="@+id/login_choose"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:gravity="top">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginBottom="25dp"
+            android:layout_marginTop="25dp"
+            app:srcCompat="@drawable/nextcloud" />
+        <LinearLayout
+            android:id="@+id/connect_with_nc_app_button"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/grey_ripple">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:text="@string/connect_with_nc_app"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/connect_with_nc_app_subtext"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/switch_to_form_button"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/grey_ripple"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:text="@string/connect_with_credentials"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/connect_with_credentials_subtext"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
     <LinearLayout
         android:id="@+id/loading"
         android:alpha="0.5"
