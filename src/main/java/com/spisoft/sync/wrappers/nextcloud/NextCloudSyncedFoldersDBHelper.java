@@ -82,4 +82,13 @@ public class NextCloudSyncedFoldersDBHelper {
             database.close();
         }
     }
+
+    public void delete(long accountID){
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
+        synchronized (database.lock) {
+            SQLiteDatabase sqLiteDatabase = database.open();
+            sqLiteDatabase.delete(TABLE_NAME, KEY_ACCOUNT_ID + "=?", new String[]{accountID + ""});
+            database.close();
+        }
+    }
 }

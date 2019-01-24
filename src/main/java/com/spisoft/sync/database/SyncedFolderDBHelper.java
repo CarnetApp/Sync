@@ -112,4 +112,13 @@ public class SyncedFolderDBHelper {
             sqLiteDatabase.close();
         }
     }
+
+    public void delete(int accountID) {
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
+        synchronized (database.lock) {
+            SQLiteDatabase sqLiteDatabase = database.open();
+            sqLiteDatabase.delete(TABLE_NAME, KEY_ACCOUNT_ID + "=?", new String[]{accountID + ""});
+            database.close();
+        }
+    }
 }

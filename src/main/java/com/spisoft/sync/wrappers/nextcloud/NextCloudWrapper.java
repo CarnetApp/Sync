@@ -25,6 +25,8 @@ import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
 import com.owncloud.android.lib.resources.files.RemoteFile;
 import com.spisoft.sync.R;
+import com.spisoft.sync.account.DBAccountHelper;
+import com.spisoft.sync.database.SyncedFolderDBHelper;
 import com.spisoft.sync.synchro.SyncWrapper;
 import com.spisoft.sync.wrappers.AsyncLister;
 import com.spisoft.sync.wrappers.DBWrapper;
@@ -230,6 +232,20 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
             return new NextCloudOCFileOperation(this);
         else
             return new NextCloudSSOFileOperation(this);
+    }
+
+    @Override
+    public boolean canChangeCredentials() {
+        return mSsoAccount == null;
+    }
+
+    @Override
+    public void deleteAccount() {
+        NextCloudFileHelper.getInstance(mContext).delete(mAccountId);
+        NextCloudSyncedFoldersDBHelper.getInstance(mContext).delete(mAccountId);
+        NextCloudCredentialsHelper.getInstance(mContext).delete(mAccountId);
+        SyncedFolderDBHelper.getInstance(mContext).delete(mAccountId);
+        DBAccountHelper.getInstance(mContext).delete(mAccountId);
     }
 
     public static abstract class NextCloudResultListener implements OnRemoteOperationListener{

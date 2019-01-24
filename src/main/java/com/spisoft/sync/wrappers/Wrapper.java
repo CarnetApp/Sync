@@ -84,6 +84,10 @@ public abstract class Wrapper {
 
     public abstract void updateDB(SQLiteDatabase db, int oldVersion, int newVersion);
 
+    public abstract boolean canChangeCredentials();
+
+    public abstract void deleteAccount();
+
     public static interface ResultListener{
         public void onResult(int resultCode, Object data);
     }

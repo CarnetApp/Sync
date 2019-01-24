@@ -70,11 +70,11 @@ public class NextCloudCredentialsHelper {
     public void delete(Credentials account){
         delete(account.accountID);
     }
-    public void delete(long credentialsID){
+    public void delete(long accountID){
         SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
-            sqLiteDatabase.delete(TABLE_NAME, KEY_INTERNAL_ID + "=?", new String[]{credentialsID + ""});
+            sqLiteDatabase.delete(TABLE_NAME, KEY_ACCOUNT_ID + "=?", new String[]{accountID + ""});
             database.close();
         }
     }
