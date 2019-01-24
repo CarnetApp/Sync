@@ -116,13 +116,16 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.activity_next_cloud_authorize, null);
+        return inflater.inflate(R.layout.fragment_next_cloud_authorize, null);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         if(getArguments() != null)
-        mAccountId = getArguments().getInt(EXTRA_ACCOUNT_ID, -1);
+            mAccountId = getArguments().getInt(EXTRA_ACCOUNT_ID, -1);
+        else if (getActivity() != null){
+            mAccountId = getActivity().getIntent().getIntExtra(NextCloudAuthorizeActivity.EXTRA_ACCOUNT_ID, -1);
+        }
         mErrorTV = view.findViewById(R.id.error);
         mConnectButton = view.findViewById(R.id.connect_button);
         mServerSpinner = view.findViewById(R.id.server_spinner);

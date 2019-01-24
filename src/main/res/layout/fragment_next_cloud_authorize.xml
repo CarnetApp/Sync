@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<FrameLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/credential_form"
+        android:visibility="gone"
+        >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:orientation="vertical"
+            android:gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="12dp"
+            tools:context="com.spisoft.sync.wrappers.nextcloud.NextCloudAuthorizeActivity">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:layout_marginTop="25dp"
+                app:srcCompat="@drawable/nextcloud" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="invisible"
+                android:textColor="@android:color/holo_red_light"
+                android:layout_marginBottom="10dp"
+                android:id="@+id/error"
+                android:text="@string/error_occured"/>
+            <LinearLayout
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:gravity="center_horizontal"
+                android:layout_height="wrap_content">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/server"/>
+                <Spinner
+                    android:id="@+id/server_spinner"
+                    android:layout_width="wrap_content"
+                    android:entries="@array/nextcloud_array"
+                    android:layout_height="wrap_content" />
+            </LinearLayout>
+
+
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_remote_layout"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/input_remote"
+                    android:layout_width="match_parent"
+                    android:inputType="textFilter|textNoSuggestions"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/server_address" />
+
+            </android.support.design.widget.TextInputLayout>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/already_have_account"/>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_username_layout"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/input_username"
+                    android:layout_width="match_parent"
+                    android:inputType="textFilter|textNoSuggestions"
+                    android:layout_height="wrap_content"
+                    android:hint="@string/username" />
+
+            </android.support.design.widget.TextInputLayout>
+            <android.support.design.widget.TextInputLayout
+                android:id="@+id/input_password_layout"
+                android:layout_width="250dp"
+                android:layout_height="wrap_content">
+
+                <EditText
+                    android:id="@+id/input_password"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="textPassword"
+                    android:hint="@string/password" />
+
+            </android.support.design.widget.TextInputLayout>
+            <LinearLayout
+                android:layout_width="250dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
+                android:gravity="right">
+                <Button
+                    android:id="@+id/cancel_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@android:string/cancel" />
+
+                <Button
+                    android:id="@+id/connect_button"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/connect" />
+
+            </LinearLayout>
+            <TextView
+                android:id="@+id/new_account"
+                android:layout_marginTop="12dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/create_new_account"/>
+
+        </LinearLayout>
+    </ScrollView>
+    <LinearLayout
+        android:id="@+id/login_choose"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/white"
+        android:gravity="top">
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="150dp"
+            android:layout_marginBottom="25dp"
+            android:layout_marginTop="25dp"
+            app:srcCompat="@drawable/nextcloud" />
+        <LinearLayout
+            android:id="@+id/connect_with_nc_app_button"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/grey_ripple">
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:text="@string/connect_with_nc_app"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/connect_with_nc_app_subtext"/>
+
+        </LinearLayout>
+        <LinearLayout
+            android:id="@+id/switch_to_form_button"
+            android:orientation="vertical"
+            android:padding="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/grey_ripple"
+            >
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                style="@style/TextAppearance.AppCompat.Medium"
+                android:text="@string/connect_with_credentials"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/connect_with_credentials_subtext"/>
+
+        </LinearLayout>
+
+    </LinearLayout>
+    <LinearLayout
+        android:id="@+id/loading"
+        android:alpha="0.5"
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:background="@android:color/white"
+        android:gravity="center_vertical">
+
+        <ProgressBar
+            style="?android:attr/progressBarStyleLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/progressBar"
+            android:layout_gravity="center_horizontal" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="@string/loading"
+            android:id="@+id/textView"
+            android:layout_gravity="center_horizontal" />
+    </LinearLayout>
+
+</FrameLayout>
