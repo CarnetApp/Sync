@@ -57,6 +57,8 @@ public class NextCloudCredentialsHelper {
             SQLiteDatabase sqLiteDatabase = database.open();
             ContentValues initialValues = new ContentValues();
             initialValues.put(KEY_ACCOUNT_ID, credentials.accountID);
+            if(credentials.id >=0)
+                initialValues.put(KEY_INTERNAL_ID, credentials.id);
             initialValues.put(KEY_REMOTE, credentials.remote);
             initialValues.put(KEY_USERNAME, credentials.username);
             initialValues.put(KEY_PASSWORD, credentials.password);

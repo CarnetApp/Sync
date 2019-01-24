@@ -34,15 +34,12 @@ import com.owncloud.android.lib.common.network.NetworkUtils;
 import com.owncloud.android.lib.common.operations.RemoteOperationResult;
 import com.owncloud.android.lib.resources.files.FileUtils;
 import com.owncloud.android.lib.resources.files.ReadRemoteFolderOperation;
-import com.spisoft.sync.Log;
 import com.spisoft.sync.R;
 
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
-
-import okhttp3.internal.Version;
 
 public class NextCloudAuthorizeFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     public static final String EXTRA_ACCOUNT_ID="account_id";
@@ -52,7 +49,7 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
     private EditText mRemoteInput;
     private EditText mUsernameInput;
     private View mCancelButton;
-    private int mAccountId;
+    private int mAccountId = -1;
     private Spinner mServerSpinner;
     private View mRemoteInputContainer;
     private OnConnectedListener mOnConnectedListener;
@@ -64,6 +61,7 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
     private View mFormView;
     private View mSwitchToFormButton;
     private View mConnectWithNCAppButton;
+    private NextCloudCredentialsHelper.Credentials mCredentials;
 
     private void openAccountChooser() {
         try {
@@ -154,6 +152,17 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
         } catch (PackageManager.NameNotFoundException e) {
             switchToForm();
         }
+        if(mAccountId >= 0){
+            mCredentials = NextCloudCredentialsHelper.getInstance(getActivity()).getCredentials(mAccountId);
+            if(mCredentials!=null) {
+                mRemoteInput.setText(mCredentials.remote);
+                mRemoteInput.setEnabled(false);
+                mUsernameInput.setText(mCredentials.username);
+                mUsernameInput.setEnabled(false);
+                mPasswordInput.setText(mCredentials.password);
+                switchToForm();
+            }
+        }
         //openAccountChooser();
     }
 
@@ -231,9 +240,17 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
                     mUsernameInput.getText().toString(), mPasswordInput.getText().toString());
 
         }else {
-            NextCloudCredentialsHelper.Credentials cred = NextCloudCredentialsHelper.getInstance(getActivity()).addOrReplaceAccount(new NextCloudCredentialsHelper.Credentials(-1, mAccountId, mRemoteInput.getText().toString(),
-                    mUsernameInput.getText().toString(), mPasswordInput.getText().toString()));
-            Log.d("accounddebug", "added " + cred.id);
+            String password =  mPasswordInput.getText().toString();
+            NextCloudCredentialsHelper.Credentials cred;
+            if(mCredentials!=null) {
+                mCredentials.password = password;
+                cred = mCredentials;
+            }
+            else {
+                cred = new NextCloudCredentialsHelper.Credentials(-1, mAccountId, mRemoteInput.getText().toString(),
+                        mUsernameInput.getText().toString(), password);
+            }
+            cred = NextCloudCredentialsHelper.getInstance(getActivity()).addOrReplaceAccount(cred);
             getActivity().setResult(Activity.RESULT_OK);
             getActivity().finish();
         }
