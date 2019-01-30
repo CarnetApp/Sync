@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="custom">Custom</string>
+    <string name="action_settings">Paramètres</string>
+    <string name="name_for_account">Nom du compte</string>
+    <string name="create">Créer</string>
+    <string name="server_address">Adresse du serveur</string>
+    <string name="username">Nom d\'utilisateur</string>
+    <string name="password">Mot-de-passe</string>
+    <string name="connect">Se connecter</string>
+    <string name="pick_folder">Choisir un dossier</string>
+    <string name="account_list">List des comptes</string>
+    <string name="no_accounts">Aucun compte configuré, ajoutez un nouveau compte</string>
+    <string name="select_provider">Sélectionnez un fournisseur</string>
+    <string name="server">Serveur</string>
+    <string name="already_have_account">Vous avez déjà un compte ?</string>
+    <string name="create_new_account">Créer un nouveau compte</string>
+    <string name="error_occured">Erreur détectée, vérifiez vos identifiants</string>
+    <string name="loading">Chargement...</string>
+    <string name="sync_error">Erreur de synchronisation</string>
+    <string name="sync_ssl_message">Le certificat SSL ne peut être vérifié, impossible de synchroniser. Accepter ce certificat pour continuer la synchronisation ?</string>
+    <string name="connect_with_nc_app">Se connecter avec l\'application NextCloud</string>
+    <string name="connect_with_nc_app_subtext">Recommandé. Pas besoin de donner vos identifiants, ne supprimez pas l\'application NextCloud</string>
+    <string name="connect_with_credentials">Se connecter avec vos identifiants</string>
+    <string name="connect_with_credentials_subtext">Ne fonctionne pas avec certains serveurs</string>
+</resources>

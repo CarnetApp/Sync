@@ -23,7 +23,7 @@
     <string name="sync_error">Sync Error</string>
     <string name="sync_ssl_message">SSL Certificate can\'t be validated and this app cannot sync, should we add it manually to continue to sync ?</string>
     <string name="connect_with_nc_app">Connect with the NextCloud App</string>
-    <string name="connect_with_nc_app_subtext">Recommended. No need to provide your credential, must never delete the NextCloud App</string>
+    <string name="connect_with_nc_app_subtext">Recommended. No need to provide your credentials, must never delete the NextCloud App</string>
     <string name="connect_with_credentials">Connect with your credentials</string>
     <string name="connect_with_credentials_subtext">Doesn\'t work with some servers</string>
 </resources>
