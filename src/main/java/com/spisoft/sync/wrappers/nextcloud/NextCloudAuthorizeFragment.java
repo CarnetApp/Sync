@@ -159,6 +159,7 @@ public class    NextCloudAuthorizeFragment extends Fragment implements View.OnCl
                 switchToForm();
             }
         }
+        switchToForm();// until new nextcloud is available
         //openAccountChooser();
     }
 
