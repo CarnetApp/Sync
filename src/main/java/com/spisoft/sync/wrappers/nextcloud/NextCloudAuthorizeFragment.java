@@ -1,6 +1,8 @@
 package com.spisoft.sync.wrappers.nextcloud;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -41,9 +43,9 @@ import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
 
-public class NextCloudAuthorizeFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
+public class    NextCloudAuthorizeFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     public static final String EXTRA_ACCOUNT_ID="account_id";
-    private static final int NEXTCLOUD_APP_REQUIRED_VERSION = 0;
+    private static final int NEXTCLOUD_APP_REQUIRED_VERSION = 30040291;
     private View mConnectButton;
     private EditText mPasswordInput;
     private EditText mRemoteInput;
@@ -145,13 +147,7 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
         mSwitchToFormButton.setOnClickListener(this);
         mConnectWithNCAppButton = view.findViewById(R.id.connect_with_nc_app_button);
         mConnectWithNCAppButton.setOnClickListener(this);
-        try {
-            if(VersionCheckHelper.getNextcloudFilesVersionCode(getActivity())< NEXTCLOUD_APP_REQUIRED_VERSION){
-                switchToForm();
-            }
-        } catch (PackageManager.NameNotFoundException e) {
-            switchToForm();
-        }
+
         if(mAccountId >= 0){
             mCredentials = NextCloudCredentialsHelper.getInstance(getActivity()).getCredentials(mAccountId);
             if(mCredentials!=null) {
@@ -199,7 +195,28 @@ public class NextCloudAuthorizeFragment extends Fragment implements View.OnClick
         } else if(view == mSwitchToFormButton){
             switchToForm();
         } else if(view == mConnectWithNCAppButton){
-            openAccountChooser();
+            int eMessage = -1;
+            try {
+                if(VersionCheckHelper.getNextcloudFilesVersionCode(getActivity())< NEXTCLOUD_APP_REQUIRED_VERSION){
+                    eMessage = R.string.nextcloud_app_version_needed;
+                }
+            } catch (PackageManager.NameNotFoundException e) {
+                eMessage = R.string.nextcloud_app_needed;
+            }
+            if(eMessage == -1)
+                openAccountChooser();
+            else{
+                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                builder.setMessage(eMessage);
+                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=com.nextcloud.client")));
+                    }
+                });
+                builder.setNegativeButton(android.R.string.cancel, null);
+                builder.show();
+            }
         }
         else{
             getActivity().setResult(Activity.RESULT_CANCELED);

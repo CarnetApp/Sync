@@ -23,4 +23,6 @@
     <string name="connect_with_nc_app_subtext">Recommandé. Pas besoin de donner vos identifiants, ne supprimez pas l\'application NextCloud</string>
     <string name="connect_with_credentials">Se connecter avec vos identifiants</string>
     <string name="connect_with_credentials_subtext">Ne fonctionne pas avec certains serveurs</string>
+    <string name="nextcloud_app_version_needed">Une version plus récente de l\'application Nextcloud est requise pour un bon fonctionnement. La mettre à jour ?</string>
+    <string name="nextcloud_app_needed">L\'application NextCloud est nécessaire pour utiliser cette option. Procéder à son installation ?</string>
 </resources>
