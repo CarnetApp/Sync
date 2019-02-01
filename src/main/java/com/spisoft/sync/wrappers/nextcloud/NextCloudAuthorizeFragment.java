@@ -45,7 +45,7 @@ import java.security.cert.CertificateException;
 
 public class    NextCloudAuthorizeFragment extends Fragment implements View.OnClickListener, AdapterView.OnItemSelectedListener {
     public static final String EXTRA_ACCOUNT_ID="account_id";
-    private static final int NEXTCLOUD_APP_REQUIRED_VERSION = 30040291;
+    private static final int NEXTCLOUD_APP_REQUIRED_VERSION = 30050052;
     private View mConnectButton;
     private EditText mPasswordInput;
     private EditText mRemoteInput;
@@ -159,7 +159,6 @@ public class    NextCloudAuthorizeFragment extends Fragment implements View.OnCl
                 switchToForm();
             }
         }
-        switchToForm();// until new nextcloud is available
         //openAccountChooser();
     }
 
