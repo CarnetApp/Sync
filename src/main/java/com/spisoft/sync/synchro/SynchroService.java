@@ -65,19 +65,36 @@ public class SynchroService extends Service{
     private String mChannelId = "";
 
     public static class Result{
+        public final String errorMessage;
+        public List<String> modifiedFiles = new ArrayList();
+        public int status;
         public Result(int status){
             this.status = status;
+            this.errorMessage = "";
         }
         public Result(int status, String path){
             this.status = status;
             this.modifiedFiles.add(path);
+            this.errorMessage = "";
         }
+
+        public Result(int status, int errorCode, String errorMessage){
+            this.status = status;
+            this.errorMessage = errorMessage;
+        }
+
+        public Result(int status, int errorCode, String errorMessage, List<String> paths){
+            this.status = status;
+            this.errorMessage = errorMessage;
+            this.modifiedFiles.addAll(paths);
+        }
+
         public Result(int status, List<String> paths){
             this.status = status;
             this.modifiedFiles.addAll(paths);
+            this.errorMessage = "";
         }
-        public List<String> modifiedFiles = new ArrayList();
-        public int status;
+
     }
     @Override
     public IBinder onBind(Intent intent) {
@@ -240,6 +257,8 @@ public class SynchroService extends Service{
             for (Configuration.SyncStatusListener listener : Configuration.syncStatusListener){
                 listener.onSyncStatusChanged(isSyncing);
             }
+            int error = SUCCESS;
+            String errorMessage = "";
             showForegroundNotification("Syncing...");
             long start = System.currentTimeMillis();
             Log.d(TAG,"starting sync at "+ DateFormat.getDateTimeInstance().format(new Date(start)));
@@ -266,8 +285,11 @@ public class SynchroService extends Service{
                     Log.d(TAG, "syncing folder "+syncedFolder.first);
                     Result res = syncFolder(syncedFolder.first, syncedFolder.second);
                     modifiedFiles.addAll(res.modifiedFiles);
-                    if (res.status == ERROR)
+                    if (res.status == ERROR) {
+                        error = ERROR;
+                        errorMessage = res.errorMessage;
                         break;
+                    }
                 }
                 for(String path : modifiedFiles){
                     List<Configuration.PathObserver> observers = Configuration.getPathObservers(path);
@@ -283,7 +305,12 @@ public class SynchroService extends Service{
             isSyncing = false;
             for (Configuration.SyncStatusListener listener : Configuration.syncStatusListener){
                 listener.onSyncStatusChanged(isSyncing);
+                if(error == ERROR)
+                    listener.onSyncFailure(errorMessage);
+                else
+                    listener.onSyncSuccess();
             }
+
             if(hasAll) {
                 Log.d(TAG,"sync took "+ getDurationBreakdown(System.currentTimeMillis()-start)
                 );
@@ -329,6 +356,8 @@ public class SynchroService extends Service{
 
         private Result recursiveSync(File file, SyncWrapper syncWrapper, boolean isRoot) {
             List<String>modifiedFiles = new ArrayList<>();
+            boolean hasFailedOnce = false;
+            String errorMessage = "";
             Result result;
             if(file.getName().startsWith(".donotsync"))
                 return new Result(SUCCESS, modifiedFiles);
@@ -358,11 +387,14 @@ public class SynchroService extends Service{
                                 modifiedFiles.add(file.getAbsolutePath());
                                 hasAddedFolder = true;
                             }
-                            if (result.status != SUCCESS)
-                                return new Result(ERROR, modifiedFiles);
+                            if (result.status != SUCCESS) {
+                                hasFailedOnce = true;
+                                errorMessage += result.errorMessage;
+                                if(!errorMessage.endsWith("\n")) errorMessage += "\n";
+                            }
                         }
                     }
-                    if(folderStatus == PENDING){
+                    if(folderStatus == PENDING && !hasFailedOnce){
                         files = file.listFiles();
                         if (files != null || files.length == 0) {
                             result = syncWrapper.onFolder(file, true);
@@ -386,7 +418,10 @@ public class SynchroService extends Service{
                 }
 
             }
-            return new Result(SUCCESS, modifiedFiles);
+            if(hasFailedOnce)
+                return new Result(ERROR, -1, errorMessage, modifiedFiles);
+            else
+                return new Result(SUCCESS, modifiedFiles);
 
         }
     }

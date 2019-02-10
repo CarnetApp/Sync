@@ -44,6 +44,10 @@ public class Configuration {
     }
     public interface SyncStatusListener{
         public void onSyncStatusChanged(boolean isSyncing);
+
+        void onSyncFailure(String errorMessage);
+
+        void onSyncSuccess();
     }
 
     public static void addSyncStatusListener(SyncStatusListener listener) {

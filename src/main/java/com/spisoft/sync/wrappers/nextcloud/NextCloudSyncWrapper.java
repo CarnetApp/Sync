@@ -152,8 +152,12 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             // md5 != null => we need to use md5
             if(md5 != null && !md5.equals(dbNextCloudFile.md5) || md5 == null && dbNextCloudFile.lastMod != file.lastModified()) { //file was modified locally
                 if(!remoteFile.getEtag().equals(dbNextCloudFile.currentlyDownloadedOnlineEtag)) {//modified externally
-                    if(md5 == null)
-                        md5 = FileUtils.md5(file.getAbsolutePath()); //we will need the md5 to avoid the conflict
+                    try {
+                        if (md5 == null)
+                            md5 = FileUtils.md5(file.getAbsolutePath()); //we will need the md5 to avoid the conflict
+                    } catch(Exception e){
+                        return new SynchroService.Result(STATUS_FAILURE, -1, e.toString());
+                    }
                     // try to avoid conflict
                     Log.d(TAG, "conflict (dl: "+dbNextCloudFile.currentlyDownloadedOnlineEtag+", online: "+remoteFile.getEtag()+")");
                     File newFile = new File(FileUtils.stripExtensionFromName(file.getAbsolutePath())+System.currentTimeMillis()+"."+FileUtils.getExtension(file.getAbsolutePath()));
@@ -428,14 +432,28 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         } catch (final Exception e) {
 
             e.printStackTrace();
-            if(e instanceof  com.owncloud.android.lib.common.network.CertificateCombinedException && !PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("refuse_certificate", false)){
-                cert = ((CertificateCombinedException) e).getServerCertificate();
-                Intent i = new Intent(mContext, CertificateActivity.class);
-                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                mContext.startActivity(i);
+            if(e instanceof  com.nextcloud.android.sso.exceptions.NextcloudHttpRequestFailedException || e instanceof  java.lang.NullPointerException){
+                //create folder
+                mWrapper.getFileOperation().mkdir(remotePath);
+                try {
+                    remoteFileList = nextCloudSyncLister.retrieveList(remotePath);
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                    markVisitFailed(nextCloudFile);
+                    return STATUS_FAILURE;
+                }
+            } else {
+
+                if(e instanceof  com.owncloud.android.lib.common.network.CertificateCombinedException && !PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("refuse_certificate", false)){
+                    cert = ((CertificateCombinedException) e).getServerCertificate();
+                    Intent i = new Intent(mContext, CertificateActivity.class);
+                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    mContext.startActivity(i);
+                }
+
+                markVisitFailed(nextCloudFile);
+                return STATUS_FAILURE;
             }
-            markVisitFailed(nextCloudFile);
-            return STATUS_FAILURE;
         }
         Log.d(TAG,"retrieveList remotePath "+remotePath);
 
