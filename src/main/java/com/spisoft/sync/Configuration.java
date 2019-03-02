@@ -59,7 +59,7 @@ public class Configuration {
     }
 
     public interface PathObserver{
-        public void onPathChanged(String path);
+        public void onPathChanged(String path, List<String> modifiedPaths);
     }
     static public OnAccountSelectedListener sOnAccountSelectedListener = null;
 }

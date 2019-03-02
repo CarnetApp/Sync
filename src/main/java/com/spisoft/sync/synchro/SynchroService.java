@@ -21,14 +21,11 @@ import android.util.Pair;
 
 import com.spisoft.sync.Configuration;
 import com.spisoft.sync.Log;
-import com.spisoft.sync.R;
 import com.spisoft.sync.RecursiveFileObserver;
 import com.spisoft.sync.account.DBAccountHelper;
 import com.spisoft.sync.database.SyncedFolderDBHelper;
-import com.spisoft.sync.utils.FileUtils;
 import com.spisoft.sync.wrappers.Wrapper;
 import com.spisoft.sync.wrappers.WrapperFactory;
-import com.spisoft.sync.wrappers.nextcloud.NextCloudSyncWrapper;
 
 import java.io.File;
 import java.text.DateFormat;
@@ -296,8 +293,14 @@ public class SynchroService extends Service{
                     Log.d(TAG, "notify observers "+path);
 
                     if(observers!=null) {
+                        ArrayList<String> modifiedInPath = new ArrayList<>();
+                        for(String inPath : modifiedFiles){
+                            if(inPath.startsWith(path))
+                                modifiedInPath.add(inPath);
+                        }
+
                         for(Configuration.PathObserver observer : observers)
-                            observer.onPathChanged(path);
+                            observer.onPathChanged(path, modifiedInPath);
                     }
                 }
 
