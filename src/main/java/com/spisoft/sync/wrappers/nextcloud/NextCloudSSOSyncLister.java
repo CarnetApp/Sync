@@ -58,16 +58,12 @@ public class NextCloudSSOSyncLister implements NextCloudSyncLister{
             RemoteFile remoteFile = new RemoteFile();
             Element node = (Element) items.item(i);
 
-            Log.d(TAG, Uri.decode(node.getElementsByTagName("d:href").item(0).getTextContent().substring("/remote.php/webdav/".length())));
             remoteFile.setRemotePath(Uri.decode(node.getElementsByTagName("d:href").item(0).getTextContent().substring("/remote.php/webdav/".length())));
-
-            Log.d(TAG, node.getElementsByTagName("d:getlastmodified").item(0).getTextContent());
-            Log.d(TAG, simpleDateFormat.parse(node.getElementsByTagName("d:getlastmodified").item(0).getTextContent()).getTime()+"");
-            remoteFile.setModifiedTimestamp(simpleDateFormat.parse(node.getElementsByTagName("d:getlastmodified").item(0).getTextContent()).getTime());
-            Log.d(TAG, node.getElementsByTagName("d:getetag").item(0).getTextContent().replace("\"", ""));
+            String modTimeStr = node.getElementsByTagName("d:getlastmodified").item(0).getTextContent();
+            if(!modTimeStr.isEmpty())
+                remoteFile.setModifiedTimestamp(simpleDateFormat.parse(modTimeStr).getTime());
             remoteFile.setEtag(node.getElementsByTagName("d:getetag").item(0).getTextContent().replace("\"", ""));
             if(node.getElementsByTagName("d:getcontenttype").getLength()>0) {
-                Log.d(TAG, node.getElementsByTagName("d:getcontenttype").item(0).getTextContent());
                 remoteFile.setMimeType(node.getElementsByTagName("d:getcontenttype").item(0).getTextContent());
             }
             NodeList contentLength = node.getElementsByTagName("d:getcontentlength");
@@ -86,7 +82,8 @@ public class NextCloudSSOSyncLister implements NextCloudSyncLister{
         for(String part:remotePath.split("/")){
             encoded+="/"+Uri.encode(part);
         }
-        encoded = encoded.substring(1);
+        if(encoded.startsWith("/"))
+            encoded = encoded.substring(1);
         return encoded;
     }
 
