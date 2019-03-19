@@ -28,4 +28,5 @@
     <string name="connect_with_credentials_subtext">Doesn\'t work with some servers</string>
     <string name="nextcloud_app_version_needed">A more recent version of the NextCloud app is required to work properly. Proceed to update ?</string>
     <string name="nextcloud_app_needed">The NextCloud app is needed to use this option. Procced to install ?</string>
+    <string name="empty_folder">This folder is empty</string>
 </resources>

@@ -3,6 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal" android:layout_width="match_parent"
     android:layout_gravity="center_vertical"
+    android:background="@drawable/grey_ripple"
     android:layout_height="70dp">
 
     <ImageView

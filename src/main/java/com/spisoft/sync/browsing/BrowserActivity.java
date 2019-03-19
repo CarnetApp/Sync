@@ -35,16 +35,15 @@ public class BrowserActivity extends AppCompatActivity {
 
         mAccountId = getIntent().getIntExtra(EXTRA_ACCOUNT_ID, -1);
         mStartPath = getIntent().getStringExtra(EXTRA_START_PATH);
-        Log.d("accounddebug","brw get account "+mAccountId);
         mAccount = DBAccountHelper.getInstance(this).getAccount(mAccountId);
-        Log.d("accounddebug","brw get account "+mAccount.friendlyName);
 
-        setFragment(BrowsingFragment.newInstance(mAccount,new FileItem("/", null, true,0,0, "DIR"),getIntent().getBooleanExtra(EXTRA_AS_FILE_PICKER,false),getIntent().getStringExtra(EXTRA_DISPLAY_ONLY_MIMETYPE)));
+        setFragment(BrowsingFragment.newInstance(mAccount,new FileItem("", null, true,0,0, "DIR"),getIntent().getBooleanExtra(EXTRA_AS_FILE_PICKER,false),getIntent().getStringExtra(EXTRA_DISPLAY_ONLY_MIMETYPE)));
     }
     public void setFragment(Fragment fragment) {
         this.fragment = fragment;
         getSupportFragmentManager()
                 .beginTransaction()
+                .setTransition(android.R.transition.fade)
                 .replace(R.id.content_main,fragment)
                 .addToBackStack(null).commit();
     }

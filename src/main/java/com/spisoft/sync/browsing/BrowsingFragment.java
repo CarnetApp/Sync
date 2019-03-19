@@ -3,7 +3,7 @@ package com.spisoft.sync.browsing;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,7 +16,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.spisoft.sync.MainActivity;
 import com.spisoft.sync.R;
 import com.spisoft.sync.account.DBAccountHelper;
 import com.spisoft.sync.wrappers.AsyncLister;
@@ -43,6 +42,8 @@ public class BrowsingFragment extends Fragment implements FileListAdapter.Listen
     private Wrapper mWrapper;
     private String mDisplayMimetype;
     private boolean mAsFilePicker;
+    private View mLoadingView;
+    private View mEmptyView;
 
 
     public BrowsingFragment() {
@@ -106,6 +107,9 @@ public class BrowsingFragment extends Fragment implements FileListAdapter.Listen
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         mRecyclerView = (RecyclerView)view.findViewById(R.id.recyclerview);
+        mLoadingView = view.findViewById(R.id.loading_view);
+        mEmptyView = view.findViewById(R.id.empty_view);
+        mEmptyView.setVisibility(View.GONE);
         mLayoutManager = new LinearLayoutManager(getActivity());
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(false);
@@ -113,7 +117,9 @@ public class BrowsingFragment extends Fragment implements FileListAdapter.Listen
         mFileAdapter.setListener(this);
         mRecyclerView.setAdapter(mFileAdapter);
         mWrapper = WrapperFactory.getWrapper(getActivity(),mAccount.accountType, mAccount.accountID);
-        mWrapper.getAsyncLister(mFileItem==null?"/":mFileItem.getPath()).retrieveList(0, this);
+        mLoadingView.setVisibility(View.VISIBLE);
+        mLoadingView.setAlpha(1);
+        mWrapper.getAsyncLister(mFileItem==null?"":mFileItem.getPath()).retrieveList(0, this);
     }
 
     @Override
@@ -142,15 +148,27 @@ public class BrowsingFragment extends Fragment implements FileListAdapter.Listen
     @Override
     public void onListingResult(int requestCode, int resultCode, List<FileItem> list) {
         //filter
-        List<FileItem> items = new ArrayList<>(list);
-        if(mDisplayMimetype!=null){
-            for(FileItem item : list){
-                if(!item.isDirectory() && !item.getMimetype().equals(mDisplayMimetype))
-                    items.remove(item);
-            }
-        }
         if(list!=null){
+            List<FileItem> items = new ArrayList<>(list);
+            if(mDisplayMimetype!=null){
+                for(FileItem item : list){
+                    if(!item.isDirectory() && !item.getMimetype().equals(mDisplayMimetype))
+                        items.remove(item);
+                }
+            }
             mFileAdapter.setFileList(items);
-        }
+            if(items.size() == 0)
+                mEmptyView.setVisibility(View.VISIBLE);
+        } else mEmptyView.setVisibility(View.VISIBLE);
+
+        if(Build.VERSION.SDK_INT >= 16)
+            mLoadingView.animate().setDuration(500).alpha(0).withEndAction(new Runnable() {
+                @Override
+                public void run() {
+                    mLoadingView.setVisibility(View.GONE);
+                }
+            }).start();
+        else mLoadingView.setVisibility(View.GONE);
+
     }
 }
