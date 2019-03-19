@@ -282,6 +282,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     @Override
     public SynchroService.Result endOfSync() {
         List<String> modified = new ArrayList<>();
+        boolean hasFailedOnce = false;
         List<RemoteFile> folderToEventuallyDelete = new ArrayList<>();
         //download
         for(String file : metadataDownloadList.keySet()){
@@ -303,7 +304,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     //was deleted locally
                     boolean success = mWrapper.getFileOperation().delete(remoteFile.getRemotePath());
                     if (!success) {
-                        return new SynchroService.Result(STATUS_FAILURE, modified);
+                        hasFailedOnce = true;
                     } else {
                         NextCloudFileHelper.getInstance(mContext).delete(driveFile);
                     }
@@ -314,10 +315,12 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 //downloading
                 int res = downloadFileAndRecord(remoteFile, getLocalPathFromRemote(file), driveFile);
                 if(res == STATUS_FAILURE)
-                    return new SynchroService.Result(STATUS_FAILURE, modified);
-                modified.add(getLocalPathFromRemote(file));
+                    hasFailedOnce = true;
+                else
+                    modified.add(getLocalPathFromRemote(file));
             }
         }
+        if(!hasFailedOnce) // to avoid case file not download therefore folder not created
         for (RemoteFile folder : folderToEventuallyDelete){
             if(!new File(getLocalPathFromRemote(folder.getRemotePath())).exists()){
                 String remoteFilePath = folder.getRemotePath();
@@ -337,7 +340,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             }
 
         }
-        return new SynchroService.Result(STATUS_SUCCESS,modified);
+        return new SynchroService.Result(hasFailedOnce?STATUS_FAILURE:STATUS_SUCCESS,modified);
     }
 
     private int downloadFileAndRecord(RemoteFile remoteFile, String localFile, NextCloudFileHelper.DBNextCloudFile driveFile) {

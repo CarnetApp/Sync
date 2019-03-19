@@ -415,9 +415,9 @@ public class SynchroService extends Service{
                 modifiedFiles.addAll(result.modifiedFiles);
                 if(result.status == ERROR)
                 {
-                    Log.d(TAG,"file ERROR ");
-
-                    return new Result(ERROR, modifiedFiles);
+                    hasFailedOnce = true;
+                    errorMessage += result.errorMessage;
+                    if(!errorMessage.endsWith("\n")) errorMessage += "\n";
                 }
 
             }
