@@ -1,2 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">Einstellungen</string>
+
+    <string name="name_for_account">Kontenbezeichnung</string>
+    <string name="create">Erstellen</string>
+    <string name="server_address">Serveradresse</string>
+    <string name="username">Benutzername</string>
+    <string name="password">Passwort</string>
+    <string name="connect">Verbinden</string>
+    <string name="pick_folder">Ordner auswählen</string>
+    <string name="account_list">Kontenliste</string>
+    <string name="no_accounts">Noch ist kein Konto eingerichtet, fügen Sie bitte ein neues Online-Konto hinzu</string>
+    <string name="select_provider">Wählen Sie den Cloud-Anbieter aus</string>
+    <string name="server">Server</string>
+    <string name="already_have_account">Haben Sie bereits ein Konto\?</string>
+    <string name="create_new_account">Ein neues Konto erstellen</string>
+    <string name="error_occured">Es ist ein Fehler aufgetreten, überprüfen Sie die Anmeldedaten</string>
+    <string name="loading">Lade...</string>
+    <string name="sync_error">Synchronisierungsfehler</string>
+    <string name="sync_ssl_message">Das SSL-Zertifikat kann nicht überprüft werden und die App kann nicht synchronisiert werden. Soll das Zertifikat manuell hinzugefügt werden, um die Synchronisierung fortzusetzen\?</string>
+    <string name="connect_with_nc_app">Verbindung über die Nextcloud App herstellen</string>
+    <string name="connect_with_nc_app_subtext">Empfohlen. Es besteht so keine Notwendigkeit Ihre Anmeldeinformationen einzugeben, allerdings dürfen Sie Ihre Nextcloud App dann niemals löschen/deinstallieren</string>
+    <string name="connect_with_credentials">Verbindung mit Ihren Anmeldeinformationen herstellen</string>
+    <string name="connect_with_credentials_subtext">Funktioniert mit einigen Servern nicht</string>
+    <string name="nextcloud_app_version_needed">Eine neuere Version der Nextcloud-App ist erforderlich, damit diese Methode ordnungsgemäß funktioniert. Mit dem Update der App fortfahren\?</string>
+    <string name="nextcloud_app_needed">Die Nextcloud-App wird für die Nutzung dieser Methode gebraucht. Mit der Installation fortfahren\?</string>
+    <string name="empty_folder">Dieser Ordner ist leer</string>
+</resources>
