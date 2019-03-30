@@ -1,2 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">Nastavenia</string>
+
+    <string name="name_for_account">Názov účtu</string>
+    <string name="create">Vytvoriť</string>
+    <string name="server_address">Adresa servera</string>
+    <string name="username">Meno používateľa</string>
+    <string name="password">Heslo</string>
+    <string name="connect">Pripojiť</string>
+    <string name="pick_folder">Vybrať priečinok</string>
+    <string name="account_list">Zoznam účtov</string>
+    <string name="no_accounts">Neboli ešte konfigurované žiadne účty. Prosím, pridajte nový online účet</string>
+    <string name="select_provider">Vybrať poskytovateľa cloudu</string>
+    <string name="server">Server</string>
+    <string name="already_have_account">Máte už účet\?</string>
+    <string name="create_new_account">Vytvoriť nový účet</string>
+    <string name="error_occured">Vyskytla sa chyba. Skontrolujte poverenia</string>
+    <string name="loading">Načítava sa...</string>
+    <string name="sync_error">Chyba synchronizácie</string>
+    <string name="sync_ssl_message">Certifikát SSL nemožno overiť a túto apku nemožno synchronizovať. Máme ju pridať manuálne pre pokračovanie v synchronizácii\?</string>
+    <string name="connect_with_nc_app">Pripojiť k apke Nextcloudu</string>
+    <string name="connect_with_nc_app_subtext">Odporúča sa. Netreba poskytovať poverenia; nesmie nikdy odstrániť apku Nextcloudu</string>
+    <string name="connect_with_credentials">Pripojiť pomocou vašich poverení</string>
+    <string name="connect_with_credentials_subtext">Nefunguje pri niektorých serveroch</string>
+    <string name="nextcloud_app_version_needed">Pre správne fungovanie sa vyžaduje novšia verzia apky Nextcloudu. Pokračovať k aktualizácii\?</string>
+    <string name="nextcloud_app_needed">Pre použitie tejto možnosti je potrebná apka Nextcloudu. Pokračovať k inštalácii\?</string>
+    <string name="empty_folder">Tento priečinok je prázdny</string>
+</resources>
