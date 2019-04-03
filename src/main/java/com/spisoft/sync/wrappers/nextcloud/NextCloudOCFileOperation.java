@@ -36,7 +36,7 @@ public class NextCloudOCFileOperation implements NextCloudFileOperation {
 
 
     @Override
-    public boolean download(String remotePath, String to) {
+    public boolean download(String remotePath, String to, long size) {
         Log.d(TAG, "download " +remotePath+" to "+to);
         File dest = new File(to);
         File parent = dest.getParentFile();
@@ -54,8 +54,8 @@ public class NextCloudOCFileOperation implements NextCloudFileOperation {
         if(tmp.exists()) {
             Log.d(TAG, "tmp.exists");
             if (result.isSuccess()) {
-                Log.d(TAG, "result success");
-                if(tmp.length()>0){
+                Log.d(TAG, "result success "+(size != -1 && size == tmp.length()));
+                if(tmp.length()>0 || size != -1 && size == tmp.length()){
                     dest.delete();
                     boolean success = tmp.renameTo(dest);
                     Log.d(TAG, "renaming... "+success);

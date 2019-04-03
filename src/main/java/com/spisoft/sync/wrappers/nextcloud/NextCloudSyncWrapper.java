@@ -356,7 +356,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             return STATUS_SUCCESS;
         } else {
             SynchroService.sService.showForegroundNotification("Downloading "+ Uri.parse(remoteFile.getRemotePath()).getLastPathSegment());
-            boolean success = mWrapper.getFileOperation().download(remoteFile.getRemotePath(), localFile);
+            boolean success = mWrapper.getFileOperation().download(remoteFile.getRemotePath(), localFile, remoteFile.getSize());
 
             Log.d(TAG,"download ?");
             SynchroService.sService.resetNotification();

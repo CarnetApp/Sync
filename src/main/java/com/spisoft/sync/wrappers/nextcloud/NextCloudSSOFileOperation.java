@@ -26,7 +26,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
     }
 
     @Override
-    public boolean download(String remotePath, String to) {
+    public boolean download(String remotePath, String to, long size) {
         File parent =  new File(to).getParentFile();
         parent.mkdirs();
         remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
@@ -39,7 +39,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
             InputStream inputStream = mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
             FileUtils.copy(inputStream, new FileOutputStream(tmp));
             if(tmp.exists()){
-                if(tmp.length() > 0) {
+                if(tmp.length() > 0 || size != -1 && size == tmp.length()) {
                     File dest = new File(to);
                     dest.delete();
                     boolean success = tmp.renameTo(dest);
