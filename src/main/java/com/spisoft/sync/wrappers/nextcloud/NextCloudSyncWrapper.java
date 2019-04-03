@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 
 import com.owncloud.android.lib.common.network.CertificateCombinedException;
+import com.owncloud.android.lib.common.network.NetworkUtils;
 import com.owncloud.android.lib.resources.files.RemoteFile;
 import com.spisoft.sync.Log;
 import com.spisoft.sync.synchro.SyncWrapper;
@@ -14,6 +15,12 @@ import com.spisoft.sync.synchro.SynchroService;
 import com.spisoft.sync.utils.FileUtils;
 
 import java.io.File;
+import java.io.IOException;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateExpiredException;
+import java.security.cert.CertificateNotYetValidException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -449,9 +456,29 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
                 if(e instanceof  com.owncloud.android.lib.common.network.CertificateCombinedException && !PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean("refuse_certificate", false)){
                     cert = ((CertificateCombinedException) e).getServerCertificate();
-                    Intent i = new Intent(mContext, CertificateActivity.class);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    mContext.startActivity(i);
+                    try {
+                        cert.checkValidity();
+                    } catch (CertificateExpiredException e1) {
+                        Intent i = new Intent(mContext, CertificateActivity.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(i);
+                    } catch (CertificateNotYetValidException e1) {
+                        Intent i = new Intent(mContext, CertificateActivity.class);
+                        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        mContext.startActivity(i);
+                    }
+                    try {
+                        NetworkUtils.addCertToKnownServersStore(NextCloudSyncWrapper.cert, mContext);
+                        mContext.startService(new Intent(mContext, SynchroService.class));
+                    } catch (KeyStoreException e1) {
+                        e1.printStackTrace();
+                    } catch (NoSuchAlgorithmException e1) {
+                        e1.printStackTrace();
+                    } catch (CertificateException e1) {
+                        e1.printStackTrace();
+                    } catch (IOException e1) {
+                        e1.printStackTrace();
+                    }
                 }
 
                 markVisitFailed(nextCloudFile);
