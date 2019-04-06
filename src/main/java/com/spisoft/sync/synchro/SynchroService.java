@@ -44,7 +44,7 @@ import java.util.concurrent.TimeUnit;
 public class SynchroService extends Service{
     private static final String TAG = "SynchroService";
     private static final int ALARM_ID = 1001;
-    private static final long REPEAT = 15*60*1000;
+    private static final long REPEAT = 60*60*1000;
     private static final String TAGOBS = "ObserverTag";
     private Thread mSyncThread;
     private SyncWrapper mGoogleDriveSyncWrapper;
