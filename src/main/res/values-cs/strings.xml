@@ -1,2 +1,25 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">Nastavení</string>
+
+    <string name="name_for_account">Název účtu</string>
+    <string name="create">Vytvořit</string>
+    <string name="server_address">Adresa serveru</string>
+    <string name="username">Uživatelské jméno</string>
+    <string name="password">Heslo</string>
+    <string name="connect">Připojit</string>
+    <string name="account_list">Seznam úkolů</string>
+    <string name="select_provider">Vyberte poskytovatele cloudu</string>
+    <string name="server">Server</string>
+    <string name="already_have_account">Již máte účet\?</string>
+    <string name="create_new_account">Vytvořit nový účet</string>
+    <string name="error_occured">Došlo k chybě, zkontrolujte přihlašovací údaje</string>
+    <string name="loading">Načítání...</string>
+    <string name="sync_error">Chyba synchronizace</string>
+    <string name="connect_with_nc_app">Připojit se pomocí NextCloud aplikace</string>
+    <string name="connect_with_nc_app_subtext">Doporučeno. Nemusíte poskytovat vaše přihlašovací údaje, ale nikdy nesmíte smazat NextCloud aplikaci</string>
+    <string name="connect_with_credentials">Připojit se pomocí přihlašovacích údajů</string>
+    <string name="connect_with_credentials_subtext">S některými servery to nefunguje</string>
+    <string name="nextcloud_app_version_needed">Pro správnou funkci je třeba novější verze NextCloud aplikace. Chcete ji aktualizovat\?</string>
+    <string name="nextcloud_app_needed">Při použití této možnosti je třeba mít NextCloud aplikaci. Chcete ji nainstalovat\?</string>
+    <string name="empty_folder">Tato složka je prázdná</string>
+</resources>
