@@ -22,4 +22,5 @@
     <string name="nextcloud_app_version_needed">Pro správnou funkci je třeba novější verze NextCloud aplikace. Chcete ji aktualizovat\?</string>
     <string name="nextcloud_app_needed">Při použití této možnosti je třeba mít NextCloud aplikaci. Chcete ji nainstalovat\?</string>
     <string name="empty_folder">Tato složka je prázdná</string>
-</resources>
+<string name="pick_folder">Vybrat složku</string>
+    </resources>
