@@ -1,2 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">Настройки</string>
+
+    <string name="name_for_account">Имя аккаунта</string>
+    <string name="create">Создать</string>
+    <string name="server_address">Адрес сервера</string>
+    <string name="username">Имя пользователя</string>
+    <string name="password">Пароль</string>
+    <string name="connect">Подключиться</string>
+    <string name="pick_folder">Выбрать папку</string>
+    <string name="account_list">Список аккаунтов</string>
+    <string name="no_accounts">Учетные записи еще не настроены, добавьте новую учетную запись</string>
+    <string name="select_provider">Выбор облачного хранилища</string>
+    <string name="server">Сервер</string>
+    <string name="already_have_account">У вас уже есть аккаунт \?</string>
+    <string name="create_new_account">Создать новый аккаунт</string>
+    <string name="error_occured">Произошла ошибка, проверьте учетные данные</string>
+    <string name="loading">Загрузка…</string>
+    <string name="sync_error">Ошибка синхронизации</string>
+    <string name="sync_ssl_message">Сертификат SSL не может быть проверен, и это приложение не может синхронизироваться, следует ли добавить его вручную, чтобы продолжить синхронизацию\?</string>
+    <string name="connect_with_nc_app">Подключиться с помощью NextCloud App</string>
+    <string name="connect_with_nc_app_subtext">Рекомендация. Нет нужды предоставлять свои учетные данные, но не удаляйте приложение NextCloud</string>
+    <string name="connect_with_credentials">Подключитесь с вашими учетными данными</string>
+    <string name="connect_with_credentials_subtext">Не работает с некоторыми серверами</string>
+    <string name="nextcloud_app_version_needed">Более свежая версия приложения NextCloud требуется для правильной работы. Приступить к обновлению\?</string>
+    <string name="nextcloud_app_needed">Приложение NextCloud необходимо для использования этой опции. Продолжить установку\?</string>
+    <string name="empty_folder">Эта папка пуста</string>
+</resources>
