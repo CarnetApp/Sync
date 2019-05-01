@@ -23,4 +23,6 @@
     <string name="nextcloud_app_needed">Při použití této možnosti je třeba mít NextCloud aplikaci. Chcete ji nainstalovat\?</string>
     <string name="empty_folder">Tato složka je prázdná</string>
 <string name="pick_folder">Vybrat složku</string>
+    <string name="no_accounts">Zatím nebyl nakonfigurován žádný účet. Přidejte, prosím, nový online účet</string>
+    <string name="sync_ssl_message">SSL certifikát nelze ověřit a tuto aplikaci nelze synchronizovat. Máme přidat certifikát manuálně, aby se dalo pokračovat v synchronizaci\?</string>
     </resources>
