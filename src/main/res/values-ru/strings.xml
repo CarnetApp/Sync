@@ -9,8 +9,8 @@
     <string name="connect">Подключиться</string>
     <string name="pick_folder">Выбрать папку</string>
     <string name="account_list">Список аккаунтов</string>
-    <string name="no_accounts">Учетные записи еще не настроены, добавьте новую учетную запись</string>
-    <string name="select_provider">Врать облачное хранилище</string>
+    <string name="no_accounts">Учетные записи еще не настроены. Добавьте новую учетную запись</string>
+    <string name="select_provider">Выбрать облачное хранилище</string>
     <string name="server">Сервер</string>
     <string name="already_have_account">Уже есть аккаунт\?</string>
     <string name="create_new_account">Создать новый аккаунт</string>
@@ -19,8 +19,8 @@
     <string name="sync_error">Ошибка синхронизации</string>
     <string name="sync_ssl_message">Сертификат SSL не может быть проверен, и это приложение не может синхронизироваться, следует ли добавить его вручную, чтобы продолжить синхронизацию\?</string>
     <string name="connect_with_nc_app">Подключиться с помощью приложения NextCloud</string>
-    <string name="connect_with_nc_app_subtext">Рекомендуется. Не нужно предоставлять свои учетные данные, но не удаляйте приложение NextCloud</string>
-    <string name="connect_with_credentials">Подключитесь с вашими учетными данными</string>
+    <string name="connect_with_nc_app_subtext">Рекомендуется. Предоставлять учетные данные не требуется, но не удаляйте приложение NextCloud</string>
+    <string name="connect_with_credentials">Подключиться с Вашими учетными данными</string>
     <string name="connect_with_credentials_subtext">Не работает с некоторыми серверами</string>
     <string name="nextcloud_app_version_needed">Для корректной работы требуется более новая версия приложения NextCloud. Приступить к обновлению\?</string>
     <string name="nextcloud_app_needed">Для использования этой функции требуется приложение NextCloud. Приступить к установке\?</string>
