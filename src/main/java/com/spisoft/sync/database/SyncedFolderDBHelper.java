@@ -8,6 +8,7 @@ import android.util.Pair;
 
 import com.spisoft.sync.account.DBAccountHelper;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,9 +27,13 @@ public class SyncedFolderDBHelper {
             KEY_ACCOUNT_ID,
             KEY_PATH
     };
+    private static final String KEY_WAY = "way";
+    private static final String KEY_FREQUENCY = "frequency";
     public static final String CREATE_DATABASE = "create table " + TABLE_NAME + "( "
             + KEY_ACCOUNT_ID + " INTEGER,"
             + KEY_PATH + " text not null,"
+            + KEY_WAY + " INTEGER NOT NULL DEFAULT(0),"
+            + KEY_FREQUENCY + " UNSIGNED BIG INT NOT NULL DEFAULT(7200000),"
             +" FOREIGN KEY("+KEY_ACCOUNT_ID+") REFERENCES "+DBAccountHelper.TABLE_NAME+"("+DBAccountHelper.KEY_ACCOUNT_ID+"), "
             + " PRIMARY KEY ("+ KEY_PATH +", "+ KEY_ACCOUNT_ID +"));";
     private final Context mContext;
@@ -41,6 +46,13 @@ public class SyncedFolderDBHelper {
         if(sSyncedFolderDBHelper==null)
             sSyncedFolderDBHelper = new SyncedFolderDBHelper(context);
         return sSyncedFolderDBHelper;
+    }
+
+    public static void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if(oldVersion == 2 && newVersion == 3){
+            db.execSQL("ALTER TABLE "+TABLE_NAME+" ADD "+ KEY_WAY + " INTEGER NOT NULL DEFAULT 0");
+            db.execSQL("ALTER TABLE "+TABLE_NAME+" ADD "+ KEY_FREQUENCY + " UNSIGNED BIG INT NOT NULL DEFAULT(7200000)");
+        }
     }
 
     /**
@@ -119,6 +131,19 @@ public class SyncedFolderDBHelper {
             SQLiteDatabase sqLiteDatabase = database.open();
             sqLiteDatabase.delete(TABLE_NAME, KEY_ACCOUNT_ID + "=?", new String[]{accountID + ""});
             database.close();
+        }
+    }
+    public static class SyncItem implements Serializable {
+        public String path;
+        public int accountID;
+        public int way;
+        public long frequency;
+
+        public SyncItem(String path, int accountID, int way, long frequency){
+            this.path = path;
+            this.accountID = accountID;
+            this.way = way;
+            this.frequency = frequency;
         }
     }
 }
