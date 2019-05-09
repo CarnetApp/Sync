@@ -1,2 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">الإعدادات</string>
+
+    <string name="name_for_account">اسم الحساب</string>
+    <string name="create">أنشئ</string>
+    <string name="server_address">عنوان الخادم</string>
+    <string name="username">اسم المستخدم</string>
+    <string name="password">الكلمة السرية</string>
+    <string name="connect">اتصل</string>
+    <string name="pick_folder">اختر مجلدا</string>
+    <string name="select_provider">اختر مزود خدمة السحابية</string>
+    <string name="server">الخادم</string>
+    <string name="already_have_account">ألديك حساب؟</string>
+    <string name="create_new_account">أنشئ حسابا جديدا</string>
+    <string name="loading">التحميل جارٍ...</string>
+    <string name="sync_error">خطأ في المزامنة</string>
+    <string name="connect_with_nc_app">التوصيل بتطبيق NextCloud</string>
+    <string name="connect_with_credentials_subtext">لا يعمل مع بعض الخوادم</string>
+    </resources>
