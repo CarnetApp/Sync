@@ -19,11 +19,14 @@ import java.util.Date;
 
 public class Log {
     static FileWriter fw =null;
+    public static boolean isDebug = false;
 
     public static String getDebugLogPath(){
         return new File(Utils.context.getExternalCacheDir(),"sync.log").getAbsolutePath();
     }
     public static void d(String tag, String str){
+        if(!isDebug)
+            return;
         if(fw == null){
             try {
                 fw = new FileWriter(getDebugLogPath());
