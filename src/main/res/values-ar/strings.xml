@@ -16,4 +16,7 @@
     <string name="sync_error">خطأ في المزامنة</string>
     <string name="connect_with_nc_app">التوصيل بتطبيق NextCloud</string>
     <string name="connect_with_credentials_subtext">لا يعمل مع بعض الخوادم</string>
-    </resources>
+    <string name="account_list">قائمة الحسابات</string>
+    <string name="nextcloud_app_needed">تطبيق NextCloud لازم لاستخدام هذه الميزة. هل تريد تثبيتها؟</string>
+    <string name="empty_folder">هذا المجلد فارغ</string>
+</resources>
