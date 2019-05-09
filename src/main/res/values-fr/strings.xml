@@ -9,7 +9,7 @@
     <string name="password">Mot-de-passe</string>
     <string name="connect">Se connecter</string>
     <string name="pick_folder">Choisir un dossier</string>
-    <string name="account_list">List des comptes</string>
+    <string name="account_list">Liste des comptes</string>
     <string name="no_accounts">Aucun compte configuré, ajoutez un nouveau compte</string>
     <string name="select_provider">Sélectionnez un fournisseur</string>
     <string name="server">Serveur</string>
