@@ -3,7 +3,6 @@
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment" translatable="false">Hello blank fragment</string>
-    <string name="nextcloud_hint" translatable="false">NextCloud</string>
     <string name="name_for_account">Account name</string>
     <string name="create">Create</string>
     <string name="server_address">Server address</string>
