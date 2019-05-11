@@ -1,2 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">Agordoj</string>
+
+    <string name="name_for_account">Nomo de la konto</string>
+    <string name="create">Krei</string>
+    <string name="server_address">Servila adreso</string>
+    <string name="username">Uzantnomo</string>
+    <string name="password">Pasvorto</string>
+    <string name="connect">Ensaluti</string>
+    <string name="pick_folder">Elekti dosierujon</string>
+    <string name="account_list">Listo de kontoj</string>
+    <string name="no_accounts">Ankoraŭ neniu konto agordigita, bonvolu aldoni novan retan konton</string>
+    <string name="select_provider">Elektu provizanto</string>
+    <string name="server">Servilo</string>
+    <string name="already_have_account">Ĉu vi jam havas konton\?</string>
+    <string name="create_new_account">Krei novan konton</string>
+    <string name="error_occured">Eraro okazis, kontrolu viajn ensalutilojn</string>
+    <string name="loading">Ŝarĝante…</string>
+    <string name="sync_error">Eraro de sinkronigo</string>
+    <string name="sync_ssl_message">La SSL-atestilo ne eblas validigi, sinkronigo neebla. Ĉu permane aldoni la atestilon por daŭrigi la sinkronigon\?</string>
+    <string name="connect_with_nc_app">Ensaluti per la Nextcloud-apo</string>
+    <string name="connect_with_nc_app_subtext">Rekomendata. Ne necesas provizi viajn ensalutilojn. Ne forigu la aplikaĵon Nextcloud</string>
+    <string name="connect_with_credentials">"Ensaluti per viaj  ensalutiloj"</string>
+    <string name="connect_with_credentials_subtext">Ne funkcias kun kelkaj serviloj</string>
+    <string name="nextcloud_app_version_needed">Pli nova versio de la apo Nextcloud estas deviga por bone funkcii. Ĝisdatigi ĝin\?</string>
+    <string name="nextcloud_app_needed">La apo Nextcloud estas deviga por uzi tiun agordon. Instali ĝin\?</string>
+    <string name="empty_folder">Tiu dosierujo estas malplena</string>
+</resources>
