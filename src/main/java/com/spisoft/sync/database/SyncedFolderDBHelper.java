@@ -104,6 +104,26 @@ public class SyncedFolderDBHelper {
         return remoteAccounts;
     }
 
+    public List<SyncItem> getSyncedItems(int accountId) {
+        ArrayList<SyncItem> items = new ArrayList<>();
+        SyncDatabase database = SyncDatabase.getInstance(mContext);
+        synchronized (database.lock) {
+            SQLiteDatabase sqLiteDatabase = database.open();
+            Cursor cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, KEY_ACCOUNT_ID+" = ? ",new String[]{ accountId+""}, null, null, null);
+            if(cursor != null && cursor.getCount()>0){
+                int pathCol = cursor.getColumnIndex(KEY_PATH);
+                int wayCol = cursor.getColumnIndex(KEY_WAY);
+                int frequencyCol = cursor.getColumnIndex(KEY_FREQUENCY);
+                while(cursor.moveToNext()){
+                    items.add(new SyncItem(cursor.getString(pathCol), accountId, cursor.getInt(wayCol), cursor.getLong(frequencyCol)));
+                }
+            }
+
+            sqLiteDatabase.close();
+        }
+        return items;
+    }
+
     public void addPathToSync(int accountId, String path){
         SyncDatabase database = SyncDatabase.getInstance(mContext);
         synchronized (database.lock) {
