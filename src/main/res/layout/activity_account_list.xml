@@ -21,34 +21,11 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            tools:layout_editor_absoluteX="8dp"
-            tools:layout_editor_absoluteY="8dp" >
+            android:id="@+id/fragment" >
 
-            <ListView
-                android:layout_width="match_parent"
-                android:id="@+id/account_list"
-                android:layout_height="match_parent"
-                />
-            <TextView
-                android:id="@+id/empty_view"
-                android:gravity="center"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/no_accounts"/>
+
         </FrameLayout>
 
     </LinearLayout>
 
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/addButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_anchor="@id/account_list"
-        android:layout_margin="16dp"
-        android:clickable="true"
-        android:layout_gravity="bottom|right"
-        android:src="@drawable/ic_add_white_24dp"
-        app:layout_anchorGravity="bottom|right|end"
-        />
 </android.support.design.widget.CoordinatorLayout>

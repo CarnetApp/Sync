@@ -3,6 +3,7 @@ package com.spisoft.sync.account;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -19,7 +20,7 @@ import com.spisoft.sync.Configuration;
 import com.spisoft.sync.Log;
 import com.spisoft.sync.R;
 
-public class AccountListActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class AccountListActivity extends AppCompatActivity{
     private View mAddButton;
     private ListView mListView;
     private AccountAdapter mAdapter;
@@ -29,42 +30,14 @@ public class AccountListActivity extends AppCompatActivity implements AdapterVie
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_account_list);
-        setSupportActionBar((Toolbar)findViewById(R.id.toolbar2));
-        mAddButton = findViewById(R.id.addButton);
-        mAddButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivity(new Intent(AccountListActivity.this, AccountTypeActivity.class));
-            }
-        });
-        mListView = findViewById(R.id.account_list);
-        mEmptyView = findViewById(R.id.empty_view);
-        mListView.setOnItemClickListener(this);
-        refreshCursor();
-
-    }
-    private void refreshCursor(){
-        Cursor cursor = DBAccountHelper.getInstance(this).getCursor();
-        if(cursor == null || cursor.getCount() == 0){
-            mEmptyView.setVisibility(View.VISIBLE);
-        }
-        else {
-            mEmptyView.setVisibility(View.GONE);
-            mAdapter = new AccountAdapter(this,cursor, 0);
-            mListView.setAdapter(mAdapter);
-        }
-
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar2));
+        setFragment(new AccountListFragment());
     }
 
-    public void onResume(){
-        super.onResume();
-        if(mAdapter!=null)
-            refreshCursor();
-    }
-
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        mAdapter.getCursor().moveToPosition(i);
-        Configuration.sOnAccountSelectedListener.onAccountSelected((int)l,  mAdapter.getCursor().getInt(mAdapter.getCursor().getColumnIndex(DBAccountHelper.KEY_ACCOUNT_TYPE)));
+    public void setFragment(Fragment fragment) {
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.fragment,fragment)
+                .addToBackStack(null).commit();
     }
 }
