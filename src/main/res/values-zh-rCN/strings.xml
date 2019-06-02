@@ -1,2 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">设置</string>
+
+    <string name="name_for_account">帐号名</string>
+    <string name="create">创建</string>
+    <string name="server_address">服务器地址</string>
+    <string name="username">用户名</string>
+    <string name="password">密码</string>
+    <string name="connect">连接</string>
+    <string name="pick_folder">选择文件夹</string>
+    <string name="account_list">帐号列表</string>
+    <string name="no_accounts">尚未配置帐号，请添加一个在线帐号</string>
+    <string name="select_provider">选择云供应商</string>
+    <string name="server">服务器</string>
+    <string name="already_have_account">已经有一个帐号？</string>
+    <string name="create_new_account">创建一个新帐号</string>
+    <string name="error_occured">出现错误，请检查凭据</string>
+    <string name="loading">加载中……</string>
+    <string name="sync_error">同步错误</string>
+    <string name="sync_ssl_message">无法验证SSL证书，并且此应用程序无法同步，是否应手动添加以继续同步？</string>
+    <string name="connect_with_nc_app">与 NextCloud 程序连接</string>
+    <string name="connect_with_nc_app_subtext">推荐。无需提供你的凭证，但绝不能删除 NextCloud 应用程序</string>
+    <string name="connect_with_credentials">连接你的凭证</string>
+    <string name="connect_with_credentials_subtext">不适用于某些服务器</string>
+    <string name="nextcloud_app_version_needed">需要更新版本的 NextCloud 应用程序才能正常工作。继续更新？</string>
+    <string name="nextcloud_app_needed">使用此选项需要使用 NextCloud 应用程序。进行安装？</string>
+    <string name="empty_folder">此文件夹为空</string>
+</resources>
