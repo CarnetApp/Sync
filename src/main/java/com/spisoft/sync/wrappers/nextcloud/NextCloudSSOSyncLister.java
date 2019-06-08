@@ -46,8 +46,12 @@ public class NextCloudSSOSyncLister implements NextCloudSyncLister{
         for(int i = 0; i < items.getLength(); i++){
             RemoteFile remoteFile = new RemoteFile();
             Element node = (Element) items.item(i);
+            String path = node.getElementsByTagName("d:href").item(0).getTextContent();
+            Log.d(TAG, "href "+path);
+            path = path.substring(path.indexOf("/remote.php/webdav/")+"/remote.php/webdav/".length());
+            Log.d(TAG, "corrected "+path);
+            remoteFile.setRemotePath(Uri.decode(path));
 
-            remoteFile.setRemotePath(Uri.decode(node.getElementsByTagName("d:href").item(0).getTextContent().substring("/remote.php/webdav/".length())));
             String modTimeStr = node.getElementsByTagName("d:getlastmodified").item(0).getTextContent();
             if(!modTimeStr.isEmpty())
                 remoteFile.setModifiedTimestamp(simpleDateFormat.parse(modTimeStr).getTime());
