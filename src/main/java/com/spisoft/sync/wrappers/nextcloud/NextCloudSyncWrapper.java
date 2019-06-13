@@ -440,8 +440,9 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         try {
             remoteFileList = nextCloudSyncLister.retrieveList(remotePath);
         } catch (final Exception e) {
-
-            e.printStackTrace();
+            for(StackTraceElement ee : e.getStackTrace()){
+                Log.d(TAG, ee.toString());
+            }
             if(e instanceof  com.nextcloud.android.sso.exceptions.NextcloudHttpRequestFailedException || e instanceof  java.lang.NullPointerException){
                 //create folder
                 mWrapper.getFileOperation().mkdir(remotePath);
