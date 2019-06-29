@@ -1,2 +1,28 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">Axustes</string>
+
+    <string name="name_for_account">Nome da conta</string>
+    <string name="create">Crear</string>
+    <string name="server_address">Enderezo do servidor</string>
+    <string name="username">Nome de usuaria</string>
+    <string name="password">Contrasinal</string>
+    <string name="connect">Conectar</string>
+    <string name="pick_folder">Escoller cartafol</string>
+    <string name="account_list">Lista de contas</string>
+    <string name="no_accounts">Sen contas configuradas, engada unha nova conta en liña</string>
+    <string name="select_provider">Escolla provedor na nube</string>
+    <string name="server">Servidor</string>
+    <string name="already_have_account">Xa ten unha conta\?</string>
+    <string name="create_new_account">Crear nova conta</string>
+    <string name="error_occured">Algo fallou, comprobe as credenciais</string>
+    <string name="loading">Cargando...</string>
+    <string name="sync_error">Fallo Sincr</string>
+    <string name="sync_ssl_message">Non se puido validar o cerfiticado SSL e a app non se pode sincr, debemos engadilo manualmente para poder sincr \?</string>
+    <string name="connect_with_nc_app">Conectar coa App NextCloud</string>
+    <string name="connect_with_nc_app_subtext">Recomendado. Non precisa proporcionar credenciais, non debe borrar nunca a App NextCloud</string>
+    <string name="connect_with_credentials">Conectar con credenciais</string>
+    <string name="connect_with_credentials_subtext">Non funciona con algúns servidores</string>
+    <string name="nextcloud_app_version_needed">Precísase unha versión máis recente da app NextCloud para funcionar correctamente. Actualizar\?</string>
+    <string name="nextcloud_app_needed">Precísase a app NextCloud para esta opción. Instalar\?</string>
+    <string name="empty_folder">Este cartafol está baldeiro</string>
+</resources>
