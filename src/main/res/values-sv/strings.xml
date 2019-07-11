@@ -1,2 +1,27 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">Inställningar</string>
+
+    <string name="name_for_account">Kontonamn</string>
+    <string name="create">Skapa</string>
+    <string name="server_address">Serveradress</string>
+    <string name="username">Användarnamn</string>
+    <string name="password">Lösenord</string>
+    <string name="connect">Anslut</string>
+    <string name="pick_folder">Välj katalog</string>
+    <string name="account_list">Kontolista</string>
+    <string name="no_accounts">Inga konton är konfigurerade ännu, lägg till ett nytt onlinekonto</string>
+    <string name="select_provider">Välj molnleverantör</string>
+    <string name="already_have_account">Har du redan ett konto \?</string>
+    <string name="create_new_account">Skapa ett nytt konto</string>
+    <string name="error_occured">Ett fel inträffade, kontrollera dina inloggningsuppgifter</string>
+    <string name="loading">Laddar...</string>
+    <string name="sync_error">Fel vid synkronisering</string>
+    <string name="sync_ssl_message">SSL-certifikatet kan inte valideras och appen kan inte synkroniseras, ska vi lägga till det manuellt för att fortsätta synkronisering \?</string>
+    <string name="connect_with_nc_app">Anslut till NextCloud App</string>
+    <string name="connect_with_nc_app_subtext">Rekommenderas. Du måste inte ange dina inloggningsuppgifter, får aldrig radera NextCloud App</string>
+    <string name="connect_with_credentials">Anslut med dina inloggningsuppgifter</string>
+    <string name="connect_with_credentials_subtext">Fungerar inte med vissa servrar</string>
+    <string name="nextcloud_app_version_needed">En senare version av NextCloud-applikationen är nödvändig för att fungera riktigt. Fortsätta till uppdatering \?</string>
+    <string name="nextcloud_app_needed">NextCloud-appen är nödvändig för att använda denna funktion. Fortsätta till installation \?</string>
+    <string name="empty_folder">Denna katalog är tom</string>
+</resources>
