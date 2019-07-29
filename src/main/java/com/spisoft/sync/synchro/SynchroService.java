@@ -122,8 +122,6 @@ public class SynchroService extends Service{
     @Override
     public int onStartCommand(Intent intent,int flags, int startId) {
         int ret = super.onStartCommand(intent,flags, startId);
-        if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M && ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-            return ret;
         String path;
         if(intent == null || (path = intent.getDataString())==null)
             path = "all";
