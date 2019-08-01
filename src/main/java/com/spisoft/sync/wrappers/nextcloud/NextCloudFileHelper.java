@@ -68,7 +68,16 @@ public class NextCloudFileHelper {
         DBNextCloudFile dbDriveFile = null;
         synchronized (database.lock) {
             SQLiteDatabase sqLiteDatabase = database.open();
-            Cursor cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, KEY_ACCOUNT + "=? AND " + KEY_REMOTE_PATH + "= ?", new String[]{accountID + "", remotePath}, null, null, null);
+            Cursor cursor = null;
+            try{
+                cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, KEY_ACCOUNT + "=? AND " + KEY_REMOTE_PATH + "= ?", new String[]{accountID + "", remotePath}, null, null, null);
+            } catch (android.database.sqlite.SQLiteException e){
+            	if(e.getMessage().contains(KEY_SYNC_LASTMOD)){
+            	    sqLiteDatabase.execSQL(UPDATE_DB_V1_TO_V2);
+                    cursor = sqLiteDatabase.query(TABLE_NAME, COLUMNS, KEY_ACCOUNT + "=? AND " + KEY_REMOTE_PATH + "= ?", new String[]{accountID + "", remotePath}, null, null, null);
+                }
+            
+            }
             if (cursor.getCount() > 0) {
                 cursor.moveToFirst();
                 dbDriveFile = new DBNextCloudFile();
