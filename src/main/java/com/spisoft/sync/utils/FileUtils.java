@@ -2,10 +2,12 @@ package com.spisoft.sync.utils;
 
 import android.net.Uri;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.security.MessageDigest;
@@ -92,6 +94,45 @@ public class FileUtils {
         } catch (Exception e) {
             throw new IllegalStateException(absolutePath+": no md5 or file not found (exists ?) "+new File(absolutePath).exists());
         }
+    }
+
+
+    public static String readInputStream(InputStream s) {
+        BufferedReader br = null;
+        InputStreamReader fr = null;
+        StringBuilder sb = new StringBuilder();
+        try {
+            fr = new InputStreamReader(s);
+            br = new BufferedReader(fr);
+
+            String sCurrentLine;
+
+            while ((sCurrentLine = br.readLine()) != null) {
+                sb.append(sCurrentLine+"\n");
+            }
+
+        } catch (IOException e) {
+
+            e.printStackTrace();
+
+        } finally {
+
+            try {
+
+                if (br != null)
+                    br.close();
+
+                if (fr != null)
+                    fr.close();
+
+            } catch (IOException ex) {
+
+                ex.printStackTrace();
+
+            }
+
+        }
+        return sb.toString();
     }
 
     private static String getFileChecksum(MessageDigest digest, File file) throws IOException

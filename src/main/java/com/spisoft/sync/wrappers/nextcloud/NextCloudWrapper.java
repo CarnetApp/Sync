@@ -234,6 +234,13 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
             return new NextCloudSSOFileOperation(this);
     }
 
+    public NextCloudQueryExecutor getQueryExecutor() {
+        if(mSsoAccount == null)
+            return new NextCloudOCQueryExecutor(this);
+        else
+            return new NextCloudSSOQueryExecutor(this);
+    }
+
     @Override
     public boolean canChangeCredentials() {
         return mSsoAccount == null;

@@ -429,13 +429,22 @@ public class NextCloudSyncWrapper extends SyncWrapper {
     }
 
     private int recursiveLoadFolder(String remotePath) {
-
         NextCloudSyncLister nextCloudSyncLister = mWrapper.getSyncLister();
         NextCloudFileHelper.DBNextCloudFile nextCloudFile = NextCloudFileHelper.getInstance(mContext).getDBDriveFile(mAccountID, remotePath);
         if(nextCloudFile == null) {
             nextCloudFile = new NextCloudFileHelper.DBNextCloudFile(remotePath);
             nextCloudFile.accountID = mAccountID;
         }
+        else if(remotePath.equals(getRemotePathFromLocal(mCurrentlyLocalSyncedDir))) {
+
+            String remoteEtag = mWrapper.getFileOperation().getEtag(remotePath);
+            if (remoteEtag != null && remoteEtag.equals(nextCloudFile.onlineEtag) && nextCloudFile.visitStatus == NextCloudFileHelper.DBNextCloudFile.VisitStatus.STATUS_OK) {
+                Log.d(TAG, "root dir hasn't changed " + remoteEtag);
+                fillWithDBRemoteFiles(remotePath);
+                return STATUS_SUCCESS;
+            }
+        }
+
         List<RemoteFile> remoteFileList = null;
         try {
             remoteFileList = nextCloudSyncLister.retrieveList(remotePath);

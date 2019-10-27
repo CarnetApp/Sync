@@ -1,20 +1,34 @@
 package com.spisoft.sync.wrappers.nextcloud;
 
 import android.net.Uri;
-import android.util.Log;
 
 import com.nextcloud.android.sso.aidl.NextcloudRequest;
+import com.owncloud.android.lib.common.network.WebdavUtils;
 import com.owncloud.android.lib.resources.files.RemoteFile;
+import com.spisoft.sync.Log;
 import com.spisoft.sync.utils.FileUtils;
+
+import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
+import org.apache.jackrabbit.webdav.property.DavPropertyName;
+import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
+import org.apache.jackrabbit.webdav.xml.Namespace;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 
 public class NextCloudSSOFileOperation implements NextCloudFileOperation {
     static final String TAG = "NextCloudSSOFileOperation";
@@ -125,6 +139,44 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
             e.printStackTrace();
         }
 
+
+
+        return null;
+    }
+
+    @Override
+    public String getEtag(String remotePath) {
+
+        try {
+            DavPropertyNameSet propSet = new DavPropertyNameSet();
+            propSet.add(DavPropertyName.GETETAG);
+            MyPropFindMethod propfind = new MyPropFindMethod(WebdavUtils.encodePath(remotePath), propSet, 0);
+
+            remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
+            Map<String, List<String>> header = new HashMap<>();
+            List<String>depth = new ArrayList<>();
+            depth.add("0");
+            header.put("Depth", depth);
+            NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
+                    .setMethod("PROPFIND")
+                    .setHeader(header)
+                    .setUrl("/remote.php/webdav/"+remotePath)
+                    .setRequestBody(propfind.getMyRequestString())
+                    .build();
+            Log.d("requestdebug",propfind.getMyRequestString());
+           DocumentBuilderFactory factory =
+           DocumentBuilderFactory.newInstance();
+           DocumentBuilder builder = factory.newDocumentBuilder();
+           org.w3c.dom.Document doc = builder.parse(mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest));
+           NodeList items = doc.getElementsByTagName("d:response");
+           for(int i = 0; i < items.getLength(); i++) {
+               RemoteFile remoteFile = new RemoteFile();
+               Element node = (Element) items.item(i);
+               return node.getElementsByTagName("d:getetag").item(0).getTextContent().replace("\"", "");
+           }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
 
         return null;
