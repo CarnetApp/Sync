@@ -14,6 +14,7 @@ import android.os.Build;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.annotation.RequiresApi;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
@@ -44,7 +45,6 @@ import java.util.concurrent.TimeUnit;
 public class SynchroService extends Service{
     private static final String TAG = "SynchroService";
     private static final int ALARM_ID = 1001;
-    private static final long REPEAT = 120*60*1000;
     private static final String TAGOBS = "ObserverTag";
     private Thread mSyncThread;
     private SyncWrapper mGoogleDriveSyncWrapper;
@@ -315,18 +315,32 @@ public class SynchroService extends Service{
             if(hasAll) {
                 Log.d(TAG,"sync took "+ getDurationBreakdown(System.currentTimeMillis()-start)
                 );
+                planNextLaunch();
 
-                AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-                Intent intent = new Intent(SynchroService.this, SynchroService.class);
-                PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-                if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M)
-                    alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + REPEAT, alarmIntent);
-                showForegroundNotification("Pending");
-
-                SynchroService.this.stopSelf();
             }
             // sendBroadcast(new Intent(NoteListFragment.ACTION_RELOAD));
 
+        }
+
+        public void cancelNextLaunch(){
+            Intent intent = new Intent(SynchroService.this, SynchroService.class);
+            PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+            alarmMgr.cancel(alarmIntent);
+        }
+
+        public void planNextLaunch(){
+            AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+            Intent intent = new Intent(SynchroService.this, SynchroService.class);
+            int next = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(SynchroService.this).getString("sync_frequency", "120"));
+            if(next == -1)
+                return;
+            PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M)
+                alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + next*60*1000, alarmIntent);
+            showForegroundNotification("Pending");
+            if(next>=15)
+                SynchroService.this.stopSelf();
         }
 
         public String getDurationBreakdown(long millis) {
