@@ -22,6 +22,7 @@ import android.util.Pair;
 
 import com.spisoft.sync.Configuration;
 import com.spisoft.sync.Log;
+import com.spisoft.sync.R;
 import com.spisoft.sync.RecursiveFileObserver;
 import com.spisoft.sync.account.DBAccountHelper;
 import com.spisoft.sync.database.SyncedFolderDBHelper;
@@ -131,7 +132,7 @@ public class SynchroService extends Service{
         }
 
         if (mSyncThread == null || !mSyncThread.isAlive()) {
-            showForegroundNotification("Pending");
+            showForegroundNotification(this.getString(R.string.waiting_next_sync));
             mSyncThread = new SyncThread();
             mSyncThread.start();
 
@@ -155,6 +156,7 @@ public class SynchroService extends Service{
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(SynchroService.this, mChannelId);
                 Notification notification = notificationBuilder.setOngoing(true)
                         .setSmallIcon(Configuration.icon)
+                        .setContentText(contentText)
                         .setPriority(NotificationCompat.PRIORITY_MIN)
                         .setCategory(Notification.CATEGORY_SERVICE)
                         .build();
@@ -174,7 +176,7 @@ public class SynchroService extends Service{
     }
 
     public void resetNotification(){
-        showForegroundNotification("Syncing...");
+        showForegroundNotification(this.getString(R.string.syncing));
     }
 
     private class MyFileObserver extends RecursiveFileObserver {
@@ -254,7 +256,7 @@ public class SynchroService extends Service{
             }
             int error = SUCCESS;
             String errorMessage = "";
-            showForegroundNotification("Syncing...");
+            showForegroundNotification(SynchroService.this.getString(R.string.syncing));
             long start = System.currentTimeMillis();
             Log.d(TAG,"starting sync at "+ DateFormat.getDateTimeInstance().format(new Date(start)));
             //retrieve synced dir
@@ -338,7 +340,7 @@ public class SynchroService extends Service{
             PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
             if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M)
                 alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + next*60*1000, alarmIntent);
-            showForegroundNotification("Pending");
+            showForegroundNotification(SynchroService.this.getString(R.string.waiting_next_sync));
             if(next>=15)
                 SynchroService.this.stopSelf();
         }

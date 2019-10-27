@@ -10,8 +10,10 @@ import com.owncloud.android.lib.common.network.CertificateCombinedException;
 import com.owncloud.android.lib.common.network.NetworkUtils;
 import com.owncloud.android.lib.resources.files.RemoteFile;
 import com.spisoft.sync.Log;
+import com.spisoft.sync.R;
 import com.spisoft.sync.synchro.SyncWrapper;
 import com.spisoft.sync.synchro.SynchroService;
+import com.spisoft.sync.utils.FileLocker;
 import com.spisoft.sync.utils.FileUtils;
 
 import java.io.File;
@@ -264,22 +266,26 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             }
         }
         else {
-            Log.d(TAG, "upload file ");
-            boolean isSuccess = mWrapper.getFileOperation().upload(file.getAbsolutePath(), remotePath);
-            if (isSuccess) {
-                //record it
-                Log.d(TAG, "upload success ");
-                RemoteFile remoteFile = mWrapper.getFileOperation().getFileInfo(remotePath);
-                if (remoteFile != null) {
-                    Log.d(TAG, "read success ");
-                    nextCloudFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
-                    nextCloudFile.md5 = md5;
-                    nextCloudFile.lastMod = file.lastModified();
-                    nextCloudFile.remoteMimeType = remoteFile.getMimeType();
-                    NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFile);
-                    return STATUS_SUCCESS;
-                }
+            synchronized (FileLocker.getLockOnPath(file.getAbsolutePath())) {
+                Log.d(TAG, "upload file ");
+                SynchroService.sService.showForegroundNotification(mContext.getString(R.string.uploading) + " " + Uri.parse(remotePath).getLastPathSegment());
+                boolean isSuccess = mWrapper.getFileOperation().upload(file.getAbsolutePath(), remotePath);
+                SynchroService.sService.resetNotification();
+                if (isSuccess) {
+                    //record it
+                    Log.d(TAG, "upload success ");
+                    RemoteFile remoteFile = mWrapper.getFileOperation().getFileInfo(remotePath);
+                    if (remoteFile != null) {
+                        Log.d(TAG, "read success ");
+                        nextCloudFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
+                        nextCloudFile.md5 = md5;
+                        nextCloudFile.lastMod = file.lastModified();
+                        nextCloudFile.remoteMimeType = remoteFile.getMimeType();
+                        NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFile);
+                        return STATUS_SUCCESS;
+                    }
 
+                }
             }
         }
         return STATUS_FAILURE;
@@ -362,23 +368,25 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(driveFile);
             return STATUS_SUCCESS;
         } else {
-            SynchroService.sService.showForegroundNotification("Downloading "+ Uri.parse(remoteFile.getRemotePath()).getLastPathSegment());
-            boolean success = mWrapper.getFileOperation().download(remoteFile.getRemotePath(), localFile, remoteFile.getSize());
+            synchronized (FileLocker.getLockOnPath(localFile)) {
+                SynchroService.sService.showForegroundNotification(mContext.getString(R.string.downloading) + " " + Uri.parse(remoteFile.getRemotePath()).getLastPathSegment());
+                boolean success = mWrapper.getFileOperation().download(remoteFile.getRemotePath(), localFile, remoteFile.getSize());
 
-            Log.d(TAG,"download ?");
-            SynchroService.sService.resetNotification();
+                Log.d(TAG, "download ?");
+                SynchroService.sService.resetNotification();
 
-            if (success) {
-                Log.d(TAG,"success ?");
+                if (success) {
+                    Log.d(TAG, "success ?");
 
-                //record in DB
-                driveFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
-                driveFile.onlineEtag = remoteFile.getEtag();
-                driveFile.remoteMimeType = remoteFile.getMimeType();
-                driveFile.md5 = FileUtils.md5(localFile);
-                driveFile.lastMod = new File(localFile).lastModified();
-                NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(driveFile);
-                return STATUS_SUCCESS;
+                    //record in DB
+                    driveFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
+                    driveFile.onlineEtag = remoteFile.getEtag();
+                    driveFile.remoteMimeType = remoteFile.getMimeType();
+                    driveFile.md5 = FileUtils.md5(localFile);
+                    driveFile.lastMod = new File(localFile).lastModified();
+                    NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(driveFile);
+                    return STATUS_SUCCESS;
+                }
             }
             return STATUS_FAILURE;
         }
