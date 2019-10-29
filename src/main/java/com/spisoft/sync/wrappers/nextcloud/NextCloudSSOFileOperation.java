@@ -1,30 +1,23 @@
 package com.spisoft.sync.wrappers.nextcloud;
 
-import android.net.Uri;
-
 import com.nextcloud.android.sso.aidl.NextcloudRequest;
 import com.owncloud.android.lib.common.network.WebdavUtils;
 import com.owncloud.android.lib.resources.files.RemoteFile;
 import com.spisoft.sync.Log;
 import com.spisoft.sync.utils.FileUtils;
 
-import org.apache.jackrabbit.webdav.client.methods.PropFindMethod;
 import org.apache.jackrabbit.webdav.property.DavPropertyName;
 import org.apache.jackrabbit.webdav.property.DavPropertyNameSet;
-import org.apache.jackrabbit.webdav.xml.Namespace;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 
 import javax.xml.parsers.DocumentBuilder;
@@ -95,10 +88,22 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
                 .setUrl("/remote.php/webdav/"+remotePath)
                 .build();
         try {
-            mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
+            InputStream stream = mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
+            String res = FileUtils.readInputStream(stream);
             return true;
         } catch (Exception e) {
-            e.printStackTrace();
+          //  e.printStackTrace();
+            if(e.getMessage().endsWith("409")){
+                File f = new File(remotePath);
+                mkdir(f.getParent());
+                try {
+                    InputStream stream = mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
+                    return true;
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+
+            }
         }
         return false;
     }
