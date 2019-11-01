@@ -29,6 +29,8 @@ import com.spisoft.sync.database.SyncedFolderDBHelper;
 import com.spisoft.sync.wrappers.Wrapper;
 import com.spisoft.sync.wrappers.WrapperFactory;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.File;
 import java.text.DateFormat;
 import java.util.ArrayList;
@@ -61,6 +63,13 @@ public class SynchroService extends Service{
     public static SynchroService sService;
     public static boolean isSyncing = false;
     private String mChannelId = "";
+
+    public static void startOnBootIfNeeded(@NotNull Context context) {
+        int next = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("sync_frequency", "60"));
+        if(next == -1)
+            return;
+        context.startService(new Intent(context, SynchroService.class));
+    }
 
     public static class Result{
         public final String errorMessage;
@@ -334,7 +343,7 @@ public class SynchroService extends Service{
         public void planNextLaunch(){
             AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
             Intent intent = new Intent(SynchroService.this, SynchroService.class);
-            int next = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(SynchroService.this).getString("sync_frequency", "120"));
+            int next = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(SynchroService.this).getString("sync_frequency", "60"));
             if(next == -1)
                 return;
             PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
