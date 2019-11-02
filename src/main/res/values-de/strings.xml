@@ -23,6 +23,10 @@
     <string name="connect_with_credentials">Verbindung mit Ihren Anmeldeinformationen herstellen</string>
     <string name="connect_with_credentials_subtext">Funktioniert mit einigen Servern nicht</string>
     <string name="nextcloud_app_version_needed">Eine neuere Version der Nextcloud-App ist erforderlich, damit diese Methode ordnungsgemäß funktioniert. Mit dem Update der App fortfahren\?</string>
-    <string name="nextcloud_app_needed">Die Nextcloud-App wird für die Nutzung dieser Methode gebraucht. Mit der Installation fortfahren\?</string>
+    <string name="nextcloud_app_needed">Für diese Option wird die Nextcloud-App benötigt. Installation fortsetzen\?</string>
     <string name="empty_folder">Dieser Ordner ist leer</string>
+<string name="waiting_next_sync">Warte auf nächste Synchronisation</string>
+    <string name="syncing">Synchronisiere ...</string>
+    <string name="downloading">Lade herunter</string>
+    <string name="uploading">Lade hoch</string>
 </resources>
