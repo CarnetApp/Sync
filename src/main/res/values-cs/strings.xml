@@ -25,4 +25,8 @@
 <string name="pick_folder">Vybrat složku</string>
     <string name="no_accounts">Zatím nebyl nakonfigurován žádný účet. Přidejte, prosím, nový online účet</string>
     <string name="sync_ssl_message">SSL certifikát nelze ověřit a tuto aplikaci nelze synchronizovat. Máme přidat certifikát manuálně, aby se dalo pokračovat v synchronizaci\?</string>
-    </resources>
+    <string name="waiting_next_sync">Čekání na další synchronizaci</string>
+    <string name="syncing">Synchronizace…</string>
+    <string name="downloading">Stahování</string>
+    <string name="uploading">Nahrávání</string>
+</resources>
