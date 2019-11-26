@@ -1,2 +1,32 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<?xml version='1.0' encoding='UTF-8'?>
+<resources><string name="action_settings">Ayarlar</string>
+
+    <string name="name_for_account">Hesap adı</string>
+    <string name="create">Oluştur</string>
+    <string name="server_address">Sunucu adresi</string>
+    <string name="username">Kullanıcı adı</string>
+    <string name="password">Parola</string>
+    <string name="connect">Bağlan</string>
+    <string name="pick_folder">Dizin seç</string>
+    <string name="account_list">Hesap listesi</string>
+    <string name="no_accounts">Hiçbir hesap yapılandırılmadı, lütfen yeni bir çevrimiçi hesap ekleyin</string>
+    <string name="select_provider">Servis sağlayıcı seçin</string>
+    <string name="server">Sunucu</string>
+    <string name="already_have_account">Zaten bir hesabınız var mı\?</string>
+    <string name="create_new_account">Hesap oluşturun</string>
+    <string name="error_occured">Bir hata oluştu, bilgilerinizi kontrol edin</string>
+    <string name="loading">Yükleniyor...</string>
+    <string name="sync_error">Eşitleme hatası</string>
+    <string name="sync_ssl_message">SSL/TLS sertifikası doğrulanamıyor. Bu uygulama eşitleme yapamaz, elle eklenip eşitlemeye devam edilsin mi\?</string>
+    <string name="connect_with_nc_app">NextCloud uygulamasıyla bağlan</string>
+    <string name="connect_with_nc_app_subtext">Önerilir. Kişisel bilgilerinizi vermek zorunda değilsiniz, ama NextCloud uygulamasını silmemelisiniz</string>
+    <string name="connect_with_credentials">Kendi bilgilerinizle bağlanın</string>
+    <string name="connect_with_credentials_subtext">Bazı sunucularla çalışmaz</string>
+    <string name="nextcloud_app_version_needed">NextCloud uygulamasının daha yeni bir sürümü gerekmektedir, güncelleme yapılsın mı\?</string>
+    <string name="nextcloud_app_needed">Bu işlem için NextCloud uygulaması gerekmektedir, yüklensin mi\?</string>
+    <string name="empty_folder">Bu dizin boş</string>
+    <string name="waiting_next_sync">Bir sonraki eşitleme bekleniyor</string>
+    <string name="syncing">Eşitleniyor...</string>
+    <string name="downloading">İndiriliyor</string>
+    <string name="uploading">Yükleniyor</string>
+</resources>
