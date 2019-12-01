@@ -26,4 +26,8 @@
     <string name="nextcloud_app_version_needed">Une version plus récente de l\'application Nextcloud est requise pour un bon fonctionnement. La mettre à jour ?</string>
     <string name="nextcloud_app_needed">L\'application NextCloud est nécessaire pour utiliser cette option. Procéder à son installation ?</string>
 <string name="empty_folder">Ce dossier est vide</string>
+<string name="waiting_next_sync">Attente de la prochaine synchronisation</string>
+    <string name="syncing">Synchronisation en cours...</string>
+    <string name="downloading">Téléchargement en cours</string>
+    <string name="uploading">Téléversement en cours</string>
 </resources>
