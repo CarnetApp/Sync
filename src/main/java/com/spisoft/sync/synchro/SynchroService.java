@@ -8,16 +8,15 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.FileObserver;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.annotation.RequiresApi;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
 import android.util.Pair;
 
 import com.spisoft.sync.Configuration;
@@ -271,6 +270,7 @@ public class SynchroService extends Service{
             //retrieve synced dir
             mSyncedFolderDBHelper = SyncedFolderDBHelper.getInstance(SynchroService.this);
             String syncPath = null;
+            int modifiedSize = 0;
             boolean hasAll = false;
             while(true) {
                 synchronized (lock){
@@ -297,6 +297,7 @@ public class SynchroService extends Service{
                         break;
                     }
                 }
+                modifiedSize += modifiedFiles.size();
                 for(String path : modifiedFiles){
                     List<Configuration.PathObserver> observers = Configuration.getPathObservers(path);
                     Log.d(TAG, "notify observers "+path);
@@ -324,8 +325,7 @@ public class SynchroService extends Service{
             }
 
             if(hasAll) {
-                Log.d(TAG,"sync took "+ getDurationBreakdown(System.currentTimeMillis()-start)
-                );
+                Log.d(TAG,"sync took "+ getDurationBreakdown(System.currentTimeMillis()-start)+ " modified "+ modifiedSize, Log.LEVEL_ALWAYS_LOG);
                 planNextLaunch();
 
             }

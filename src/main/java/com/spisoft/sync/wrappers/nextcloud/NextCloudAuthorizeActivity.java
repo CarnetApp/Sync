@@ -1,13 +1,8 @@
 package com.spisoft.sync.wrappers.nextcloud;
 
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.AdapterView;
-import android.widget.EditText;
-import android.widget.Spinner;
 
-import com.spisoft.sync.Log;
 import com.spisoft.sync.R;
 
 public class NextCloudAuthorizeActivity extends AppCompatActivity {

@@ -166,4 +166,9 @@ public class FileUtils {
         //return complete hash
         return sb.toString();
     }
+
+    public static boolean isAudioFile(String media) {
+        media = media.toLowerCase();
+        return media.endsWith(".opus") || media.endsWith(".ogg") || media.endsWith(".mp3") || media.endsWith(".flac") || media.endsWith(".wav");
+    }
 }

@@ -8,7 +8,6 @@ import org.apache.commons.httpclient.methods.GetMethod;
 
 import java.io.IOException;
 
-import static android.support.constraint.Constraints.TAG;
 
 class NextCloudOCQueryExecutor implements NextCloudQueryExecutor {
     private final NextCloudWrapper mNextCloudWrapper;
