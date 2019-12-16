@@ -12,4 +12,12 @@ public class Utils {
     public static boolean isDebugPackage(){
         return context.getPackageName().endsWith(".debug");
     }
+
+    public static String getCorrespondingNote(String path){
+        int index = path.lastIndexOf(".sqd");
+        if(index >=0){
+            return path.substring(0, index);
+        }
+        return null;
+    }
 }

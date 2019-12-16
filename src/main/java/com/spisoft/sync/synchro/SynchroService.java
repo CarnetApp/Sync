@@ -159,7 +159,7 @@ public class SynchroService extends Service{
                 // Create intent that will bring our app to the front, as if it was tapped in the app
                 // launcher
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O&&mChannelId.isEmpty()) {
-                    mChannelId = createNotificationChannel("sync", "Sync Service");
+                    mChannelId = createNotificationChannel("sync2", "Sync Service");
                 }
                 NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(SynchroService.this, mChannelId);
                 Notification notification = notificationBuilder.setOngoing(true)
@@ -175,7 +175,7 @@ public class SynchroService extends Service{
     @RequiresApi(api = Build.VERSION_CODES.O)
     private String createNotificationChannel(String channelId, String channelName){
         NotificationChannel chan = new NotificationChannel(channelId,
-                channelName, NotificationManager.IMPORTANCE_NONE);
+                channelName, NotificationManager.IMPORTANCE_LOW);
         chan.setLightColor(Color.BLUE);
         chan.setLockscreenVisibility(Notification.VISIBILITY_PRIVATE);
         NotificationManager service = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
