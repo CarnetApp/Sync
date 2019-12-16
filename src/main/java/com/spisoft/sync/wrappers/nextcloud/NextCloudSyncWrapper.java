@@ -17,6 +17,8 @@ import com.spisoft.sync.utils.FileLocker;
 import com.spisoft.sync.utils.FileUtils;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -266,27 +268,39 @@ public class NextCloudSyncWrapper extends SyncWrapper {
             }
         }
         else {
+            File tmp = null;
             synchronized (FileLocker.getLockOnPath(file.getAbsolutePath())) {
                 Log.d(TAG, "upload file ");
                 SynchroService.sService.showForegroundNotification(mContext.getString(R.string.uploading) + " " + Uri.parse(remotePath).getLastPathSegment());
-                boolean isSuccess = mWrapper.getFileOperation().upload(file.getAbsolutePath(), remotePath);
-                SynchroService.sService.resetNotification();
-                if (isSuccess) {
-                    //record it
-                    Log.d(TAG, "upload success ");
-                    RemoteFile remoteFile = mWrapper.getFileOperation().getFileInfo(remotePath);
-                    if (remoteFile != null) {
-                        Log.d(TAG, "read success ");
-                        nextCloudFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
-                        nextCloudFile.md5 = md5;
-                        nextCloudFile.lastMod = file.lastModified();
-                        nextCloudFile.remoteMimeType = remoteFile.getMimeType();
-                        NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFile);
-                        return STATUS_SUCCESS;
-                    }
-
+                tmp = new File(mContext.getExternalCacheDir(), ".tmp.upload.note");
+                tmp.delete();
+                try {
+                    FileUtils.copy(new FileInputStream(file), new FileOutputStream(new File(mContext.getExternalCacheDir(), ".tmp.upload.note")));
+                } catch (Exception e){
+                    tmp = null;
                 }
             }
+            if(tmp == null)
+                return STATUS_FAILURE;
+            boolean isSuccess = mWrapper.getFileOperation().upload(tmp.getAbsolutePath(), remotePath);
+            tmp.delete();
+            SynchroService.sService.resetNotification();
+            if (isSuccess) {
+                //record it
+                Log.d(TAG, "upload success ");
+                RemoteFile remoteFile = mWrapper.getFileOperation().getFileInfo(remotePath);
+                if (remoteFile != null) {
+                    Log.d(TAG, "read success ");
+                    nextCloudFile.currentlyDownloadedOnlineEtag = remoteFile.getEtag();
+                    nextCloudFile.md5 = md5;
+                    nextCloudFile.lastMod = file.lastModified();
+                    nextCloudFile.remoteMimeType = remoteFile.getMimeType();
+                    NextCloudFileHelper.getInstance(mContext).addOrUpdateDBDriveFile(nextCloudFile);
+                    return STATUS_SUCCESS;
+                }
+
+            }
+
         }
         return STATUS_FAILURE;
 
