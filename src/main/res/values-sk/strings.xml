@@ -25,4 +25,8 @@
     <string name="nextcloud_app_version_needed">Pre správne fungovanie sa vyžaduje novšia verzia apky Nextcloudu. Pokračovať k aktualizácii\?</string>
     <string name="nextcloud_app_needed">Pre použitie tejto možnosti je potrebná apka Nextcloudu. Pokračovať k inštalácii\?</string>
     <string name="empty_folder">Tento priečinok je prázdny</string>
+<string name="waiting_next_sync">Čaká sa na ďalšiu synchronizáciu</string>
+    <string name="syncing">Synchronizuje sa...</string>
+    <string name="downloading">Sťahuje sa</string>
+    <string name="uploading">Nahráva sa</string>
 </resources>
