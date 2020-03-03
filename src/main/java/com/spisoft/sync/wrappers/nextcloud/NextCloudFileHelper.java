@@ -175,7 +175,6 @@ public class NextCloudFileHelper {
                     dbDriveFile.onlineEtag = cursor.getString(cursor.getColumnIndex(KEY_REMOTE_ETAG));
                     dbDriveFile.visitStatus = cursor.getInt(cursor.getColumnIndex(KEY_VISIT_STATUS));
                     dbDriveFiles.add(dbDriveFile);
-                    Log.d("NextCloudWrapper", "adding "+dbDriveFile.relativePath);
                 }while (cursor.moveToNext());
 
             }

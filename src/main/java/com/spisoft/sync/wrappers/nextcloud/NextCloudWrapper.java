@@ -51,7 +51,6 @@ public class NextCloudWrapper extends Wrapper implements OnRemoteOperationListen
 
     public NextCloudWrapper(Context context, Integer accountID){
         super(context, accountID);
-        Log.d("accounddebug","open "+accountID);
         mHandlerThread = new HandlerThread("MyHandlerThread");
         mHandlerThread.start();
         mAsyncHandler = new Handler(mHandlerThread.getLooper());
