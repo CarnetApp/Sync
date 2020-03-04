@@ -229,10 +229,8 @@ public class SynchroService extends Service{
                         return new Result(status, modifiedFiles);
                     }
                     Log.d(TAG, "success");
-                    if (!new File(syncedFolder).exists()) {
-                        Log.d(TAG, "creating root " + new File(syncedFolder).mkdirs());
-
-                    }
+                    if (!new File(syncedFolder).exists())
+                        continue;
                     Result res = recursiveSync(new File(syncedFolder), syncWrapper, true);
                     modifiedFiles.addAll(res.modifiedFiles);
                     if (res.status == SUCCESS) {
