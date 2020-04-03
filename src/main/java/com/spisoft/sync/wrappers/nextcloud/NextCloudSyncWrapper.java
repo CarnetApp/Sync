@@ -171,7 +171,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     }
                     // try to avoid conflict
                     Log.d(TAG, "conflict (dl: "+dbNextCloudFile.currentlyDownloadedOnlineEtag+", online: "+remoteFile.getEtag()+")");
-                    File newFile = new File(FileUtils.stripExtensionFromName(file.getAbsolutePath())+System.currentTimeMillis()+"."+FileUtils.getExtension(file.getAbsolutePath()));
+                    File newFile = new File(FileUtils.stripExtensionFromName(file.getAbsolutePath())+" a "+System.currentTimeMillis()+"."+FileUtils.getExtension(file.getAbsolutePath()));
                     file.renameTo(newFile);
                     int success = downloadFileAndRecord(remoteFile, file.getAbsolutePath(), dbNextCloudFile);
                     if(success != STATUS_SUCCESS)
@@ -182,6 +182,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     if(downloadedMD5.equals(md5)){
                         return new SynchroService.Result(newFile.delete()?STATUS_SUCCESS:STATUS_FAILURE, file.getAbsolutePath());
                     }else{
+                        SynchroService.sService.sendWarningNotification("Conflict on "+file.getName());
                         NextCloudFileHelper.DBNextCloudFile newDbNextCloudFile = new NextCloudFileHelper.DBNextCloudFile(getRemotePathFromLocal(newFile.getAbsolutePath()));
                         newDbNextCloudFile.accountID = mAccountID;
                         if(uploadFileAndRecord(newFile, newDbNextCloudFile.relativePath,md5, newDbNextCloudFile)==STATUS_SUCCESS){

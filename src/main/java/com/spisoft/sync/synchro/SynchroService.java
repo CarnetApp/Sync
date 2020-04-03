@@ -38,6 +38,7 @@ import java.util.EmptyStackException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
 
@@ -62,6 +63,7 @@ public class SynchroService extends Service{
     public static SynchroService sService;
     public static boolean isSyncing = false;
     private String mChannelId = "";
+    private String mWarningChannelId = "";
 
     public static void startOnBootIfNeeded(@NotNull Context context) {
         int next = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("sync_frequency", "60"));
@@ -171,6 +173,22 @@ public class SynchroService extends Service{
                 startForeground(NOTIFICATION_ID, notification);
             }
         });
+    }
+
+    public void sendWarningNotification(final String text){
+        // launcher
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O&&mWarningChannelId.isEmpty()) {
+            mWarningChannelId = createNotificationChannel("warning_sync", getString(R.string.warning_notification));
+        }
+        NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(SynchroService.this, mWarningChannelId);
+        Notification notification = notificationBuilder.setOngoing(true)
+                .setSmallIcon(Configuration.icon)
+                .setContentText(text)
+                .setPriority(NotificationCompat.PRIORITY_MIN)
+                .setCategory(Notification.CATEGORY_SERVICE)
+                .build();
+        NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.notify(new Random().nextInt(1000)+11000, notification);
     }
     @RequiresApi(api = Build.VERSION_CODES.O)
     private String createNotificationChannel(String channelId, String channelName){
