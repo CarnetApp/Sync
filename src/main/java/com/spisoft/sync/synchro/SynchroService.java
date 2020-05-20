@@ -181,11 +181,11 @@ public class SynchroService extends Service{
             mWarningChannelId = createNotificationChannel("warning_sync", getString(R.string.warning_notification));
         }
         NotificationCompat.Builder notificationBuilder = new NotificationCompat.Builder(SynchroService.this, mWarningChannelId);
-        Notification notification = notificationBuilder.setOngoing(true)
+        Notification notification = notificationBuilder.setOngoing(false)
                 .setSmallIcon(Configuration.icon)
                 .setContentText(text)
                 .setPriority(NotificationCompat.PRIORITY_MIN)
-                .setCategory(Notification.CATEGORY_SERVICE)
+                .setCategory(Notification.CATEGORY_ERROR)
                 .build();
         NotificationManager notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.notify(new Random().nextInt(1000)+11000, notification);
