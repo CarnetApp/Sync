@@ -40,4 +40,10 @@ public class AccountListActivity extends AppCompatActivity{
                 .replace(R.id.fragment,fragment)
                 .addToBackStack(null).commit();
     }
+
+    public void onBackPressed(){
+        super.onBackPressed();
+        if(getSupportFragmentManager().getFragments().size() == 0)
+            finish();
+    }
 }
