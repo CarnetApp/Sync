@@ -155,6 +155,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
         else if (dbNextCloudFile.lastMod == -1 && dbNextCloudFile.md5 != null && ! dbNextCloudFile.md5.isEmpty()){
             //last round wasn't using last modification date, but md5. So we will need the md5 sum for the process
             md5 = FileUtils.md5(file.getAbsolutePath());
+            Log.d(TAG, "Need md5 "+md5);
         }
         if(remoteFile!=null) { //file exists !
             metadataDownloadList.remove(remotePath);//won't need to download
@@ -162,6 +163,10 @@ public class NextCloudSyncWrapper extends SyncWrapper {
 
             // md5 != null => we need to use md5
             if(md5 != null && !md5.equals(dbNextCloudFile.md5) || md5 == null && dbNextCloudFile.lastMod != file.lastModified()) { //file was modified locally
+                Log.d(TAG, "dbNextCloudFile.lastMod != file.lastModified() "+(dbNextCloudFile.lastMod != file.lastModified()));
+                Log.d(TAG, "dbNextCloudFile.lastMod "+dbNextCloudFile.lastMod);
+                Log.d(TAG, "file.lastModified() "+file.lastModified());
+
                 if(!remoteFile.getEtag().equals(dbNextCloudFile.currentlyDownloadedOnlineEtag)) {//modified externally
                     try {
                         if (md5 == null)
@@ -177,11 +182,13 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     if(success != STATUS_SUCCESS)
                         return new SynchroService.Result(success);
                     String downloadedMD5 = FileUtils.md5(file.getAbsolutePath());
-                    Log.d(TAG,"dl "+dbNextCloudFile.md5+" calc "+downloadedMD5);
+                    Log.d(TAG,"md5 "+md5+" old md5 "+dbNextCloudFile.md5+" newly dl "+downloadedMD5);
 
                     if(downloadedMD5.equals(md5)){
                         return new SynchroService.Result(newFile.delete()?STATUS_SUCCESS:STATUS_FAILURE, file.getAbsolutePath());
                     }else{
+                        Log.d(TAG,"conflict... uploading new file");
+
                         SynchroService.sService.sendWarningNotification("Conflict on "+file.getName());
                         NextCloudFileHelper.DBNextCloudFile newDbNextCloudFile = new NextCloudFileHelper.DBNextCloudFile(getRemotePathFromLocal(newFile.getAbsolutePath()));
                         newDbNextCloudFile.accountID = mAccountID;
