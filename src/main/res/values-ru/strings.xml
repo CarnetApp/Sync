@@ -25,4 +25,8 @@
     <string name="nextcloud_app_version_needed">Для корректной работы требуется более новая версия приложения NextCloud. Приступить к обновлению\?</string>
     <string name="nextcloud_app_needed">Для использования этой функции требуется приложение NextCloud. Приступить к установке\?</string>
     <string name="empty_folder">Эта папка пуста</string>
+<string name="waiting_next_sync">Ожидание синхронизации</string>
+    <string name="syncing">Синхронизация...</string>
+    <string name="downloading">Получение</string>
+    <string name="uploading">Передача</string>
 </resources>
