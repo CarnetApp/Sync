@@ -29,4 +29,5 @@
     <string name="syncing">Synchronisiere ...</string>
     <string name="downloading">Lade herunter</string>
     <string name="uploading">Lade hoch</string>
+<string name="warning_notification">Warnhinweis</string>
 </resources>
