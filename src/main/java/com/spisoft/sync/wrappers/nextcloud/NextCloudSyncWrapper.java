@@ -185,10 +185,18 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                     Log.d(TAG,"md5 "+md5+" old md5 "+dbNextCloudFile.md5+" newly dl "+downloadedMD5);
 
                     if(downloadedMD5.equals(md5)){
+                        Log.d(TAG,"conflict fixed");
                         return new SynchroService.Result(newFile.delete()?STATUS_SUCCESS:STATUS_FAILURE, file.getAbsolutePath());
-                    }else{
-                        Log.d(TAG,"conflict... uploading new file");
+                    } else if(downloadedMD5.equals(dbNextCloudFile.md5)){
+                        //uploading new file
+                        Log.d(TAG,"conflict fixed, sending local file");
 
+                        if(newFile.renameTo(file)) {
+                            return new SynchroService.Result(uploadFileAndRecord(file, dbNextCloudFile.relativePath, md5, dbNextCloudFile));
+                        }
+
+                    } else {
+                        Log.d(TAG,"conflict... uploading new file");
                         SynchroService.sService.sendWarningNotification("Conflict on "+file.getName());
                         NextCloudFileHelper.DBNextCloudFile newDbNextCloudFile = new NextCloudFileHelper.DBNextCloudFile(getRemotePathFromLocal(newFile.getAbsolutePath()));
                         newDbNextCloudFile.accountID = mAccountID;
