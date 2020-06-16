@@ -191,7 +191,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                         //uploading new file
                         Log.d(TAG,"conflict fixed, sending local file");
 
-                        if(newFile.renameTo(file)) {
+                        if(file.delete() && newFile.renameTo(file)) {
                             return new SynchroService.Result(uploadFileAndRecord(file, dbNextCloudFile.relativePath, md5, dbNextCloudFile));
                         }
 
@@ -291,7 +291,7 @@ public class NextCloudSyncWrapper extends SyncWrapper {
                 tmp = new File(mContext.getExternalCacheDir(), ".tmp.upload.note");
                 tmp.delete();
                 try {
-                    FileUtils.copy(new FileInputStream(file), new FileOutputStream(new File(mContext.getExternalCacheDir(), ".tmp.upload.note")));
+                    FileUtils.copy(new FileInputStream(file), new FileOutputStream(tmp));
                 } catch (Exception e){
                     tmp = null;
                 }
