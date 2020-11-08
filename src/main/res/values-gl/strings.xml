@@ -1,6 +1,6 @@
-<?xml version='1.0' encoding='UTF-8'?>
-<resources><string name="action_settings">Axustes</string>
-
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="action_settings">Axustes</string>
     <string name="name_for_account">Nome da conta</string>
     <string name="create">Crear</string>
     <string name="server_address">Enderezo do servidor</string>
@@ -25,4 +25,9 @@
     <string name="nextcloud_app_version_needed">Precísase unha versión máis recente da app NextCloud para funcionar correctamente. Actualizar\?</string>
     <string name="nextcloud_app_needed">Precísase a app NextCloud para esta opción. Instalar\?</string>
     <string name="empty_folder">Este cartafol está baldeiro</string>
+    <string name="warning_notification">Notificación de aviso</string>
+    <string name="uploading">Subindo</string>
+    <string name="downloading">Descargando</string>
+    <string name="syncing">Sincronizando...</string>
+    <string name="waiting_next_sync">Agardando á seguinte sincr</string>
 </resources>
