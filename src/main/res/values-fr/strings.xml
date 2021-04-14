@@ -1,4 +1,4 @@
-<?xml version='1.0' encoding='UTF-8'?>
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="custom">Custom</string>
     <string name="action_settings">Paramètres</string>
@@ -25,9 +25,10 @@
     <string name="connect_with_credentials_subtext">Ne fonctionne pas avec certains serveurs</string>
     <string name="nextcloud_app_version_needed">Une version plus récente de l\'application Nextcloud est requise pour un bon fonctionnement. La mettre à jour ?</string>
     <string name="nextcloud_app_needed">L\'application NextCloud est nécessaire pour utiliser cette option. Procéder à son installation ?</string>
-<string name="empty_folder">Ce dossier est vide</string>
-<string name="waiting_next_sync">Attente de la prochaine synchronisation</string>
+    <string name="empty_folder">Ce dossier est vide</string>
+    <string name="waiting_next_sync">Attente de la prochaine synchronisation</string>
     <string name="syncing">Synchronisation en cours...</string>
     <string name="downloading">Téléchargement en cours</string>
     <string name="uploading">Téléversement en cours</string>
+    <string name="warning_notification">Notification d’avertissement</string>
 </resources>
