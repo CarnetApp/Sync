@@ -33,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        startService(new Intent(this, SynchroService.class));
+        SynchroService.startIfNeeded(this);
         setContentView(R.layout.activity_sync_browser);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);

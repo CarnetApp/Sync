@@ -65,7 +65,7 @@ public class SynchroService extends Service{
     private String mChannelId = "";
     private String mWarningChannelId = "";
 
-    public static void startOnBootIfNeeded(@NotNull Context context) {
+    public static void startIfNeeded(@NotNull Context context) {
         int next = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("sync_frequency", "60"));
         if(next == -1)
             return;
@@ -203,6 +203,39 @@ public class SynchroService extends Service{
 
     public void resetNotification(){
         showForegroundNotification(this.getString(R.string.syncing));
+    }
+
+    public static void onSyncFrequencyChange(Context context){
+        if(isSyncing)
+            return;
+        if(sService != null)
+            sService.stopSelf();
+        SynchroService.startIfNeeded(context);
+    }
+
+    public void cancelNextLaunch(){
+        Intent intent = new Intent(SynchroService.this, SynchroService.class);
+        PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+        alarmMgr.cancel(alarmIntent);
+    }
+
+
+
+    public void planNextLaunch(){
+        AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(SynchroService.this, SynchroService.class);
+        int next = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(SynchroService.this).getString("sync_frequency", "60"));
+        if(next == -1) {
+            SynchroService.this.stopSelf();
+            return;
+        }
+        PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M)
+            alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + next*60*1000, alarmIntent);
+        showForegroundNotification(SynchroService.this.getString(R.string.waiting_next_sync));
+        if(next>=15)
+            SynchroService.this.stopSelf();
     }
 
     private class MyFileObserver extends RecursiveFileObserver {
@@ -349,26 +382,6 @@ public class SynchroService extends Service{
 
         }
 
-        public void cancelNextLaunch(){
-            Intent intent = new Intent(SynchroService.this, SynchroService.class);
-            PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-            alarmMgr.cancel(alarmIntent);
-        }
-
-        public void planNextLaunch(){
-            AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
-            Intent intent = new Intent(SynchroService.this, SynchroService.class);
-            int next = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(SynchroService.this).getString("sync_frequency", "60"));
-            if(next == -1)
-                return;
-            PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-            if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M)
-                alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + next*60*1000, alarmIntent);
-            showForegroundNotification(SynchroService.this.getString(R.string.waiting_next_sync));
-            if(next>=15)
-                SynchroService.this.stopSelf();
-        }
 
         public String getDurationBreakdown(long millis) {
             if(millis < 0) {
