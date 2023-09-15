@@ -215,7 +215,7 @@ public class SynchroService extends Service{
 
     public void cancelNextLaunch(){
         Intent intent = new Intent(SynchroService.this, SynchroService.class);
-        PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         AlarmManager alarmMgr = (AlarmManager) getSystemService(ALARM_SERVICE);
         alarmMgr.cancel(alarmIntent);
     }
@@ -230,7 +230,7 @@ public class SynchroService extends Service{
             SynchroService.this.stopSelf();
             return;
         }
-        PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent alarmIntent = PendingIntent.getService(SynchroService.this, ALARM_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT|PendingIntent.FLAG_IMMUTABLE);
         if(Build.VERSION.SDK_INT>Build.VERSION_CODES.M)
             alarmMgr.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + next*60*1000, alarmIntent);
         showForegroundNotification(SynchroService.this.getString(R.string.waiting_next_sync));
