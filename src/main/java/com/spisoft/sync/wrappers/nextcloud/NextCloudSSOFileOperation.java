@@ -1,6 +1,7 @@
 package com.spisoft.sync.wrappers.nextcloud;
 
 import com.nextcloud.android.sso.aidl.NextcloudRequest;
+import com.nextcloud.android.sso.aidl.ParcelFileDescriptorUtil;
 import com.owncloud.android.lib.common.network.WebdavUtils;
 import com.owncloud.android.lib.resources.files.RemoteFile;
 import com.spisoft.sync.Log;
@@ -43,7 +44,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
                 .build();
         File tmp = new File(parent, ".donotsync.tmp"+System.currentTimeMillis());
         try {
-            InputStream inputStream = mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
+            InputStream inputStream = mNextCloudWrapper.getNextcloudApi().performNetworkRequestV2(nextcloudRequest).getBody();
             FileUtils.copy(inputStream, new FileOutputStream(tmp));
             if(tmp.exists()){
                 if(tmp.length() > 0 || size != -1 && size == tmp.length()) {
@@ -67,16 +68,22 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
     @Override
     public boolean upload(String fromFile, String remotePath) {
         remotePath = NextCloudSSOSyncLister.encodePath(remotePath);
-        NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
-                .setMethod("PUT")
-                .setUrl("/remote.php/webdav/"+remotePath)
-                .build();
+
         try {
-            mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest, new FileInputStream(fromFile));
+            FileInputStream input = new FileInputStream(fromFile);
+            NextcloudRequest nextcloudRequest = new NextcloudRequest.Builder()
+                    .setMethod("PUT")
+                    .setUrl("/remote.php/webdav/"+remotePath)
+                    .setRequestBodyAsStream(new FileInputStream(fromFile))
+                    .build();
+            mNextCloudWrapper.getNextcloudApi().performNetworkRequestV2(nextcloudRequest);
+            input.close();
             return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
+        Log.d("uploadbug","outing false");
+
         return false;
     }
 
@@ -88,8 +95,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
                 .setUrl("/remote.php/webdav/"+remotePath)
                 .build();
         try {
-            InputStream stream = mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
-            String res = FileUtils.readInputStream(stream);
+            InputStream stream = mNextCloudWrapper.getNextcloudApi().performNetworkRequestV2(nextcloudRequest).getBody();
             return true;
         } catch (Exception e) {
           //  e.printStackTrace();
@@ -97,7 +103,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
                 File f = new File(remotePath);
                 mkdir(f.getParent());
                 try {
-                    InputStream stream = mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
+                    InputStream stream = mNextCloudWrapper.getNextcloudApi().performNetworkRequestV2(nextcloudRequest).getBody();
                     return true;
                 } catch (Exception e1) {
                     e1.printStackTrace();
@@ -116,7 +122,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
                 .setUrl("/remote.php/webdav/"+remotePath)
                 .build();
         try {
-            mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest);
+            mNextCloudWrapper.getNextcloudApi().performNetworkRequestV2(nextcloudRequest);
             return true;
         } catch (Exception e) {
             e.printStackTrace();
@@ -137,7 +143,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
                 .setUrl("/remote.php/webdav/"+remotePath)
                 .build();
         try {
-            List<RemoteFile> files = NextCloudSSOSyncLister.parseInputStream(mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest));
+            List<RemoteFile> files = NextCloudSSOSyncLister.parseInputStream(mNextCloudWrapper.getNextcloudApi().performNetworkRequestV2(nextcloudRequest).getBody());
             if(files.size()>0)
                 return files.get(0);
         } catch (Exception e) {
@@ -172,7 +178,7 @@ public class NextCloudSSOFileOperation implements NextCloudFileOperation {
            DocumentBuilderFactory factory =
            DocumentBuilderFactory.newInstance();
            DocumentBuilder builder = factory.newDocumentBuilder();
-           org.w3c.dom.Document doc = builder.parse(mNextCloudWrapper.getNextcloudApi().performNetworkRequest(nextcloudRequest));
+           org.w3c.dom.Document doc = builder.parse(mNextCloudWrapper.getNextcloudApi().performNetworkRequestV2(nextcloudRequest).getBody());
            NodeList items = doc.getElementsByTagName("d:response");
            for(int i = 0; i < items.getLength(); i++) {
                RemoteFile remoteFile = new RemoteFile();

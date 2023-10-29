@@ -92,7 +92,7 @@ public class NextCloudSSOSyncLister implements NextCloudSyncLister{
                 .setMethod("PROPFIND")
                 .setUrl("/remote.php/webdav/"+path)
                 .build();
-        InputStream inputStream = nextcloudAPI.performNetworkRequest(nextcloudRequest);
+        InputStream inputStream = nextcloudAPI.performNetworkRequestV2(nextcloudRequest).getBody();
         return parseInputStream(inputStream);
     }
 }

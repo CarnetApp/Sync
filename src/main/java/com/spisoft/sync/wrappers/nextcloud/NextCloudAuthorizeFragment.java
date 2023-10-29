@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -21,11 +22,14 @@ import android.widget.Spinner;
 import com.google.gson.GsonBuilder;
 import com.nextcloud.android.sso.AccountImporter;
 import com.nextcloud.android.sso.api.NextcloudAPI;
+import com.nextcloud.android.sso.exceptions.AccountImportCancelledException;
+import com.nextcloud.android.sso.exceptions.AndroidGetAccountsPermissionNotGranted;
 import com.nextcloud.android.sso.exceptions.NextcloudFilesAppAccountNotFoundException;
 import com.nextcloud.android.sso.exceptions.NextcloudFilesAppNotInstalledException;
 import com.nextcloud.android.sso.exceptions.NoCurrentAccountSelectedException;
 import com.nextcloud.android.sso.helper.SingleAccountHelper;
 import com.nextcloud.android.sso.helper.VersionCheckHelper;
+import com.nextcloud.android.sso.model.FilesAppType;
 import com.nextcloud.android.sso.model.SingleSignOnAccount;
 import com.nextcloud.android.sso.ui.UiExceptionManager;
 import com.owncloud.android.lib.common.OwnCloudClient;
@@ -70,6 +74,8 @@ public class    NextCloudAuthorizeFragment extends Fragment implements View.OnCl
             AccountImporter.pickNewAccount(this);
         } catch (NextcloudFilesAppNotInstalledException e) {
             UiExceptionManager.showDialogForException(getActivity(), e);
+        } catch (AndroidGetAccountsPermissionNotGranted e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -77,26 +83,30 @@ public class    NextCloudAuthorizeFragment extends Fragment implements View.OnCl
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        AccountImporter.onActivityResult(requestCode, resultCode, data, this, new AccountImporter.IAccountAccessGranted() {
-            @Override
-            public void accountAccessGranted(SingleSignOnAccount account) {
-                // As this library supports multiple accounts we created some helper methods if you only want to use one.
-                // The following line stores the selected account as the "default" account which can be queried by using
-                // the SingleAccountHelper.getCurrentSingleSignOnAccount(context) method
-                SingleAccountHelper.setCurrentAccount(getActivity(), account.name);
+        try {
+            AccountImporter.onActivityResult(requestCode, resultCode, data, this, new AccountImporter.IAccountAccessGranted() {
+                @Override
+                public void accountAccessGranted(SingleSignOnAccount account) {
+                    // As this library supports multiple accounts we created some helper methods if you only want to use one.
+                    // The following line stores the selected account as the "default" account which can be queried by using
+                    // the SingleAccountHelper.getCurrentSingleSignOnAccount(context) method
+                    SingleAccountHelper.setCurrentAccount(getActivity(), account.name);
 
-                // Get the "default" account
-                SingleSignOnAccount ssoAccount = null;
-                try {
-                    ssoAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(getActivity());
-                    NextcloudAPI nextcloudAPI = new NextcloudAPI(getActivity(), ssoAccount, new GsonBuilder().create(), callback);
-                } catch (NextcloudFilesAppAccountNotFoundException e) {
-                    e.printStackTrace();
-                } catch (NoCurrentAccountSelectedException e) {
-                    e.printStackTrace();
+                    // Get the "default" account
+                    SingleSignOnAccount ssoAccount = null;
+                    try {
+                        ssoAccount = SingleAccountHelper.getCurrentSingleSignOnAccount(getActivity());
+                        NextcloudAPI nextcloudAPI = new NextcloudAPI(getActivity(), ssoAccount, new GsonBuilder().create(), callback);
+                    } catch (NextcloudFilesAppAccountNotFoundException e) {
+                        e.printStackTrace();
+                    } catch (NoCurrentAccountSelectedException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
+            });
+        } catch (AccountImportCancelledException e) {
+            throw new RuntimeException(e);
+        }
 
     }
 
@@ -197,7 +207,10 @@ public class    NextCloudAuthorizeFragment extends Fragment implements View.OnCl
         } else if(view == mConnectWithNCAppButton){
             int eMessage = -1;
             try {
-                if(VersionCheckHelper.getNextcloudFilesVersionCode(getActivity())< NEXTCLOUD_APP_REQUIRED_VERSION){
+
+                final PackageInfo packageInfo = getContext().getPackageManager().getPackageInfo("com.nextcloud.client", 0);
+                final int verCode = packageInfo.versionCode;
+                if(verCode < NEXTCLOUD_APP_REQUIRED_VERSION){
                     eMessage = R.string.nextcloud_app_version_needed;
                 }
             } catch (PackageManager.NameNotFoundException e) {

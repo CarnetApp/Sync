@@ -21,7 +21,7 @@ class NextCloudSSOQueryExecutor implements NextCloudQueryExecutor {
                 .setMethod(method)
                 .setUrl(url)
                 .build();
-        InputStream stream = nextcloudAPI.performNetworkRequest(nextcloudRequest);
+        InputStream stream = nextcloudAPI.performNetworkRequestV2(nextcloudRequest).getBody();
         if(stream != null)
             response.success = true;
         response.stream = stream;
