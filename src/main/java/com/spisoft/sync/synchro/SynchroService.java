@@ -8,6 +8,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.ServiceInfo;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.FileObserver;
@@ -170,7 +171,7 @@ public class SynchroService extends Service{
                         .setPriority(NotificationCompat.PRIORITY_MIN)
                         .setCategory(Notification.CATEGORY_SERVICE)
                         .build();
-                startForeground(NOTIFICATION_ID, notification);
+                startForeground(NOTIFICATION_ID, notification, ServiceInfo.FOREGROUND_SERVICE_TYPE_DATA_SYNC);
             }
         });
     }
